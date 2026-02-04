@@ -1,0 +1,21 @@
+# Station User Stories
+
+- [x] As a station manager, I want to view my dashboard with key stats like total spins, weekly spins, and unique artists.
+- [x] As a station manager, I want to see my station's ranking and score on the NGN charts.
+- [x] As a station manager, I want to be able to log a spin manually by searching for an artist and song.
+- [x] As a station manager, I want to be able to bulk upload spins via a CSV file.
+- [x] As a station manager, I want to manage my station's profile, including name, bio, contact info, and social links.
+- [x] As a station manager, I want to connect my social media accounts (Facebook, Instagram) to my station profile.
+- [x] As a station manager, I want to connect my TikTok accounts.
+- [x] As a station manager, I want to connect my YouTube accounts.
+- [x] As a station manager, I want to view a queue of live listener requests.
+- [x] As a station manager, I want to approve or reject listener requests.
+- [x] As a station manager, I want the live request queue to update in real-time.
+- [x] As a station manager, I want to create, view, update, and delete posts/news for my station.
+- [x] As a station manager, I want to create, view, update, and delete shows/events for my station.
+- [x] As a station manager, I want to create and manage playlists.
+- [x] As a station manager, I want to add and remove tracks from my playlists.
+- [x] As a station manager, I want to reorder tracks in my playlists using drag-and-drop.
+- [x] As a station manager, I want to see my current subscription tier and its limits.
+- [x] As a station manager, I want to be able to upgrade my subscription tier through a payment provider (Stripe).
+- [ ] As a station, I want to be able to have my SMR data automatically ingested if I am a "Power Station".

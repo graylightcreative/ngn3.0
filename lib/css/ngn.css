@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=New+Amsterdam&family=SUSE:wght@100..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ultra&display=swap');
+
+body {
+    /*background-image:url('https://nextgennoise.com/lib/images/site/mainbg.jpg');*/
+    background-position: top left;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    font-family: "SUSE", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+    font-size: 120%;
+}
+.tiny {font-size:.75rem!important;}
+h1,h2,h3,h4,h5,h6,
+.h1,.h2,.h3,.h4,.h5,.h6 {
+    font-family: "Ultra", serif;
+    font-weight: 400;
+    font-style: normal;
+
+}
+
+input:focus {
+    outline: none !important;
+    box-shadow: 0 0 5px Green !important;
+}
+
+.btn {
+    border-radius: 50px !important;
+}
+
+.popup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    z-index:8888;
+    display: none;
+    background-color: rgba(var(--bs-body-bg-rgb),.95);
+    height: auto;
+    max-height:80vh;
+    overflow-x:hidden;
+    overflow-y:auto;
+    padding:30px;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 5px;
+
+}
+@media(max-width:768px){
+    .popup {
+        width: 100% !important;
+        height: 90vh;
+    }
+}
+.close-popup {
+    position: absolute;
+    top: 10px;
+    right:10px;
+    z-index:9999;
+}
+
+#searchResultsCanvas .search-item {
+
+
+
+}
+#searchResultsCanvas .search-item a {
+    text-decoration: none;
+    color: var(--bs-body-color);
+    display: inline-block;
+    width: 100%;
+    padding: 5px;
+    transition:all .3s ease-in-out;
+    border: 1px solid rgba(0,0,0,.1);
+}
+#searchResultsCanvas .search-item a:hover {
+    background-color: rgba(0,0,0,.2);
+    color: Black;
+}
+
+
+/*.card {*/
+/*    border: 1px solid rgba(0, 0, 0, 0.2);*/
+/*    border-radius: 10px;*/
+/*    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);*/
+/*    background-color: #fff;*/
+/*    padding: 15px;*/
+/*    transition: all 0.3s ease-in-out;*/
+/*}*/
+
+/*.card:hover {*/
+/*    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);*/
+/*    transform: translateY(-5px);*/
+/*}*/
+
+/*.card-header,*/
+/*.card-heading,*/
+/*.card-title {*/
+/*    font-family: "Ultra", serif;*/
+/*    font-size: 1.5rem;*/
+/*    font-weight: 400;*/
+/*    margin-bottom: 10px;*/
+/*    color: #333;*/
+/*    background-color: Transparent;*/
+/*    border-bottom: 1px solid rgba(0, 0, 0, 0.1);*/
+/*    padding: 10px;*/
+/*}*/
+
+/*.card-body {*/
+/*    font-family: "SUSE", sans-serif;*/
+/*    font-size: 1rem;*/
+/*    color: #555;*/
+/*    line-height: 1.6;*/
+/*}*/
+
+/*.card-footer {*/
+/*    font-size: 0.875rem;*/
+/*    color: #777;*/
+/*    background-color: #f9f9f9;*/
+/*    border-top: 1px solid rgba(0, 0, 0, 0.1);*/
+/*    padding: 10px;*/
+/*    text-align: right;*/
+/*}*/
+
+.card .card-options-button {
+    position: absolute;
+    top: 1px;
+    right: 4px;
+    z-index: 8888;
+}
+.card .card-options-button button {
+    padding: 1px 5px;
+}
+
+.card .card-options-button .dropdown-toggle::after {
+    display: none;
+}
+
+[data-bs-theme="dark"] .card .card-options-button button {
+    background-color:White;
+    color: Black;
+}
+
+[data-bs-theme="light"] .card .card-options-button button {
+    background-color: White;
+    color: Black;
+}
+
+#footerMenu {
+    position: fixed;
+    bottom:0;
+    left:0;
+    width: 100%;
+    z-index: 9999;
+    background-color: rgba(0,0,0,.8);
+}
+@media(min-width:900px){
+    #footerMenu {
+        width:50%;
+        left:50%;
+        transform: translateX(-50%);
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+
+.audio-canvas {
+    position: relative;
+}
+.audio-canvas .audio-canvas-image {
+
+}
+.audio-canvas .audio-canvas-controls {
+    border: 1px solid rgba(255,255,255,.5);
+    text-align: center;
+    background: rgba(0,0,0,.85);
+    padding: 10px;
+    border-radius: 100px;
+}
+
+.captioned-item { position: relative; }
+.captioned-item img {}
+.captioned-item .caption {
+    position: absolute;
+    left:50%;
+    top:100%;
+    transform: translate(-50%,-50%);
+    transition: all .3s ease-in-out;
+    opacity: 0;
+}
+.captioned-item:hover .caption {
+    top:50%;
+    opacity: 1;
+}
+
+.four-up-carousel {
+    width: 100%;
+    overflow:hidden;
+}

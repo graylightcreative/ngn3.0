@@ -1,0 +1,457 @@
+{
+  "project_name": "NextGen Noise V2 Platform",
+  "status": "Ready for Sprint Planning (Q4 2025 – Q1 2026 Focus)",
+  "metadata": {
+    "description": "Comprehensive user stories derived from the 2.0 Tech Plan, Financial Strategy, AI Monetization, and Legal Directives, covering all 17 stakeholder roles."
+  },
+  "user_stories": [
+    {
+      "id": "A.1",
+      "group": "Creators",
+      "role": "Artist",
+      "story": "I want a clean, modular dashboard to view my real-time spins, SMR data, and rankings, so that I can accurately track my performance.",
+      "epic_phase": "Phase 2 (Frontend)"
+    },
+    {
+      "id": "A.2",
+      "group": "Creators",
+      "role": "Label Manager",
+      "story": "I want a unified Roster Management view, so that I can track and report analytics across all my artists efficiently.",
+      "epic_phase": "Phase 2 (Frontend) / Tours"
+    },
+    {
+      "id": "A.3",
+      "group": "Creators",
+      "role": "Artist",
+      "story": "I want to see my NGN Score Influence Weighting status boost, so that I can know the non-monetary benefit of being a community investor.",
+      "epic_phase": "Community Funding"
+    },
+    {
+      "id": "A.15",
+      "group": "Creators",
+      "role": "Creator",
+      "story": "(New: Engagement Source Breakdown) I want my Post Analytics to display engagement (views, likes, shares) split between **Authenticated (Logged-in) Users** and **Anonymous/Session Traffic**, so that I can understand the quality and source of the data feeding my Engagement Quality Score (EQS).",
+      "epic_phase": "Phase 6 (Royalties)"
+    },
+    {
+      "id": "A.4",
+      "group": "Creators",
+      "role": "Creator (Artist/Label/Venue)",
+      "story": "I want to complete Stripe Connect onboarding, so that I can receive Engagement Royalty and Commerce payouts compliantly.",
+      "epic_phase": "Phase 6 (Royalties)"
+    },
+    {
+      "id": "A.5",
+      "group": "Creators",
+      "role": "Artist",
+      "story": "(Revised: EQS Transparency) I want to view my estimated and finalized Engagement Quality Score (EQS) earnings, including a transparent line-item breakdown showing the **Historical Fraud Rate (HFR)**, **Reputation Multiplier (0.8-1.2)**, and the **Net Engagement Value**, so that I can audit my payout calculation and understand how to improve my Trust Score.",
+      "epic_phase": "Phase 6 (Royalties)"
+    },
+    {
+      "id": "A.6",
+      "group": "Creators",
+      "role": "Label",
+      "story": "I want to generate and export royalty statements and contracts, so that I can accurately distribute funds to my artists.",
+      "epic_phase": "Phase 9 (Royalties)"
+    },
+    {
+      "id": "A.13",
+      "group": "Creators",
+      "role": "Artist/Label",
+      "story": "(New: Fan Subscriptions Setup) I want a configuration page to **select approved Fan Tier price points (Gold/Silver)** and manage the benefits offered, so that I can monetize my loyal fan base compliantly.",
+      "epic_phase": "Fan Engagement Epic"
+    },
+    {
+      "id": "A.14",
+      "group": "Creators",
+      "role": "Artist/Label",
+      "story": "(New: Content Gating UI) I want a clear **\"Gated Content\" toggle/dropdown** in the Post Composer UI, so that I can easily restrict posts or media to Fan Subscription tiers (Gold/Silver) before publishing.",
+      "epic_phase": "Fan Engagement Epic"
+    },
+    {
+      "id": "A.16",
+      "group": "Creators",
+      "role": "Label Manager",
+      "story": "(New: Contract Track Array) When uploading a contract (Phase 9), I must be required to provide a mandatory **NGN Track ID Array** associated with the document, so that the Royalty Engine can accurately match the contract's splits and recoupment terms to the corresponding royalty events (spins/engagements).",
+      "epic_phase": "Phase 9 (Royalties)"
+    },
+    {
+      "id": "A.7",
+      "group": "Creators",
+      "role": "Artist",
+      "story": "I want to use the AI Content Calendar, so that I can easily generate a 30-day posting schedule based on my NGN Score trends.",
+      "epic_phase": "AI Monetization"
+    },
+    {
+      "id": "A.8",
+      "group": "Creators",
+      "role": "Artist",
+      "story": "I want to use the Release Timing Optimizer (5 Sparks), so that I can identify the optimal day and time to drop new content based on data insights.",
+      "epic_phase": "AI Monetization"
+    },
+    {
+      "id": "A.9",
+      "group": "Creators",
+      "role": "Creator",
+      "story": "I want to generate ad copy variants (3 Sparks) for social media campaigns, so that I can run effective A/B tests on the NGN Ads Platform.",
+      "epic_phase": "AI Monetization / Phase 11"
+    },
+    {
+      "id": "A.10",
+      "group": "Creators",
+      "role": "Artist/Label/Venue",
+      "story": "(Revised: Merch Submission) I want a **Merch Submission Form** to upload my artwork and select from NGN's predefined, universally-priced product catalog, so that I can dropship merch without setting prices, maintaining NGN's margin and brand integrity.",
+      "epic_phase": "Phase 10.1 (Commerce MVP)"
+    },
+    {
+      "id": "A.11",
+      "group": "Creators",
+      "role": "Admin",
+      "story": "I want to implement inventory routing logic, so that NGN can prefer in-house stock over Printful to maximize margin (Phase 10.2).",
+      "epic_phase": "Phase 10.2 (Hybrid Inventory)"
+    },
+    {
+      "id": "A.12",
+      "group": "Creators",
+      "role": "Artist",
+      "story": "I want to access venue availability windows and basic routing profiles (likely for a fee or subscription), so that I can plan and submit holds for my own tours without a manager.",
+      "epic_phase": "Phase 14 (Tours)"
+    },
+    {
+      "id": "S.1",
+      "group": "Distribution & Live",
+      "role": "Station Owner",
+      "story": "I want a dedicated portal for real-time spin entry with track/artist autocomplete, so that I can log my airplay instantly and accurately.",
+      "epic_phase": "Phase 4"
+    },
+    {
+      "id": "S.2",
+      "group": "Distribution & Live",
+      "role": "Station Owner",
+      "story": "(Revised: Station Spin Data) I want to upload my **Spin Data (CSV/XLSX)** in bulk, and save a persistent column mapping profile, so that my future ingestion is fast and requires minimal training.",
+      "epic_phase": "Phase 5 (SMR)"
+    },
+    {
+      "id": "S.3",
+      "group": "Distribution & Live",
+      "role": "Station Owner",
+      "story": "I want access to the PLN Playlist Builder with automated Geo-blocking, so that I can ensure I am legally compliant based on track licensing territory.",
+      "epic_phase": "Station Roadmap / Legal"
+    },
+    {
+      "id": "S.4",
+      "group": "Distribution & Live",
+      "role": "Station (Elite-Host)",
+      "story": "I want to use the Ad Integration API, so that I can run my own ads and retain 100% of my revenue.",
+      "epic_phase": "Station Roadmap / Phase 11"
+    },
+    {
+      "id": "S.5",
+      "group": "Distribution & Live",
+      "role": "Legal/Tech Team",
+      "story": "We must design an automated, auditable, and immutable Legal Playback Log, so that we can meet indefinite retention requirements for PRO/publisher reporting.",
+      "epic_phase": "Legal / Phase 2"
+    },
+    {
+      "id": "S.6",
+      "group": "Distribution & Live",
+      "role": "Station Owner",
+      "story": "I want the AI Playlist Optimizer, so that I can re-sequence my PLN playlist to maximize listener retention.",
+      "epic_phase": "AI Monetization"
+    },
+    {
+      "id": "S.7",
+      "group": "Distribution & Live",
+      "role": "Legal/Tech Team",
+      "story": "We must implement a **Qualified Listen** definition (30 seconds continuous playback) for all PLN streams, so that the 'Listeners' count in the Legal Playback Log is auditable and compliant for PRO reporting.",
+      "epic_phase": "Legal / Phase 2"
+    },
+    {
+      "id": "S.8",
+      "group": "Distribution & Live",
+      "role": "Station Owner (Pro-Stream)",
+      "story": "I want a dedicated toggle in my CMS to **opt-in or opt-out** of NGN Ad monetization, and a line-item report in my analytics showing the **50% revenue share split**, so that I maintain control and transparency over my earnings.",
+      "epic_phase": "Phase 11 (Ads Platform)"
+    },
+    {
+      "id": "S.9",
+      "group": "Distribution & Live",
+      "role": "Station Owner",
+      "story": "(New: BYOS Legal & Geo-Controls) I must be required to check a mandatory **Strict Legal Indemnity Clause** checkbox *before* uploading BYOS content, and I must select my **Broadcast Territory Declaration** (e.g., Worldwide/Specific Countries), so that NGN transfers legal liability and satisfies audit requirements.",
+      "epic_phase": "Legal / Phase 2"
+    },
+    {
+      "id": "S.10",
+      "group": "Distribution & Live",
+      "role": "Station Owner",
+      "story": "(New: Auto-DJ Failover Mandate) I want a mandatory **\"Failover Playlist ID\"** field in my CMS Playback Settings to designate a specific PLN playlist that the **Auto-DJ/Failover Logic** must switch to instantly if my live stream or scheduler fails, guaranteeing continuous, legally compliant broadcast.",
+      "epic_phase": "Phase 2 (Scheduling)"
+    },
+    {
+      "id": "V.1",
+      "group": "Distribution & Live",
+      "role": "Venue (Elite-Host)",
+      "story": "I want the Booking Offer Optimizer AI, so that I can generate an initial offer (guarantee vs. door split) based on historical sales and NGN Score.",
+      "epic_phase": "AI Monetization / Phase 14"
+    },
+    {
+      "id": "V.2",
+      "group": "Distribution & Live",
+      "role": "Venue",
+      "story": "I want to request the NGN Safety Badge (BFL 3.4), so that I can signal verification and trust to touring artists and fans.",
+      "epic_phase": "Phase 14"
+    },
+    {
+      "id": "V.6",
+      "group": "Distribution & Live",
+      "role": "Venue Admin",
+      "story": "(New: Badge Status Visibility) I want a dedicated section in my Venue Console to clearly display my NGN Safety Badge status (**Verified**, **Pending**, **Revoked**) and view the last verification date, so that I can maintain my trust score.",
+      "epic_phase": "Phase 14"
+    },
+    {
+      "id": "V.7",
+      "group": "Distribution & Live",
+      "role": "Venue Admin",
+      "story": "(New: Annual Recertification) I must complete a mandatory **Annual Recertification Workflow** (including re-acceptance of the liability waiver and a data audit review) to maintain my NGN Safety Badge **Verified** status.",
+      "epic_phase": "Phase 14"
+    },
+    {
+      "id": "V.8",
+      "group": "Distribution & Live",
+      "role": "Venue Admin",
+      "story": "(New: Printable Badge Assets) I want to download high-resolution, branded, and legally disclaimed NGN Safety Badge printables (e.g., posters, stickers) directly from my console, so that I can promote my verified status in-person.",
+      "epic_phase": "Phase 14"
+    },
+    {
+      "id": "V.9",
+      "group": "Distribution & Live",
+      "role": "Venue Manager",
+      "story": "(New: PPV Expense Submission) I want a workflow to upload itemized **Deductible Expenses** (e.g., crew, rental fees) with mandatory receipt files and submit them for approval, so that I can finalize my PPV Net Splits calculation.",
+      "epic_phase": "Phase 13 (PPV/Events)"
+    },
+    {
+      "id": "V.3",
+      "group": "Distribution & Live",
+      "role": "Venue Manager",
+      "story": "I want to set up Pay-Per-View (PPV) events and pricing tiers, so that I can monetize my livestreams and VOD content.",
+      "epic_phase": "Phase 13"
+    },
+    {
+      "id": "V.4",
+      "group": "Distribution & Live",
+      "role": "User",
+      "story": "I want playback protected by signed URLs and concurrency limits, so that the PPV content is secure and unauthorized sharing is prevented.",
+      "epic_phase": "Legal / Phase 13"
+    },
+    {
+      "id": "V.5",
+      "group": "Distribution & Live",
+      "role": "Manager/Agent",
+      "story": "I want a route planning tool with venue availability windows, so that I can efficiently schedule and propose tours.",
+      "epic_phase": "Phase 14"
+    },
+    {
+      "id": "P.1",
+      "group": "Professionals",
+      "role": "Producer",
+      "story": "I want to be listed in the NGN Pro Marketplace, so that Artists/Labels can find and hire me based on NGN Score and genre.",
+      "epic_phase": "Untitled Document"
+    },
+    {
+      "id": "P.2",
+      "group": "Professionals",
+      "role": "Producer/Mixer",
+      "story": "(Revised: AI Disclaimer) When using the AI Mix Feedback Assistant (15 Sparks), I must be presented with the legal disclaimer **before payment** and **on the final report**, confirming the analysis is **for informational purposes only** and that NGN disclaims all liability.",
+      "epic_phase": "AI Monetization"
+    },
+    {
+      "id": "AD.1",
+      "group": "Monetization Partners",
+      "role": "Advertiser",
+      "story": "I want a self-serve platform to set up ad campaigns (CPM/CPC), so that I can efficiently buy display and audio inventory across NGN.",
+      "epic_phase": "Phase 11 (Ads Platform)"
+    },
+    {
+      "id": "AD.2",
+      "group": "Monetization Partners",
+      "role": "Advertiser",
+      "story": "I want reporting that includes Invalid Traffic Rate metrics, so that I can ensure my impressions are validated by the EQS anti-fraud measures (BFL 1.4).",
+      "epic_phase": "Phase 11 (Ads Platform)"
+    },
+    {
+      "id": "AD.3",
+      "group": "Monetization Partners",
+      "role": "Advertiser",
+      "story": "I want to select specific targeting based on geo, genre, and placement type, so that I can reach my desired emerging artist segment audience.",
+      "epic_phase": "Phase 11 (Ads Platform)"
+    },
+    {
+      "id": "AD.4",
+      "group": "Monetization Partners",
+      "role": "Advertiser",
+      "story": "(New: NGN Score Targeting) I must be able to filter my campaign audience using the **NGN Score Range** (e.g., users who primarily view content from artists with a Score < 30) and highly granular **Geo-Targeting (Country, State/Province, City/Metro)**, so that I can precisely reach the emerging artist segment.",
+      "epic_phase": "Phase 11 (Ads Platform)"
+    },
+    {
+      "id": "I.1",
+      "group": "NGN Staff",
+      "role": "Legal Admin",
+      "story": "(Revised: DMCA Logging Schema) I need a mandatory, auditable log of the following data points for every DMCA Takedown Notice received, so that NGN can prove **Receipt Timestamp**, **Reporter Information**, **Perjury Statement Flag**, **Takedown Timestamp**, and **Action Taken** to maintain Safe Harbor status.",
+      "epic_phase": "Legal / Phase 1"
+    },
+    {
+      "id": "I.2",
+      "group": "NGN Staff",
+      "role": "Admin",
+      "story": "I want to run a third-party EQS Audit, so that we can validate fund allocation integrity and achieve **Audit Passed (Zero Fatal Errors)** status (BFL 2.4).",
+      "epic_phase": "Phase 6 / 2.0 Rec Plan"
+    },
+    {
+      "id": "I.3",
+      "group": "NGN Staff",
+      "role": "Admin",
+      "story": "I want a structured queue to manually review and resolve unknown tracks and artists, so that data ingestion from SMR uploads is accurate.",
+      "epic_phase": "Phase 5 (SMR)"
+    },
+    {
+      "id": "I.4",
+      "group": "NGN Staff",
+      "role": "Admin",
+      "story": "I want to use the BYOS Content Review tool (transcription check), so that I can mitigate high legal risk by auditing user-uploaded shows for profanity or copyrighted terms.",
+      "epic_phase": "Legal / AI Monetization"
+    },
+    {
+      "id": "I.5",
+      "group": "NGN Staff",
+      "role": "Financial Admin",
+      "story": "I want to view a dashboard of all Commerce Commissions and Payouts, so that I can reconcile revenue splits from dropshipping and in-house fulfillment.",
+      "epic_phase": "Phase 10 (Commerce)"
+    },
+    {
+      "id": "I.6",
+      "group": "NGN Staff",
+      "role": "Admin/Financial Admin",
+      "story": "(New: Commerce Pricing Control) I want a centralized product catalog management tool to **define the universal pricing, commission rules, and product types** (e.g., T-Shirt, Poster) for all Printful-sourced merch, so that NGN ensures price parity and controls the profit profit margin across all creator shops.",
+      "epic_phase": "Phase 10.1 (Commerce MVP)"
+    },
+    {
+      "id": "I.7",
+      "group": "NGN Staff",
+      "role": "Financial Admin",
+      "story": "(New: Sponsorship LOI Tracker) I want a Sponsorship LOI Management Tool to track BFL 1.1 progress, including the **Sponsor ID**, **Committed LOI Value**, **Targeted Genre/Scene**, and **LOI Status (Signed/Executed)**, so that NGN can audit progress against the `$50K+ Committed LOI Value` KPI and segment the initial Engagement Royalty Pool.",
+      "epic_phase": "Phase 6 (Royalties) / BFL 1.1"
+    },
+    {
+      "id": "I.8",
+      "group": "NGN Staff",
+      "role": "Data Admin",
+      "story": "(New: SMR ML KPI Tracker) I want the SMR Ingestion Dashboard to display the **Auto-Mapping Accuracy Rate** of the ML heuristics, so that we can track our **90% KPI** for repeat SMR formats and ensure the system's training is effective.",
+      "epic_phase": "Phase 5 (SMR)"
+    },
+    {
+      "id": "I.9",
+      "group": "NGN Staff",
+      "role": "Financial Admin",
+      "story": "(New: COGS Line-Item Logging) I need the system to log the **Base Product Cost**, **Print/Embroidery Cost**, **Transaction Fees**, **Packaging & Label Cost**, and **Actual Shipping Cost Paid** per order item, so that NGN can accurately calculate the True COGS necessary to validate the **60%+ Net Margin** KPI for In-House DTG CAPEX.",
+      "epic_phase": "Phase 10 (Commerce)"
+    },
+    {
+      "id": "I.10",
+      "group": "NGN Staff",
+      "role": "Legal Team",
+      "story": "(New: PPV License Acquisition) The **highest-priority task** is to secure the **Digital Public Performance License (or equivalent)** for the NGN PPV platform, so that we can legally broadcast music and performance rights and proceed with the Phase 13 live streaming feature.",
+      "epic_phase": "Legal / Phase 13"
+    },
+    {
+      "id": "I.11",
+      "group": "NGN Staff",
+      "role": "Financial Admin",
+      "story": "(New: PPV Expense Approval/Reconciliation) I need an audit queue to review and **Approve/Reject** submitted PPV Deductible Expenses, which automatically triggers a **Payout Hold** on the Gross Revenue until approved, so that the final **Net Splits** calculation is auditable and compliant.",
+      "epic_phase": "Phase 13 (PPV/Events)"
+    },
+    {
+      "id": "I.12",
+      "group": "NGN Staff",
+      "role": "Admin",
+      "story": "(New: Critical Health Alert) I need the system to trigger a HIGH priority operational alert when the **P95 API Latency exceeds 250 milliseconds**, so that the Tech Team can immediately address systemic performance issues impacting the majority of the user experience (per M1 KPI).",
+      "epic_phase": "Phase 8 (DevX)"
+    },
+    {
+      "id": "W.1",
+      "group": "NGN Staff",
+      "role": "Writer/Editor",
+      "story": "I want the AI Writers & Campaign Assistant to draft chart write-ups and genre spotlights, so that I can rapidly produce high-quality content.",
+      "epic_phase": "AI Writers Epic"
+    },
+    {
+      "id": "W.2",
+      "group": "NGN Staff",
+      "role": "Editor",
+      "story": "I want a human-in-the-loop workflow with AI drafts, so that I can review, edit, and track the publish vs. discard status of AI-generated content.",
+      "epic_phase": "AI Writers Epic"
+    },
+    {
+      "id": "W.3",
+      "group": "NGN Staff",
+      "role": "Admin",
+      "story": "I want to use the AI Writers & Campaign Assistant to generate presser drafts and platform update posts, so that NGN can rapidly communicate official news and feature releases.",
+      "epic_phase": "AI Writers Epic / Phase 1"
+    },
+    {
+      "id": "MOD.1",
+      "group": "NGN Staff",
+      "role": "Moderator",
+      "story": "I want tools for chat rate limits, profanity filters, and a report/ban system, so that I can ensure a welcoming and inclusive community environment during live events.",
+      "epic_phase": "Phase 13 (PPV/Events)"
+    },
+    {
+      "id": "C.1",
+      "group": "Consumers",
+      "role": "Listener",
+      "story": "I want a single-page application (SPA) frontend with Tailwind UI, so that I have a clean, fast, and modern browsing experience on any device.",
+      "epic_phase": "Phase 2 (Frontend)"
+    },
+    {
+      "id": "C.2",
+      "group": "Consumers",
+      "role": "Fan",
+      "story": "I want to subscribe to NGN Premium, so that I can listen to PLN music and stations ad-free.",
+      "epic_phase": "Untitled Document"
+    },
+    {
+      "id": "C.3",
+      "group": "Consumers",
+      "role": "Fan",
+      "story": "I want to purchase NGN Sparks, so that I can use micro-transaction tools like \"What's My Genre?\" and priority chat message boosts.",
+      "epic_phase": "AI Monetization / Untitled Document"
+    },
+    {
+      "id": "C.4",
+      "group": "Consumers",
+      "role": "Fan",
+      "story": "I want to create a Fan Subscription (Gold/Silver Tier), so that I can directly support an artist monthly and gain access to exclusive content.",
+      "epic_phase": "Untitled Document"
+    },
+    {
+      "id": "C.5",
+      "group": "Consumers",
+      "role": "Logged-in User",
+      "story": "I want to view my Spark balance in the persistent header and access a dedicated purchase workflow, so that I can easily monitor and replenish my AI micro-transaction currency.",
+      "epic_phase": "AI Monetization"
+    },
+    {
+      "id": "C.6",
+      "group": "Consumers",
+      "role": "Fan",
+      "story": "I want a visible \"Give Sparks\" button on all relevant content (e.g., posts, stations, products, events), so that I can easily tip creators for their work and boost their engagement.",
+      "epic_phase": "AI Monetization / Phase 6 (EQS)"
+    },
+    {
+      "id": "C.7",
+      "group": "Consumers",
+      "role": "Listener",
+      "story": "(New: Advanced Chart Filtering) I want the public Charts & Rankings page to include filters for **Niche Genre**, **Locality (City/Region)**, **Time Interval (Daily/Weekly)**, **Momentum (Biggest Movers)**, and **NGN Score Range**, so that I can easily discover emerging artists in my specific scene.",
+      "epic_phase": "Phase 2/6"
+    }
+  ]
+}

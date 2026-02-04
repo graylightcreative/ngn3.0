@@ -1,0 +1,50 @@
+# Environment configuration - NEVER commit
+.env
+.env.local
+.env.*.local
+
+# Sensitive files
+.env.sha256
+
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and caches
+*.log
+.phpunit.result.cache
+.refact/
+
+# Dependencies
+vendor/
+node_modules/
+composer.lock
+package-lock.json
+
+# Storage and uploads (user-generated content)
+storage/uploads/**
+storage/logs/**
+lib/uploads/**
+public/uploads/**
+!storage/uploads/.gitkeep
+!storage/logs/.gitkeep
+!lib/uploads/.gitkeep
+!public/uploads/.gitkeep
+
+# Backup files
+storage/backups/
+
+# Audio streaming storage (user-generated audio files)
+storage/audio/tracks/**
+storage/audio/byos/**
+storage/audio/temp/**
+!storage/audio/.htaccess
+!storage/audio/tracks/.gitkeep
+!storage/audio/byos/.gitkeep
+!storage/audio/temp/.gitkeep
+
+# SQL dumps
+*.sql

@@ -1,0 +1,4 @@
+<IfModule mod_php.c>
+  # Ensure admin console always loads bootstrap regardless of vhost settings
+  php_value auto_prepend_file _guard.php
+</IfModule>

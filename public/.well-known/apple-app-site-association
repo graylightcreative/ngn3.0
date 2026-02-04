@@ -1,0 +1,32 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "9B5X2YNZQ7.com.nextgennoise.pwa",
+        "paths": [
+          "/artist/*",
+          "/label/*",
+          "/station/*",
+          "/venue/*",
+          "/video/*",
+          "/post/*",
+          "/show/*",
+          "!/admin/*",
+          "!/api/*",
+          "!/auth/*"
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "9B5X2YNZQ7.com.nextgennoise.pwa"
+    ]
+  },
+  "activitycontinuation": {
+    "apps": [
+      "9B5X2YNZQ7.com.nextgennoise.pwa"
+    ]
+  }
+}

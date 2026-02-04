@@ -1,0 +1,19 @@
+NIKO'S DISCOVERY
+3 Artists You'll Love This Week
+
+Hi {USER_NAME},
+
+Based on your love of {GENRE_TEXT}, we've handpicked 3 emerging artists we think you'll absolutely love. Discover something new this week!
+
+---
+
+{ARTIST_CARDS}
+
+---
+
+Update your discovery preferences: https://niko.music/user/preferences/discovery
+
+© 2026 Niko Music Discovery. All rights reserved.
+
+Unsubscribe from Niko's Discovery: https://niko.music/email/unsubscribe/discovery
+Email Preferences: https://niko.music/user/preferences

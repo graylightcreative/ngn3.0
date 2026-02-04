@@ -1,0 +1,9 @@
+Options +FollowSymLinks -MultiViews -indexes
+RewriteEngine On
+
+#RewriteRule ^writers writers.php [QSA,L]
+
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ by-id.php?id=$1 [QSA,L]

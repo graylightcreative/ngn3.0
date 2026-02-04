@@ -1,0 +1,5 @@
+Options +FollowSymLinks -MultiViews -indexes
+RewriteEngine On
+
+
+RewriteRule ^login login.php [QSA,L]

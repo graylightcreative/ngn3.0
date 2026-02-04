@@ -1,0 +1,156 @@
+RewriteEngine On
+
+# ============================================================================
+# HTTP CACHING & COMPRESSION
+# ============================================================================
+
+# Enable gzip compression for text-based content
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE font/woff font/woff2
+    BrowserMatch ^Mozilla/4 no-deal
+    BrowserMatch ^Mozilla/4\.0[678] no-deal
+    BrowserMatch \bMSIE !no-deal !no-deal
+</IfModule>
+
+# Enable browser caching with far-future expires for static assets
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresDefault "access plus 1 hour"
+
+    # Images (1 year - assuming hash-based filenames or versioning)
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType image/vnd.microsoft.icon "access plus 1 year"
+
+    # Fonts (1 year)
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType application/x-font-ttf "access plus 1 year"
+    ExpiresByType application/x-font-opentype "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    ExpiresByType font/otf "access plus 1 year"
+
+    # CSS & JS with version/hash in filename (1 year)
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+
+    # HTML pages (revalidate hourly)
+    ExpiresByType text/html "access plus 1 hour"
+
+    # API responses (no caching)
+    ExpiresByType application/json "access plus 0 seconds"
+    ExpiresByType application/ld+json "access plus 0 seconds"
+</IfModule>
+
+# Add Cache-Control headers explicitly
+<IfModule mod_headers.c>
+    # Cache static assets for 1 year (requires version/hash in filename)
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|woff|woff2|ttf|otf|eot|svg|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Cache CSS/JS with version parameters for 1 year
+    <FilesMatch "\.(css|js)(\?.*)?$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # HTML: revalidate hourly via ETag/Last-Modified
+    <FilesMatch "\.html?$">
+        Header set Cache-Control "public, max-age=3600, must-revalidate"
+        Header unset ETag
+        FileETag MTime Size
+    </FilesMatch>
+
+    # API: no caching
+    <FilesMatch "^/api/">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    </FilesMatch>
+
+    # Admin: no caching
+    <FilesMatch "^/admin/">
+        Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    </FilesMatch>
+
+    # Enable CORS for fonts
+    <FilesMatch "\.(woff|woff2|ttf|otf)$">
+        Header set Access-Control-Allow-Origin "*"
+    </FilesMatch>
+
+    # Security headers
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "no-referrer-when-downgrade"
+</IfModule>
+
+# ============================================================================
+# PWA & DEEP LINKING
+# ============================================================================
+
+# Serve .well-known files without rewriting (deep linking config)
+<FilesMatch "^\.well-known/(apple-app-site-association|assetlinks\.json)$">
+    Header set Content-Type "application/json"
+</FilesMatch>
+
+# Service Worker - must not be cached permanently
+<FilesMatch "^service-worker\.js$">
+    Header set Cache-Control "public, max-age=0, must-revalidate"
+    Header set Service-Worker-Allowed "/"
+</FilesMatch>
+
+# PWA Manifest - cache for 1 day
+<FilesMatch "site\.webmanifest$">
+    Header set Cache-Control "public, max-age=86400"
+    Header set Content-Type "application/manifest+json"
+</FilesMatch>
+
+# ============================================================================
+# CLEAN URLS
+# ============================================================================
+
+# Clean URLs for videos
+RewriteRule ^video/([a-z0-9-]+)/?$ video.php?slug=$1 [L,QSA]
+RewriteRule ^videos/?$ videos.php [L,QSA]
+
+# Clean URLs for profiles
+RewriteRule ^artist/([a-z0-9-]+)/?$ artist-profile.php?slug=$1 [L,QSA]
+RewriteRule ^label/([a-z0-9-]+)/?$ label-profile.php?slug=$1 [L,QSA]
+RewriteRule ^venue/([a-z0-9-]+)/?$ venue-profile.php?slug=$1 [L,QSA]
+RewriteRule ^station/([a-z0-9-]+)/?$ station-profile.php?slug=$1 [L,QSA]
+
+# Clean URLs for index.php content pages
+RewriteRule ^post/([a-z0-9-]+)/?$ index.php?view=post&slug=$1 [L,QSA]
+RewriteRule ^show/([a-z0-9-]+)/?$ index.php?view=show&slug=$1 [L,QSA]
+RewriteRule ^release/([a-z0-9-]+)/?$ index.php?view=release&slug=$1 [L,QSA]
+RewriteRule ^song/([a-z0-9-]+)/?$ index.php?view=song&slug=$1 [L,QSA]
+RewriteRule ^product/([a-z0-9-]+)/?$ index.php?view=product&slug=$1 [L,QSA]
+
+# Clean URLs for user profiles
+RewriteRule ^@([a-zA-Z0-9_-]+)/?$ index.php?view=user&username=$1 [L,QSA]
+
+# Clean URLs for listing pages
+RewriteRule ^artists/?$ index.php?view=artists [L,QSA]
+RewriteRule ^labels/?$ index.php?view=labels [L,QSA]
+RewriteRule ^stations/?$ index.php?view=stations [L,QSA]
+RewriteRule ^venues/?$ index.php?view=venues [L,QSA]
+RewriteRule ^posts/?$ index.php?view=posts [L,QSA]
+RewriteRule ^shows/?$ index.php?view=shows [L,QSA]
+RewriteRule ^shop/?$ index.php?view=shop [L,QSA]
+
+# Clean URLs for special pages
+RewriteRule ^charts/?$ index.php?view=charts [L,QSA]
+RewriteRule ^smr-charts/?$ index.php?view=smr-charts [L,QSA]
+RewriteRule ^pricing/?$ index.php?view=pricing [L,QSA]
+
+# Trailing slash normalization
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} (.+)/$
+RewriteRule ^ %1 [R=301,L]

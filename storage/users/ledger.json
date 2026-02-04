@@ -1,0 +1,8 @@
+[
+  {
+    "email": "admin@ngn.com",
+    "password": "password",
+    "role": "admin",
+    "name": "Admin User"
+  }
+]

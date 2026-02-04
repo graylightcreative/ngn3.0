@@ -1,0 +1,99 @@
+<!--
+  PhpStorm Data Sources (import snippet)
+  Notes:
+  - Contains JDBC URLs and usernames only. No passwords are stored.
+  - After importing, add passwords via your OS keychain when prompted.
+  - Driver: MySQL 8 (mysql.8). Enable SSL if your environment requires it.
+-->
+<data-sources>
+  <!-- NextGenNoise General -->
+  <data-source source="LOCAL" name="NextGenNoise General" uuid="734d86b4-1f5c-4cc2-b3e6-654c13610a76">
+    <database-info product="MySQL" jdbc-version="4.2" driver-name="MySQL Connector/J" dbms="MYSQL"/>
+    <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower"/>
+    <driver-ref>mysql.8</driver-ref>
+    <synchronize>true</synchronize>
+    <remarks>server.starrship1.com</remarks>
+    <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+    <jdbc-url>jdbc:mysql://server.starrship1.com:3306/nextgennoise</jdbc-url>
+    <secret-storage>master_key</secret-storage>
+    <user-name>nextgennoise</user-name>
+    <schema-mapping>
+      <introspection-scope>
+        <node kind="schema" qname="@"/>
+      </introspection-scope>
+    </schema-mapping>
+    <working-dir>$ProjectFileDir$</working-dir>
+  </data-source>
+
+  <!-- Notes -->
+  <data-source source="LOCAL" name="Notes" uuid="11dd36cb-bf9e-4618-8623-041dee529644">
+    <database-info product="MySQL" jdbc-version="4.2" driver-name="MySQL Connector/J" dbms="MYSQL"/>
+    <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower"/>
+    <driver-ref>mysql.8</driver-ref>
+    <synchronize>true</synchronize>
+    <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+    <jdbc-url>jdbc:mysql://server.starrship1.com:3306/ngnnotes</jdbc-url>
+    <secret-storage>master_key</secret-storage>
+    <user-name>NGNNotes</user-name>
+    <schema-mapping>
+      <introspection-scope>
+        <node kind="schema" qname="@"/>
+      </introspection-scope>
+    </schema-mapping>
+    <working-dir>$ProjectFileDir$</working-dir>
+  </data-source>
+
+  <!-- Rankings -->
+  <data-source source="LOCAL" name="Rankings" uuid="e7d7747e-d7bd-4e70-91d8-9f35638508d9">
+    <database-info product="MySQL" jdbc-version="4.2" driver-name="MySQL Connector/J" dbms="MYSQL"/>
+    <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower"/>
+    <driver-ref>mysql.8</driver-ref>
+    <synchronize>true</synchronize>
+    <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+    <jdbc-url>jdbc:mysql://server.starrship1.com:3306/ngnrankings</jdbc-url>
+    <secret-storage>master_key</secret-storage>
+    <user-name>NGNRankings</user-name>
+    <schema-mapping>
+      <introspection-scope>
+        <node kind="schema" qname="@"/>
+      </introspection-scope>
+    </schema-mapping>
+    <working-dir>$ProjectFileDir$</working-dir>
+  </data-source>
+
+  <!-- SMR -->
+  <data-source source="LOCAL" name="SMR" uuid="71026699-a2ca-45bf-b298-e72bfb7c48ff">
+    <database-info product="MySQL" jdbc-version="4.2" driver-name="MySQL Connector/J" dbms="MYSQL"/>
+    <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower"/>
+    <driver-ref>mysql.8</driver-ref>
+    <synchronize>true</synchronize>
+    <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+    <jdbc-url>jdbc:mysql://server.starrship1.com:3306/smr_charts</jdbc-url>
+    <secret-storage>master_key</secret-storage>
+    <user-name>smr_charts</user-name>
+    <schema-mapping>
+      <introspection-scope>
+        <node kind="schema" qname="@"/>
+      </introspection-scope>
+    </schema-mapping>
+    <working-dir>$ProjectFileDir$</working-dir>
+  </data-source>
+
+  <!-- Spins -->
+  <data-source source="LOCAL" name="Spins" uuid="edeca348-b90a-4e20-af8e-a0b24c65e114">
+    <database-info product="MySQL" jdbc-version="4.2" driver-name="MySQL Connector/J" dbms="MYSQL"/>
+    <case-sensitivity plain-identifiers="lower" quoted-identifiers="lower"/>
+    <driver-ref>mysql.8</driver-ref>
+    <synchronize>true</synchronize>
+    <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+    <jdbc-url>jdbc:mysql://server.starrship1.com:3306/ngnspins</jdbc-url>
+    <secret-storage>master_key</secret-storage>
+    <user-name>ngnspins</user-name>
+    <schema-mapping>
+      <introspection-scope>
+        <node kind="schema" qname="@"/>
+      </introspection-scope>
+    </schema-mapping>
+    <working-dir>$ProjectFileDir$</working-dir>
+  </data-source>
+</data-sources>

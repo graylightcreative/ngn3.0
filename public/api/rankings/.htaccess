@@ -1,0 +1,19 @@
+Options +FollowSymLinks -MultiViews -indexes
+RewriteEngine On
+
+
+RewriteRule ^smr-charts smr-charts.php [QSA,L]
+RewriteRule ^posts posts.php [QSA,L]
+RewriteRule ^writers writers.php [QSA,L]
+RewriteRule ^artists artists.php [QSA,L]
+RewriteRule ^labels labels.php [QSA,L]
+RewriteRule ^ngn-rankings ngn-rankings.php [QSA,L]
+RewriteRule ^bots bots.php [QSA,L]
+RewriteRule ^departments departments.php [QSA,L]
+RewriteRule ^post-titles post-titles.php [QSA,L]
+RewriteRule ^users users.php [QSA,L]
+RewriteRule ^songs songs.php [QSA,L]
+RewriteRule ^releases releases.php [QSA,L]
+RewriteRule ^videos videos.php [QSA,L]
+RewriteRule ^shows shows.php [QSA,L]
+RewriteRule ^slides slides.php [QSA,L]

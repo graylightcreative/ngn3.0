@@ -1,0 +1,41 @@
+{
+  "version": "2025-11-22",
+  "notes": "Initial v1.0 factors and thresholds for NGN 2.0; changes via PR only.",
+  "defaults": {
+    "normalizers": {
+      "spins": { "method": "per_station_z", "params": { "z_cap": 3.0, "min_coverage": 0.95 } },
+      "plays": { "method": "log1p_scale" },
+      "adds":  { "method": "minmax" },
+      "views": { "method": "log1p_scale" },
+      "posts": { "method": "log1p_scale" }
+    },
+    "caps": {
+      "spins": { "method": "percentile", "p": 0.98 },
+      "plays": { "method": "percentile", "p": 0.99 },
+      "adds":  { "method": "absolute", "max": 50 },
+      "views": { "method": "percentile", "p": 0.99 },
+      "posts": { "method": "percentile", "p": 0.99 }
+    },
+    "coverage": { "station_coverage_min": 0.98, "linkage_min": 0.95 }
+  },
+  "charts": {
+    "ngn:artists:weekly": {
+      "weights": { "spins": 0.60, "plays": 0.20, "adds": 0.10, "views": 0.05, "posts": 0.05 },
+      "normalizers": {
+        "spins": { "method": "per_station_z", "params": { "z_cap": 3.0, "min_coverage": 0.95 } },
+        "plays": { "method": "log1p_scale" },
+        "adds":  { "method": "minmax" },
+        "views": { "method": "log1p_scale" },
+        "posts": { "method": "log1p_scale" }
+      },
+      "caps": {
+        "spins": { "method": "percentile", "p": 0.98 },
+        "plays": { "method": "percentile", "p": 0.99 },
+        "adds":  { "method": "absolute", "max": 50 },
+        "views": { "method": "percentile", "p": 0.99 },
+        "posts": { "method": "percentile", "p": 0.99 }
+      },
+      "coverage": { "station_coverage_min": 0.98, "linkage_min": 0.95 }
+    }
+  }
+}

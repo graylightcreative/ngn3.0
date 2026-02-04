@@ -1,0 +1,104 @@
+NGN API Directory
+
+- /api/v1 is the JSON-only API (versioned). Do not add HTML/PHP mix here.
+- Conventions:
+  - Responses use a consistent envelope: { data, meta, errors }.
+  - All error responses include meta.request_id for client correlation.
+  - X-Request-Id header is returned on every response; X-RateLimit-* headers may be present when dev rate limiting is enabled.
+  - CORS policy is set from environment variables.
+  - Add new routes in /api/v1/index.php via the lightweight Router.
+- Running locally:
+  - Copy .env.example to .env and set CORS/JWT/DB values.
+  - Serve with PHP built-in server: php -S 0.0.0.0:8000 -t .
+  - Health check: curl -i http://localhost:8000/api/v1/health
+- Auth (Phase 3/7 dev-only):
+  - POST /api/v1/auth/login { email, password } -> { access_token, token_type, expires_in, refresh_token, refresh_expires_in }
+  - POST /api/v1/auth/refresh { refresh_token } -> { access_token, token_type, expires_in }
+  - POST /api/v1/auth/logout { refresh_token? } -> { ok: true, refresh_revoked: boolean }
+  - Notes: In development, refresh tokens are stored in a local JSON ledger (REFRESH_TOKENS_LEDGER_PATH) with TTL = JWT_REFRESH_TTL_SECONDS. In non-development environments, these return 501 until users are implemented.
+- OpenAPI (dev-only):
+  - GET /api/v1/openapi.json returns an OpenAPI 3.0 document covering the dev endpoints (health, auth stubs, rankings, SMR, ingestions)
+  - Intended for tooling; returns raw spec JSON (no envelope)
+- Rankings (Phase 6 dev-only, feature-gated):
+  - Flag: FEATURE_RANKINGS
+  - Description: Provides access to NGN's ranking data for artists, labels, and genres. The data can be filtered by time interval and paginated.
+  -
+  - **Routes:**
+    - `GET /api/v1/rankings/artists`
+    - `GET /api/v1/rankings/labels`
+    - `GET /api/v1/rankings/genres`
+  -
+  - **Parameters:**
+    - `interval` (string): The time interval for the rankings. Can be `daily`, `weekly`, or `monthly`. Defaults to `weekly`.
+    - `top` (integer): A shorthand for `per_page` for backwards compatibility.
+    - `page` (integer): The page number for pagination. Defaults to `1`.
+    - `per_page` (integer): The number of items to return per page. Defaults to `10`.
+    - `sort` (string): The field to sort the results by. Can be `rank` or `score`. Defaults to `rank`.
+    - `dir` (string): The sort direction. Can be `asc` or `desc`. Defaults to `asc`.
+  -
+  - **Success Response (200 OK):**
+    - **Content:** `{ data: { items: [...] }, meta: { ... } }`
+    - **`data.items`** (array): A list of ranked items.
+      - `id` (integer): The NGN ID of the entity.
+      - `name` (string): The name of the entity.
+      - `score` (float): The calculated NGN score.
+      - `rank` (integer): The rank of the entity for the given interval.
+      - `delta` (integer): The change in rank from the previous interval.
+    - **`meta`** (object): Metadata about the response.
+      - `interval` (string): The requested interval.
+      - `page` (integer): The current page number.
+      - `per_page` (integer): The number of items per page.
+      - `total` (integer): The total number of items available.
+      - `sort` (string): The sorting field used.
+      - `dir` (string): The sorting direction used.
+      - `request_id` (string): A unique ID for the request.
+      - `cache_hit` (boolean, optional): `true` if the response was served from cache.
+      - `cache_ttl` (integer, optional): The remaining time-to-live for the cached response in seconds.
+  -
+  - **Error Responses:**
+    - `400 Bad Request`: If the request has invalid parameters (e.g., invalid `interval` or `sort` values).
+    - `501 Not Implemented`: If the `FEATURE_RANKINGS` feature flag is disabled.
+  -
+  - **Client Caching:**
+    - The endpoint supports `ETag` and `Cache-Control` headers for efficient client-side caching. Send the `If-None-Match` header with the `ETag` value from a previous response to receive a `304 Not Modified` if the data has not changed.
+  -
+  - **Notes:**
+    - The `top` parameter is supported for backwards compatibility. If both `top` and `per_page` are provided, `per_page` takes precedence.
+    - Caching is only active when `FEATURE_RANKINGS_CACHE` is enabled in a development environment. The cache is file-based and stored in the directory specified by `RANKINGS_CACHE_DIR`.
+- SMR (Phase 5 dev-only, feature-gated):
+  - Flags: FEATURE_SMR_UPLOADS, FEATURE_SMR_TRAINING
+  - POST /api/v1/smr/uploads
+    - Accepts multipart/form-data (preferred): field "file" with .xlsx or .csv, and optional field "station_id".
+    - Also accepts JSON stub for dev/back-compat: { station_id?, filename?, size_bytes? }.
+    - Response: {
+        id, status, filename/original_name, size_bytes,
+        header_candidates: { headers[], sheet, sheets[], rows_sampled, sample_rows[] },
+        mapping_suggestions: { artist?, track?, spins?, date? },
+        created_at, updated_at, ...
+      }
+    - Multipart example:
+      curl -X POST http://localhost:8000/api/v1/smr/uploads \
+        -H 'Accept: application/json' \
+        -F 'station_id=1' \
+        -F 'file=@/path/to/sample.xlsx;type=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    - JSON stub example:
+      curl -X POST http://localhost:8000/api/v1/smr/uploads \
+        -H 'Content-Type: application/json' \
+        -d '{"station_id":1,"filename":"sample.xlsx","size_bytes":2048}'
+  - GET /api/v1/smr/uploads/{id} -> returns ledgered record if available, else canned stub
+  - POST /api/v1/smr/uploads/{id}/preview -> generates a preview JSON and updates ledger (dev-only)
+  - POST /api/v1/smr/uploads/{id}/train-mapping (requires FEATURE_SMR_TRAINING) -> echoes normalized mapping
+  - Config: PREVIEW_MAX_ROWS (default 5), PREVIEW_TIMEOUT_MS (default 500)
+- Admin (dev-only, feature-gated):
+  - Flag: FEATURE_ADMIN
+  - Auth: Bearer JWT with role=admin (in development, /auth/login issues role=admin if the dev ledger user has roles including "admin")
+  - GET /api/v1/admin/health -> basic service statuses {smr_uploads, rankings}, version, time
+  - GET /api/v1/admin/users -> lists users from dev ledger (email, roles[])
+  - GET /api/v1/admin/smr/ingestions?status= -> proxies ingestions listing with filter
+  - GET /api/v1/admin/flags -> safe subset of feature flags and selected config values
+  - Legacy Admin Bridge: /admin/ngn2.php will mint a dev admin JWT and embed the NGN 2.0 frontend so logged-in admins can preview the new Admin module. Requires APP_ENV=development and FEATURE_ADMIN=true.
+
+- Migration rules:
+  - No business logic in controllers; create services in /lib.
+  - Use prepared statements (see /lib/DB/ConnectionFactory.php).
+  - Do not echo sensitive fields in any JSON.

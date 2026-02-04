@@ -1,0 +1,44 @@
+# NGN 2.0 Root .htaccess - Security & Routing
+# Ensures all web traffic goes through /public/index.php
+
+RewriteEngine On
+
+# ============================================================================
+# SECURITY - Deny Direct Access to Sensitive Files/Directories
+# ============================================================================
+
+# Deny access to sensitive configuration files
+<FilesMatch "^\.env|composer\.(json|lock)|\.git|\.gitignore">
+    Require all denied
+</FilesMatch>
+
+# Deny access to sensitive directories (outside /public)
+RewriteRule ^(lib|vendor|migrations|storage|tests|tests_fixtures|bin|docs|jobs|scripts|src)(/|$) - [F]
+
+# ============================================================================
+# ROUTING - All Web Requests Go Through /public/
+# ============================================================================
+
+# If the request is for a file or directory that exists outside /public,
+# deny access. Otherwise, route to /public/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ public/$1 [L,QSA]
+
+# ============================================================================
+# SECURITY HEADERS
+# ============================================================================
+<IfModule mod_headers.c>
+    # Prevent directory listing
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+</IfModule>
+
+# ============================================================================
+# PREVENT DIRECTORY LISTING
+# ============================================================================
+<IfModule mod_autoindex.c>
+    Options -Indexes
+</IfModule>

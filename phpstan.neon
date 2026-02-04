@@ -1,0 +1,10 @@
+parameters:
+  level: 5
+  paths:
+    - lib
+    - api/v1
+    - jobs
+  excludePaths:
+    - legacy
+    - vendor
+  reportUnmatchedIgnoredErrors: false

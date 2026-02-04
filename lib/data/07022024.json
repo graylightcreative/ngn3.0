@@ -1,0 +1,505 @@
+{
+  "week": "07/02/2024",
+  "data": [
+    {
+      "artist": "BILLY MORRISON, OZZY OSBOURNE & STEVE STEVENS",
+      "song": "CRACK COCAINE",
+      "label": "TLG/ZOID/Virgin",
+      "plays": 1062,
+      "woc": 1,
+      "lw": 1,
+      "tw": 1,
+      "change": -27
+    },
+    {
+      "artist": "SLEEP THEORY",
+      "song": "FALLOUT",
+      "label": "Epitaph",
+      "plays": 940,
+      "woc": 2,
+      "lw": 2,
+      "tw": 2,
+      "change": 13
+    },
+    {
+      "artist": "FROM ASHES TO NEW",
+      "song": "BARELY BREATHING",
+      "label": "Better Noise",
+      "plays": 796,
+      "woc": 4,
+      "lw": 3,
+      "tw": 3,
+      "change": 17
+    },
+    {
+      "artist": "FAME ON FIRE",
+      "song": "NIGHTMARE (THE DEVIL)",
+      "label": "Hopeless",
+      "plays": 778,
+      "woc": 5,
+      "lw": 4,
+      "tw": 4,
+      "change": 36
+    },
+    {
+      "artist": "NOTHING MORE",
+      "song": "IF IT DOESN'T HURT",
+      "label": "Better Noise",
+      "plays": 778,
+      "woc": 3,
+      "lw": 5,
+      "tw": 5,
+      "change": -68
+    },
+    {
+      "artist": "FALLING IN REVERSE & JELLY ROLL",
+      "song": "ALL MY LIFE",
+      "label": "Epitaph",
+      "plays": 718,
+      "woc": 10,
+      "lw": 6,
+      "tw": 6,
+      "change": 150
+    },
+    {
+      "artist": "FIVE FINGER DEATH PUNCH",
+      "song": "THIS IS THE WAY (FT. DMX)",
+      "label": "Better Noise",
+      "plays": 691,
+      "woc": 6,
+      "lw": 7,
+      "tw": 7,
+      "change": -28
+    },
+    {
+      "artist": "DAUGHTRY",
+      "song": "PIECES",
+      "label": "Big Machine",
+      "plays": 632,
+      "woc": 7,
+      "lw": 8,
+      "tw": 8,
+      "change": -18
+    },
+    {
+      "artist": "PEARL JAM",
+      "song": "WRECKAGE",
+      "label": "Republic",
+      "plays": 625,
+      "woc": 8,
+      "lw": 9,
+      "tw": 9,
+      "change": 28
+    },
+    {
+      "artist": "MOTLEY CRUE",
+      "song": "DOGS OF WAR",
+      "label": "Big Machine",
+      "plays": 556,
+      "woc": 9,
+      "lw": 10,
+      "tw": 10,
+      "change": -28
+    },
+    {
+      "artist": "SHALLOW SIDE",
+      "song": "FILTERS",
+      "label": "Thermal",
+      "plays": 544,
+      "woc": 14,
+      "lw": 11,
+      "tw": 11,
+      "change": 58
+    },
+    {
+      "artist": "WAGE WAR",
+      "song": "MAGNETIC",
+      "label": "Fearless/Concord",
+      "plays": 542,
+      "woc": 13,
+      "lw": 12,
+      "tw": 12,
+      "change": 29
+    },
+    {
+      "artist": "STAIND",
+      "song": "BETTER DAYS",
+      "label": "Alchemy/CO5",
+      "plays": 526,
+      "woc": 12,
+      "lw": 13,
+      "tw": 13,
+      "change": 13
+    },
+    {
+      "artist": "THE OFFSPRING",
+      "song": "MAKE IT ALL RIGHT",
+      "label": "Concord",
+      "plays": 503,
+      "woc": 20,
+      "lw": 14,
+      "tw": 14,
+      "change": 97
+    },
+    {
+      "artist": "BAD OMENS",
+      "song": "V.A.N (FT. POPPY)",
+      "label": "Sumerian",
+      "plays": 485,
+      "woc": 19,
+      "lw": 15,
+      "tw": 15,
+      "change": 67
+    },
+    {
+      "artist": "IMAGES OF EDEN",
+      "song": "HERE COMES THE SUN",
+      "label": "Pavement",
+      "plays": 478,
+      "woc": 16,
+      "lw": 16,
+      "tw": 16,
+      "change": 39
+    },
+    {
+      "artist": "ROYALE LYNN",
+      "song": "DEATH WISH (FT. DANNY WORSNOP)",
+      "label": "Epitaph",
+      "plays": 475,
+      "woc": 21,
+      "lw": 17,
+      "tw": 17,
+      "change": 89
+    },
+    {
+      "artist": "BLACK VEIL BRIDES",
+      "song": "BLEEDERS",
+      "label": "Spinefarm/Land Shark",
+      "plays": 437,
+      "woc": 17,
+      "lw": 18,
+      "tw": 18,
+      "change": 3
+    },
+    {
+      "artist": "DOOR 13",
+      "song": "NOW",
+      "label": "Curtain Call",
+      "plays": 422,
+      "woc": 24,
+      "lw": 19,
+      "tw": 19,
+      "change": 42
+    },
+    {
+      "artist": "SET IT OFF",
+      "song": "FAKE ASS FRIENDS",
+      "label": "Why Worry/Stem",
+      "plays": 387,
+      "woc": 22,
+      "lw": 20,
+      "tw": 20,
+      "change": 1
+    },
+    {
+      "artist": "TIM MONTANA",
+      "song": "SAVAGE",
+      "label": "Music Knox/BBR/BMG",
+      "plays": 384,
+      "woc": 26,
+      "lw": 21,
+      "tw": 21,
+      "change": 13
+    },
+    {
+      "artist": "ATRIUM",
+      "song": "SILENT LUCIDITY",
+      "label": "Independent",
+      "plays": 361,
+      "woc": 30,
+      "lw": 22,
+      "tw": 22,
+      "change": 33
+    },
+    {
+      "artist": "FOZZY",
+      "song": "ARMY OF ONE",
+      "label": "Madison/The Orchard",
+      "plays": 358,
+      "woc": 32,
+      "lw": 23,
+      "tw": 23,
+      "change": 59
+    },
+    {
+      "artist": "BLACKLITE DISTRICT",
+      "song": "YOU CAN DO BETTER",
+      "label": "AK19",
+      "plays": 354,
+      "woc": 35,
+      "lw": 24,
+      "tw": 24,
+      "change": 72
+    },
+    {
+      "artist": "GRIN CYNIC",
+      "song": "LET ME GO",
+      "label": "Pavement",
+      "plays": 353,
+      "woc": 34,
+      "lw": 25,
+      "tw": 25,
+      "change": 61
+    },
+    {
+      "artist": "HARDY",
+      "song": "ROCKSTAR",
+      "label": "Big Loud Rock",
+      "plays": 344,
+      "woc": 18,
+      "lw": 26,
+      "tw": 26,
+      "change": -87
+    },
+    {
+      "artist": "A DAY TO REMEMBER",
+      "song": "FEEDBACK",
+      "label": "Fueled By Ramen/3eE",
+      "plays": 343,
+      "woc": 38,
+      "lw": 27,
+      "tw": 27,
+      "change": 73
+    },
+    {
+      "artist": "ABOVE SNAKES",
+      "song": "RIDE AND DIE",
+      "label": "Independent",
+      "plays": 332,
+      "woc": 31,
+      "lw": 28,
+      "tw": 28,
+      "change": 8
+    },
+    {
+      "artist": "GODSMACK",
+      "song": "TRUTH",
+      "label": "BMG",
+      "plays": 332,
+      "woc": 28,
+      "lw": 29,
+      "tw": 29,
+      "change": -15
+    },
+    {
+      "artist": "FREEMOOR",
+      "song": "SHINE",
+      "label": "Independent",
+      "plays": 330,
+      "woc": 36,
+      "lw": 30,
+      "tw": 30,
+      "change": 48
+    },
+    {
+      "artist": "METALLICA",
+      "song": "SCREAMING SUICIDE",
+      "label": "Blackened/Q Prime",
+      "plays": 324,
+      "woc": 29,
+      "lw": 31,
+      "tw": 31,
+      "change": -20
+    },
+    {
+      "artist": "BRING ME THE HORIZON",
+      "song": "TOP 10 STATUES THAT CRIED REAL TEARS",
+      "label": "Columbia",
+      "plays": 320,
+      "woc": 33,
+      "lw": 32,
+      "tw": 32,
+      "change": 28
+    },
+    {
+      "artist": "P.O.D.",
+      "song": "AFRAID TO DIE",
+      "label": "Mascot/MLG",
+      "plays": 316,
+      "woc": 27,
+      "lw": 33,
+      "tw": 33,
+      "change": -40
+    },
+    {
+      "artist": "HALESTORM & I PREVAIL",
+      "song": "CAN YOU SEE ME IN THE DARK?",
+      "label": "Atlantic",
+      "plays": 315,
+      "woc": 45,
+      "lw": 34,
+      "tw": 34,
+      "change": 90
+    },
+    {
+      "artist": "BLACK STONE CHERRY",
+      "song": "WHEN THE PAIN COMES",
+      "label": "Mascot/MLG",
+      "plays": 292,
+      "woc": 25,
+      "lw": 35,
+      "tw": 35,
+      "change": -82
+    },
+    {
+      "artist": "INIMICAL DRIVE",
+      "song": "VICTIM",
+      "label": "In Detail/Land Shark",
+      "plays": 291,
+      "woc": 46,
+      "lw": 36,
+      "tw": 36,
+      "change": 68
+    },
+    {
+      "artist": "PAUL BENJAMAN BAND",
+      "song": "MY BAD SIDE WANTS A GOOD TIME",
+      "label": "Pasadena",
+      "plays": 283,
+      "woc": 15,
+      "lw": 37,
+      "tw": 37,
+      "change": -174
+    },
+    {
+      "artist": "LINES OF LOYALTY",
+      "song": "HURTS TO BE HUMAN",
+      "label": "C3B/CO5",
+      "plays": 279,
+      "woc": 37,
+      "lw": 38,
+      "tw": 38,
+      "change": 1
+    },
+    {
+      "artist": "MOON FEVER",
+      "song": "FOREVER SLEEP",
+      "label": "Astro/Amplify",
+      "plays": 256,
+      "woc": 43,
+      "lw": 39,
+      "tw": 39,
+      "change": 16
+    },
+    {
+      "artist": "THE WARNING",
+      "song": "S!CK",
+      "label": "Lava/Republic",
+      "plays": 248,
+      "woc": 39,
+      "lw": 40,
+      "tw": 40,
+      "change": -13
+    },
+    {
+      "artist": "COLDWARDS",
+      "song": "THE FIRE INSIDE",
+      "label": "Wake Up! Music Rocks",
+      "plays": 245,
+      "woc": 42,
+      "lw": 41,
+      "tw": 41,
+      "change": 5
+    },
+    {
+      "artist": "PALAYE ROYALE",
+      "song": "DEAD TO ME",
+      "label": "Sumerian",
+      "plays": 237,
+      "woc": 44,
+      "lw": 42,
+      "tw": 42,
+      "change": 4
+    },
+    {
+      "artist": "PLUSH",
+      "song": "RUN",
+      "label": "Pavement",
+      "plays": 219,
+      "woc": 49,
+      "lw": 43,
+      "tw": 43,
+      "change": 24
+    },
+    {
+      "artist": "LINKIN PARK",
+      "song": "FRIENDLY FIRE",
+      "label": "Warner",
+      "plays": 217,
+      "woc": 47,
+      "lw": 44,
+      "tw": 44,
+      "change": -1
+    },
+    {
+      "artist": "BEARTOOTH",
+      "song": "I WAS ALIVE",
+      "label": "Red Bull",
+      "plays": 216,
+      "woc": 48,
+      "lw": 45,
+      "tw": 45,
+      "change": 3
+    },
+    {
+      "artist": "MESSER",
+      "song": "THROW IT AWAY",
+      "label": "Independent",
+      "plays": 199,
+      "woc": 40,
+      "lw": 46,
+      "tw": 46,
+      "change": -61
+    },
+    {
+      "artist": "NONPOINT",
+      "song": "UNDERDOG",
+      "label": "361 Degrees",
+      "plays": 196,
+      "woc": 52,
+      "lw": 47,
+      "tw": 47,
+      "change": 26
+    },
+    {
+      "artist": "BLACKLIST UNION",
+      "song": "HORNS AND HALOS",
+      "label": "BLU",
+      "plays": 190,
+      "woc": 54,
+      "lw": 48,
+      "tw": 48,
+      "change": 30
+    },
+    {
+      "artist": "SUM 41",
+      "song": "LANDMINES",
+      "label": "BMG",
+      "plays": 186,
+      "woc": 51,
+      "lw": 49,
+      "tw": 49,
+      "change": -1
+    },
+    {
+      "artist": "THE GHOST INSIDE",
+      "song": "WASH IT AWAY",
+      "label": "Epitaph",
+      "plays": 184,
+      "woc": 41,
+      "lw": 50,
+      "tw": 50,
+      "change": -66
+    }
+  ]
+}

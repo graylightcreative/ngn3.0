@@ -1,0 +1,10 @@
+*/10 * * * * /usr/bin/php /www/wwwroot/nextgennoise/jobs/spins_sync.php >> /www/wwwroot/nextgennoise/storage/logs/cron-spins-sync.log 2>&1
+5,35 * * * * /usr/bin/php /www/wwwroot/nextgennoise/jobs/link_names.php >> /www/wwwroot/nextgennoise/storage/logs/cron-link.log 2>&1
+0 6 * * 1 /usr/bin/php /www/wwwroot/nextgennoise/jobs/compute_week.php >> /www/wwwroot/nextgennoise/storage/logs/cron-compute-week.log 2>&1
+10 6 * * 1 /usr/bin/php /www/wwwroot/nextgennoise/jobs/chain_one_click.php >> /www/wwwroot/nextgennoise/storage/logs/cron-ocw.log 2>&1
+0 3 * * * /usr/bin/php /www/wwwroot/nextgennoise/jobs/backup_db.php >> /www/wwwroot/nextgennoise/storage/logs/cron-backup.log 2>&1
+30 3 * * * /usr/bin/php /www/wwwroot/nextgennoise/jobs/backup_verify.php >> /www/wwwroot/nextgennoise/storage/logs/cron-backup-verify.log 2>&1
+45 3 * * 0 /usr/bin/php /www/wwwroot/nextgennoise/jobs/backup_verify_all.php >> /www/wwwroot/nextgennoise/storage/logs/cron-backup-all.log 2>&1
+5 6 * * 1 /usr/bin/php /www/wwwroot/nextgennoise/scripts/chart_qa_gatekeeper.php >> /www/wwwroot/nextgennoise/storage/logs/cron-chart-qa.log 2>&1
+10 6 * * 1 /usr/bin/php /www/wwwroot/nextgennoise/jobs/rankings/compute_weekly_ngn_score.php >> /www/wwwroot/nextgennoise/storage/logs/cron-compute-weekly-score.log 2>&1
+*/5 * * * * /usr/bin/php /www/wwwroot/nextgennoise/jobs/data/linkage_resolver.php >> /www/wwwroot/nextgennoise/storage/logs/cron-linkage-resolver.log 2>&1
