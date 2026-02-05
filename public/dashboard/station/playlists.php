@@ -27,14 +27,20 @@ $currentTier = null;
 
 // Get current tier
 try {
-    $currentTier = $tierService->getStationTier($entity['id']);
+    if ($entity) {
+        $currentTier = $tierService->getStationTier($entity['id']);
+    } else {
+        $error = 'Station profile not found. Please set up your profile first.';
+    }
 } catch (\Throwable $e) {
     $error = 'Failed to load tier information.';
 }
 
 // Handle playlist creation
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'create') {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -81,7 +87,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Handle playlist deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -98,6 +106,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Fetch playlists
+try {
+    if ($entity) {
+        $result = $playlistService->listPlaylists($entity['id']);
+        if ($result['success']) {
+            $playlists = $result['items'] ?? [];
+        }
+    }
+} catch (\Throwable $e) {
+    $error = 'Error loading playlists: ' . $e->getMessage();
+}
 // Fetch playlists
 try {
     $result = $playlistService->listPlaylists($entity['id']);

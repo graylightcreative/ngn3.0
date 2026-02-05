@@ -28,9 +28,13 @@ $filterStatus = $_GET['status'] ?? 'approved';
 
 // Get station tier info
 try {
-    $tier = $tierService->getStationTier($entity['id']);
-    if (!$tier) {
-        $error = 'Unable to determine station tier.';
+    if ($entity) {
+        $tier = $tierService->getStationTier($entity['id']);
+        if (!$tier) {
+            $error = 'Unable to determine station tier.';
+        }
+    } else {
+        $error = 'Station profile not found. Please set up your profile first.';
     }
 } catch (\Throwable $e) {
     $error = 'Failed to load tier information.';
@@ -38,7 +42,9 @@ try {
 
 // Handle file upload
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -79,7 +85,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
 
 // Handle content deletion
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'delete') {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -98,6 +106,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Fetch content list
 try {
+    if ($entity) {
+        $result = $contentService->listContent($entity['id'], $filterStatus);
+        if ($result['success']) {
+            $contents = $result['items'] ?? [];
+        }
+    }
+} catch (\Throwable $e) {
+    $error = 'Error loading content: ' . $e->getMessage();
+}
     $result = $contentService->listContent($entity['id'], $filterStatus ?: null, 1, 50);
     if ($result['success']) {
         $contents = $result['items'] ?? [];

@@ -33,7 +33,9 @@ $stats = [
 
 // Handle approval
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'approve') {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -52,7 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Handle fulfillment
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'fulfill') {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -71,7 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Handle rejection
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'reject') {
-    if (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
         $error = 'Invalid security token.';
     } else {
         try {
@@ -90,21 +96,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 // Fetch requests
 try {
-    $result = $requestService->listRequests($entity['id'], null, 1, 100);
-    if ($result['success']) {
-        $requests = $result['items'] ?? [];
-        // Count by status
-        foreach ($requests as $req) {
-            if (isset($stats[$req['status']])) {
-                $stats[$req['status']]++;
+    if ($entity) {
+        $result = $requestService->listRequests($entity['id'], null, 1, 100);
+        if ($result['success']) {
+            $requests = $result['items'] ?? [];
+            // Count by status
+            foreach ($requests as $req) {
+                if (isset($stats[$req['status']])) {
+                    $stats[$req['status']]++;
+                }
             }
+            // Filter by status
+            $requests = array_filter($requests, function($req) use ($filterStatus) {
+                return $filterStatus === 'all' || $req['status'] === $filterStatus;
+            });
+        } else {
+            $error = 'Failed to load requests: ' . ($result['message'] ?? 'Unknown error');
         }
-        // Filter by status
-        $requests = array_filter($requests, function($req) use ($filterStatus) {
-            return $filterStatus === 'all' || $req['status'] === $filterStatus;
-        });
     } else {
-        $error = 'Failed to load requests: ' . ($result['message'] ?? 'Unknown error');
+        $error = 'Station profile not found. Please set up your profile first.';
     }
 } catch (\Throwable $e) {
     $error = 'Error loading requests: ' . $e->getMessage();
@@ -235,7 +245,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const requestQueueContainer = document.querySelector('.card > div[style="display: grid; gap: 1rem;"]');
-    const stationId = <?= $entity['id'] ?>;
+    const stationId = <?= ($entity['id'] ?? 'null') ?>;
     const csrfToken = '<?php echo dashboard_csrf_token(); ?>';
     const filterStatus = '<?= $filterStatus ?>';
 
