@@ -12,6 +12,16 @@ use NGN\Lib\Writer\SafetyFilterService;
 
 // Initialize services
 $config = new Config();
+
+if (!$config->featureAiEnabled()) {
+    $router->get('/writer/.*', function() {
+        return new JsonResponse(['success' => false, 'message' => 'AI Writer Engine is currently disabled.'], 503);
+    });
+    $router->post('/admin/writer/.*', function() {
+        return new JsonResponse(['success' => false, 'message' => 'AI Writer Engine is currently disabled.'], 503);
+    });
+}
+
 $articleService = null;
 $safetyService = null;
 

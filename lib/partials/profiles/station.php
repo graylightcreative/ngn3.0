@@ -140,6 +140,7 @@ if (empty($station['smr_rankings'])) {
     <div class="lg:col-span-4 space-y-8">
         
         <!-- Station Metrics -->
+        <?php if ((new \NGN\Lib\Config())->featureAiEnabled()): ?>
         <div class="bg-zinc-900/50 rounded-3xl border border-white/5 p-8">
             <h3 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Intelligence</h3>
             <div class="space-y-6">

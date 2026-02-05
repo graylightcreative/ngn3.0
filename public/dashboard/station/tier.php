@@ -27,6 +27,9 @@ $error = null;
 try {
     if ($entity && isset($entity['id'])) {
         $currentTier = $tierService->getStationTier($entity['id']);
+        if ($currentTier && !$config->featureAiEnabled()) {
+            $currentTier['description'] = str_ireplace(['with AI coaching', 'AI coaching', 'AI coaching and '], '', $currentTier['description'] ?? '');
+        }
         if (!$currentTier) {
             $error = 'Unable to load tier information.';
         }
@@ -40,6 +43,14 @@ try {
 // Get all available tiers
 try {
     $allTiers = $tierService->getAvailableTiers();
+    if (!$config->featureAiEnabled()) {
+        foreach ($allTiers as &$t) {
+            $t['description'] = str_ireplace(['with AI coaching', 'AI coaching', 'AI coaching and '], '', $t['description'] ?? '');
+            if (isset($t['features']['ai_coaching'])) {
+                $t['features']['ai_coaching'] = false;
+            }
+        }
+    }
 } catch (\Throwable $e) {
     $error = 'Failed to load available tiers.';
 }

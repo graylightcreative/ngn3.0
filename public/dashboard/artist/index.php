@@ -328,6 +328,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         </div>
 
         <!-- AI Coach Teaser -->
+        <?php if ($config->featureAiEnabled()): ?>
         <div class="card" style="background: linear-gradient(135deg, rgba(29, 185, 84, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%); border-color: var(--brand);">
             <div class="card-header">
                 <h2 class="card-title"><i class="bi bi-robot" style="color: var(--brand);"></i> AI Career Coach</h2>
@@ -344,6 +345,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 <li><i class="bi bi-check-circle-fill" style="color: var(--brand);"></i> Audience growth strategies</li>
             </ul>
         </div>
+        <?php endif; ?>
         
         <!-- Score Breakdown Teaser -->
         <div class="card">

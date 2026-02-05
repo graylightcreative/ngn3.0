@@ -347,6 +347,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
             </div>
         </div>
         <!-- AI Coach Teaser -->
+        <?php if ((new \NGN\Lib\Config())->featureAiEnabled()): ?>
         <div class="card" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(0, 212, 255, 0.1) 100%); border-color: #a855f7;">
             <div style="display: flex; align-items: center; gap: 16px;">
                 <div style="width: 56px; height: 56px; border-radius: 12px; background: linear-gradient(135deg, #a855f7, #00d4ff); display: flex; align-items: center; justify-content: center;">
@@ -363,6 +364,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 </div>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 

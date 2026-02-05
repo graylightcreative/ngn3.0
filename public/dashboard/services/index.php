@@ -43,14 +43,15 @@ try {
 }
 
 // --- Services Data (Static for now) ---
-$services = [
+$allServices = [
     [
         'id' => 'mix_feedback',
         'name' => 'AI Mix Feedback Assistant',
-        'description' => 'Get AI-powered insights on your track's mix, loudness, and balance.',
+        'description' => "Get AI-powered insights on your track's mix, loudness, and balance.",
         'cost_sparks' => 15,
         'icon' => 'bi-soundwave',
-        'details_page' => '/dashboard/services/mix-feedback.php'
+        'details_page' => '/dashboard/services/mix-feedback.php',
+        'is_ai' => true
     ],
     [
         'id' => 'service_blurb',
@@ -58,19 +59,18 @@ $services = [
         'description' => 'Generate compelling descriptions for your music services or profile.',
         'cost_sparks' => 5,
         'icon' => 'bi-chat-quote',
-        'details_page' => '/dashboard/services/blurb-generator.php'
+        'details_page' => '/dashboard/services/blurb-generator.php',
+        'is_ai' => true
     ],
     // Add more services here as they are developed
-    // [
-    //     'id' => 'release_timing',
-    //     'name' => 'Release Timing Optimizer',
-    //     'description' => 'Optimize your next release date for maximum impact based on market trends.',
-    //     'cost_sparks' => 5,
-    //     'icon' => 'bi-calendar-check',
-    //     'details_page' => '/dashboard/services/release-timing.php',
-    //     'requires_tier' => 'elite'
-    // ]
 ];
+
+$services = array_filter($allServices, function($s) use ($config) {
+    if (!empty($s['is_ai']) && !$config->featureAiEnabled()) {
+        return false;
+    }
+    return true;
+});
 
 ?>
 <!-- Include Admin theme header partial -->

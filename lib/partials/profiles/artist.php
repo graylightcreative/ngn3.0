@@ -193,7 +193,7 @@ if (empty($entity['smr_rankings'])) {
             </section>
 
             <!-- Radio Rankings -->
-            <?php if (!empty($entity['smr_rankings'])): ?>
+            <?php if (!empty($entity['smr_rankings']) && $config->featureAiEnabled()): ?>
             <section class="sp-card border border-white/5 p-8">
                 <h2 class="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">Radio Intelligence</h2>
                 <div class="space-y-6">

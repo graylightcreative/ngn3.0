@@ -7,6 +7,11 @@
  */
 require_once __DIR__ . '/../../../lib/bootstrap.php';
 
+if (!(new \NGN\Lib\Config())->featureAiEnabled()) {
+    header('Location: /dashboard/artist/index.php');
+    exit;
+}
+
 use NGN\Lib\Config;
 use NGN\Lib\Env;
 use NGN\Lib\Http\{Request, Response, Router, Json, Cors, RateLimiter};

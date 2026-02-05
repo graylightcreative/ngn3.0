@@ -100,6 +100,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                     <input type="checkbox" checked style="width: 20px; height: 20px;">
                 </label>
                 
+                <?php if ((new \NGN\Lib\Config())->featureAiEnabled()): ?>
                 <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-primary); border-radius: 8px; cursor: pointer;">
                     <div>
                         <div style="font-weight: 500;">AI Coach Tips</div>
@@ -107,6 +108,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                     </div>
                     <input type="checkbox" checked style="width: 20px; height: 20px;">
                 </label>
+                <?php endif; ?>
                 
                 <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: var(--bg-primary); border-radius: 8px; cursor: pointer;">
                     <div>

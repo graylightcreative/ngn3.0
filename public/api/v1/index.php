@@ -411,6 +411,9 @@ $router->post('/sparks/deduct', function (Request $request) use ($sparkService, 
 
 // POST /ai/mix-feedback
 $router->post('/ai/mix-feedback', function (Request $request) use ($tokenSvc, $config, $sparkService) {
+    if (!$config->featureAiEnabled()) {
+        return new JsonResponse(['success' => false, 'message' => 'AI services are currently disabled.'], 503);
+    }
     $user = getCurrentUser($tokenSvc, $request);
     if (!$user) {
         return new JsonResponse(['success' => false, 'message' => 'Authentication required.'], 401);
@@ -806,7 +809,10 @@ $router->post('/advertiser/campaigns', function (Request $request) use ($adverti
 });
 
 // POST /api/v1/advertiser/campaigns/draft - AI Drafting Assistant
-$router->post('/advertiser/campaigns/draft', function (Request $request) use ($advertiserService, $tokenSvc) {
+$router->post('/advertiser/campaigns/draft', function (Request $request) use ($advertiserService, $tokenSvc, $config) {
+    if (!$config->featureAiEnabled()) {
+        return new JsonResponse(['success' => false, 'message' => 'AI services are currently disabled.'], 503);
+    }
     $user = getCurrentUser($tokenSvc, $request);
     if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
     if (!$advertiserService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);

@@ -57,6 +57,10 @@ class Intelligence
      */
     public function isConfigured(): bool
     {
+        $config = new \NGN\Lib\Config();
+        if (!$config->featureAiEnabled()) {
+            return false;
+        }
         $credPath = $this->getEnv('NGN_GOOGLE_APPLICATION_CREDENTIALS');
         $projectId = $this->getEnv('NGN_GOOGLE_CLOUD_PROJECT_ID');
         return !empty($credPath) && !empty($projectId) && file_exists($credPath);
@@ -154,6 +158,11 @@ class Intelligence
 
     public function generateAIText($prompt)
     {
+        $config = new \NGN\Lib\Config();
+        if (!$config->featureAiEnabled()) {
+            return "AI services are currently disabled until the platform reaches profitability milestones.";
+        }
+
         // Check configuration first
         if (!$this->isConfigured()) {
             $status = $this->getConfigStatus();

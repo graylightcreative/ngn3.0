@@ -75,6 +75,7 @@ class Config
 	    public function featureAdmin(): bool { return Env::bool('FEATURE_ADMIN', $this->appEnv() === 'development'); }
 	    public function featureRoyalties(): bool { return Env::bool('FEATURE_ROYALTIES', $this->appEnv() === 'development'); }
 	    public function featurePublicRollout(): bool { return Env::bool('FEATURE_PUBLIC_ROLLOUT', false); }
+        public function featureAiEnabled(): bool { return false; } // AI services disabled until product is profitable
 
 	    // Sparks / monetization
 	    public function sparksMode(): string {

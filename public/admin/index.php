@@ -247,7 +247,7 @@ include __DIR__.'/_topbar.php';
             </svg>
         </div>
         <div class="metric-value text-blue-600 dark:text-blue-400">$<?php echo number_format($serviceRevenue, 2); ?></div>
-        <div class="mt-2 text-xs text-gray-500">From AI services</div>
+        <div class="mt-2 text-xs text-gray-500"><?= $cfg->featureAiEnabled() ? 'From AI services' : 'AI Services (DISABLED)' ?></div>
     </div>
 
     <!-- Active Subscribers -->
