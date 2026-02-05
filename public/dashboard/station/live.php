@@ -94,6 +94,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Handle Mock Request Generation (Test Accounts Only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_mock_requests' && dashboard_is_test_account()) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+        $error = 'Invalid security token.';
+    } else {
+        try {
+            $pdo = dashboard_pdo();
+            $mockRequests = [
+                ['artist' => 'The Black Keys', 'song' => 'Lonely Boy', 'type' => 'song'],
+                ['artist' => 'Arctic Monkeys', 'song' => 'Do I Wanna Know?', 'type' => 'song'],
+                ['artist' => 'Radiohead', 'song' => 'Creep', 'type' => 'dedication', 'msg' => 'For all the weirdos!'],
+                ['artist' => 'Nirvana', 'song' => 'Smells Like Teen Spirit', 'type' => 'shoutout', 'msg' => 'Happy Friday!'],
+                ['artist' => 'Pearl Jam', 'song' => 'Alive', 'type' => 'song']
+            ];
+            
+            $inserted = 0;
+            foreach ($mockRequests as $r) {
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`listener_requests` 
+                    (station_id, request_type, song_title, song_artist, message, status, created_at)
+                    VALUES (?, ?, ?, ?, ?, 'pending', NOW())");
+                
+                $success_mock = $stmt->execute([
+                    $entity['id'],
+                    $r['type'],
+                    $r['song'],
+                    $r['artist'],
+                    $r['msg'] ?? ''
+                ]);
+                if ($success_mock) $inserted++;
+            }
+            $success = "Successfully generated $inserted mock requests for testing.";
+        } catch (\Throwable $e) {
+            $error = 'Failed to generate mock requests: ' . $e->getMessage();
+        }
+    }
+}
+
 // Fetch requests
 try {
     if ($entity) {
@@ -137,6 +176,23 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
 
         <?php if ($error): ?>
         <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- Test Account Controls -->
+        <?php if (dashboard_is_test_account()): ?>
+        <div class="card" style="border: 1px dashed var(--brand); background: rgba(29, 185, 84, 0.05); margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title text-brand"><i class="bi bi-bug"></i> Test Controls</h2>
+            </div>
+            <p class="text-sm text-secondary mb-4">You are logged into a test account. Use the button below to populate this section with mock request data for verification.</p>
+            <form method="post">
+                <input type="hidden" name="csrf" value="<?php echo dashboard_csrf_token(); ?>">
+                <input type="hidden" name="action" value="generate_mock_requests">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i> Generate Mock Requests
+                </button>
+            </form>
+        </div>
         <?php endif; ?>
 
         <!-- Stats Cards -->

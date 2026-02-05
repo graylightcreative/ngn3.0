@@ -106,6 +106,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Handle Mock Playlist Generation (Test Accounts Only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_mock_playlists' && dashboard_is_test_account()) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+        $error = 'Invalid security token.';
+    } else {
+        try {
+            $mockPlaylists = [
+                'Rock Anthems',
+                '90s Grunge Essentials',
+                'Modern Metal Mix',
+                'Acoustic Mornings',
+                'Listener Favorites'
+            ];
+            
+            $inserted = 0;
+            foreach ($mockPlaylists as $title) {
+                $result = $playlistService->createPlaylist(
+                    $entity['id'],
+                    $title,
+                    [],
+                    null
+                );
+                if ($result['success']) $inserted++;
+            }
+            $success = "Successfully generated $inserted mock playlists for testing.";
+        } catch (\Throwable $e) {
+            $error = 'Failed to generate mock playlists: ' . $e->getMessage();
+        }
+    }
+}
+
 // Fetch playlists
 try {
     if ($entity) {
@@ -137,6 +170,23 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
 
         <?php if ($error): ?>
         <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- Test Account Controls -->
+        <?php if (dashboard_is_test_account()): ?>
+        <div class="card" style="border: 1px dashed var(--brand); background: rgba(29, 185, 84, 0.05); margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title text-brand"><i class="bi bi-bug"></i> Test Controls</h2>
+            </div>
+            <p class="text-sm text-secondary mb-4">You are logged into a test account. Use the button below to populate this section with mock playlist data for verification.</p>
+            <form method="post">
+                <input type="hidden" name="csrf" value="<?php echo dashboard_csrf_token(); ?>">
+                <input type="hidden" name="action" value="generate_mock_playlists">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i> Generate Mock Playlists
+                </button>
+            </form>
+        </div>
         <?php endif; ?>
 
         <!-- Create Playlist Section -->

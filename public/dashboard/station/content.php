@@ -104,6 +104,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// Handle Mock Content Generation (Test Accounts Only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_mock' && dashboard_is_test_account()) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+        $error = 'Invalid security token.';
+    } else {
+        try {
+            $pdo = dashboard_pdo();
+            $mockTracks = [
+                ['title' => 'Neon Nights', 'artist' => 'Synthwave Pro'],
+                ['title' => 'Deep Bass', 'artist' => 'Subwoofer King'],
+                ['title' => 'Mountain High', 'artist' => 'Folk Duo'],
+                ['title' => 'Techno Pulse', 'artist' => 'DJ Flash'],
+                ['title' => 'Jazz Chill', 'artist' => 'The Smooth Quartet']
+            ];
+            
+            $inserted = 0;
+            foreach ($mockTracks as $track) {
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`station_content` 
+                    (station_id, title, artist_name, file_path, file_hash, file_size_bytes, mime_type, status, indemnity_accepted_at, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 'approved', NOW(), NOW())");
+                
+                $success_mock = $stmt->execute([
+                    $entity['id'],
+                    $track['title'],
+                    $track['artist'],
+                    '/tmp/mock_audio.mp3',
+                    md5(uniqid($track['title'], true)),
+                    rand(3000000, 10000000),
+                    'audio/mpeg'
+                ]);
+                if ($success_mock) $inserted++;
+            }
+            $success = "Successfully generated $inserted mock tracks for testing.";
+        } catch (\Throwable $e) {
+            $error = 'Failed to generate mock content: ' . $e->getMessage();
+        }
+    }
+}
+
 // Fetch content list
 try {
     if ($entity) {
@@ -146,6 +187,23 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
 
         <?php if ($error): ?>
         <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- Test Account Controls -->
+        <?php if (dashboard_is_test_account()): ?>
+        <div class="card" style="border: 1px dashed var(--brand); background: rgba(29, 185, 84, 0.05);">
+            <div class="card-header">
+                <h2 class="card-title text-brand"><i class="bi bi-bug"></i> Test Controls</h2>
+            </div>
+            <p class="text-sm text-secondary mb-4">You are logged into a test account. Use the button below to populate this section with mock content for verification.</p>
+            <form method="post">
+                <input type="hidden" name="csrf" value="<?php echo dashboard_csrf_token(); ?>">
+                <input type="hidden" name="action" value="generate_mock">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i> Generate Mock Content
+                </button>
+            </form>
+        </div>
         <?php endif; ?>
 
         <!-- Upload Section -->

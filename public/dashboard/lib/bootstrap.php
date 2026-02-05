@@ -35,6 +35,16 @@ function dashboard_is_logged_in(): bool {
 }
 
 /**
+ * Check if current account is a test account
+ */
+function dashboard_is_test_account(): bool {
+    $user = dashboard_get_user();
+    if (!$user) return false;
+    $email = $user['email'] ?? $user['Email'] ?? '';
+    return str_ends_with(strtolower($email), '@ngn.local');
+}
+
+/**
  * Get user's entity type based on RoleId
  * 3 = Artist, 7 = Label, 4/15 = Station, 5/17 = Venue
  */

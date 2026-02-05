@@ -210,6 +210,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity && !isset($_FILES['csv_file
     }
 }
 
+// Handle Mock Spin Generation (Test Accounts Only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_mock_spins' && dashboard_is_test_account()) {
+    if (!$entity) {
+        $error = 'Station profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+        $error = 'Invalid security token.';
+    } else {
+        try {
+            $spinsPdo = dashboard_pdo_spins();
+            $mockSpins = [
+                ['artist' => 'Metallica', 'song' => 'Master of Puppets'],
+                ['artist' => 'Slayer', 'song' => 'Angel of Death'],
+                ['artist' => 'Megadeth', 'song' => 'Holy Wars'],
+                ['artist' => 'Anthrax', 'song' => 'Madhouse'],
+                ['artist' => 'Pantera', 'song' => 'Cowboys from Hell']
+            ];
+            
+            $inserted = 0;
+            foreach ($mockSpins as $s) {
+                $stmt = $spinsPdo->prepare("INSERT INTO station_spins (station_id, artist_name, song_title, played_at, program, spins_count, created_at) VALUES (?, ?, ?, ?, ?, 1, NOW())");
+                $playedAt = date('Y-m-d H:i:s', time() - rand(0, 86400));
+                $success_mock = $stmt->execute([$entity['id'], $s['artist'], $s['song'], $playedAt, 'Test Rotation']);
+                if ($success_mock) $inserted++;
+            }
+            $success = "Successfully generated $inserted mock spins for testing.";
+            
+            // Refresh list
+            $stmt = $spinsPdo->prepare("SELECT * FROM station_spins WHERE station_id = ? ORDER BY played_at DESC LIMIT 50");
+            $stmt->execute([$entity['id']]);
+            $spins = $stmt->fetchAll() ?: [];
+        } catch (\Throwable $e) {
+            $error = 'Failed to generate mock spins: ' . $e->getMessage();
+        }
+    }
+}
+
 $csrf = dashboard_csrf_token();
 
 include dirname(__DIR__) . '/lib/partials/head.php';
@@ -229,6 +265,23 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         
         <?php if ($error): ?>
         <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- Test Account Controls -->
+        <?php if (dashboard_is_test_account()): ?>
+        <div class="card" style="border: 1px dashed var(--brand); background: rgba(29, 185, 84, 0.05); margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title text-brand"><i class="bi bi-bug"></i> Test Controls</h2>
+            </div>
+            <p class="text-sm text-secondary mb-4">You are logged into a test account. Use the button below to populate this section with mock spin data for verification.</p>
+            <form method="post">
+                <input type="hidden" name="csrf" value="<?php echo dashboard_csrf_token(); ?>">
+                <input type="hidden" name="action" value="generate_mock_spins">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i> Generate Mock Spins
+                </button>
+            </form>
+        </div>
         <?php endif; ?>
         
         <?php if (!$entity): ?>
