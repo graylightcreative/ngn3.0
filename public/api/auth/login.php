@@ -90,11 +90,11 @@ try {
 if (empty($redirect)) {
     $isAdmin = (string)($user['role_id'] ?? '') === '1'; // Check against role_id
     if ($isAdmin || $maintenance) {
-        $redirect = rtrim($config->get('app.base_url') ?? '/', '/') . '/admin/index.php';
+        $redirect = $config->baseUrl() . '/admin/index.php';
     } else {
         // Determine redirect based on role ID
         $roleId = (int)($user['role_id'] ?? 0);
-        $baseUrl = rtrim($config->get('app.base_url') ?? '/', '/');
+        $baseUrl = $config->baseUrl();
         $redirect = match($roleId) {
             3 => $baseUrl . '/dashboard/artist/',
             7 => $baseUrl . '/dashboard/label/',

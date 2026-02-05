@@ -34,6 +34,7 @@ class Config
     public function appEnv(): string { return Env::get('APP_ENV', 'production') ?? 'production'; }
     public function appDebug(): bool { return Env::bool('APP_DEBUG', false); }
     public function appVersion(): string { return Env::get('APP_VERSION', '0.0.0') ?? '0.0.0'; }
+    public function baseUrl(): string { return rtrim(Env::get('BASEURL', Env::get('APP_URL', '/')), '/'); }
 
     public function corsAllowedOrigins(): string { return Env::get('CORS_ALLOWED_ORIGINS', '*') ?? '*'; }
     public function corsAllowedMethods(): string { return Env::get('CORS_ALLOWED_METHODS', 'GET,POST,PUT,PATCH,DELETE,OPTIONS') ?? 'GET,POST,PUT,PATCH,DELETE,OPTIONS'; }

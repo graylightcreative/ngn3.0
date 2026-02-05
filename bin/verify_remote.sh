@@ -46,7 +46,7 @@ check_content "$BASE_URL/" "NextGenNoise" "Home Page Title"
 
 # 2. API Health
 check_url "$BASE_URL/api/v1/health" 200 "API Health Endpoint"
-check_content "$BASE_URL/api/v1/health" ""success":true" "API Health JSON"
+check_content "$BASE_URL/api/v1/health" '"success":true' "API Health JSON"
 
 # 3. Main Entity Lists
 check_url "$BASE_URL/artists" 200 "Artists Page"
