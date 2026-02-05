@@ -27,12 +27,22 @@ class ConnectionFactory
     public static function named(Config $config, string $name): PDO
     {
         $n = strtoupper(trim($name));
-        $host = Env::get('DB_' . $n . '_HOST', null) ?? '';
-        $port = (int)(Env::get('DB_' . $n . '_PORT', Env::get('DB_PORT', '3306') ?? '3306') ?? '3306');
-        $dbn  = Env::get('DB_' . $n . '_NAME', null) ?? '';
-        $user = Env::get('DB_' . $n . '_USER', null) ?? '';
-        $pass = Env::get('DB_' . $n . '_PASS', Env::get('DB_' . $n . '_PASSWORD', null) ?? null) ?? '';
-        // Fallback: parse .env files directly if some fields are missing (e.g., when values are only in lib/definitions/.env)
+        
+        // Try new standard pattern first: DB_{NAME}_{HOST,PORT,NAME,USER,PASS}
+        $host = Env::get('DB_' . $n . '_HOST', null);
+        $port = Env::get('DB_' . $n . '_PORT', null);
+        $dbn  = Env::get('DB_' . $n . '_NAME', null);
+        $user = Env::get('DB_' . $n . '_USER', null);
+        $pass = Env::get('DB_' . $n . '_PASS', Env::get('DB_' . $n . '_PASSWORD', null));
+
+        // Fallback to legacy patterns if needed: {NAME}_DB_{SERVER,EXTERNAL_USER,EXTERNAL_PASS,EXTERNAL_NAME}
+        $host = $host ?? Env::get($n . '_DB_SERVER', Env::get($n . '_DB_HOST', ''));
+        $port = (int)($port ?? Env::get($n . '_DB_PORT', Env::get('DB_PORT', '3306') ?? '3306') ?? '3306');
+        $dbn  = $dbn  ?? Env::get($n . '_DB_EXTERNAL_NAME', Env::get($n . '_DB_NAME', ''));
+        $user = $user ?? Env::get($n . '_DB_EXTERNAL_USER', Env::get($n . '_DB_USER', ''));
+        $pass = $pass ?? Env::get($n . '_DB_EXTERNAL_PASS', Env::get($n . '_DB_PASS', Env::get($n . '_DB_PASSWORD', '')));
+
+        // Second fallback: parse .env files directly if some fields are still missing
         if ($host === '' || $dbn === '' || $user === '') {
             [$host2, $port2, $dbn2, $user2, $pass2] = self::lookupNamedFromFiles($n);
             $host = $host ?: $host2;
@@ -41,7 +51,8 @@ class ConnectionFactory
             $user = $user ?: $user2;
             $pass = $pass ?: $pass2;
         }
-        return self::connect($host, $port, $dbn, $user, $pass);
+        
+        return self::connect((string)$host, (int)$port, (string)$dbn, (string)$user, (string)$pass);
     }
 
     /**

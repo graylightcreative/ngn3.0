@@ -181,6 +181,7 @@ function is_subscribed(PDO $pdo, int $userId, int $artistId, int $tierId): bool
 // Get user image path
 function user_image(string $slug, ?string $image): string {
     if (empty($image)) return DEFAULT_AVATAR;
+    if (str_starts_with($image, '/')) return $image;
     return "/uploads/users/{$slug}/{$image}";
 }
 
@@ -213,6 +214,16 @@ if ($pdo) {
             // Recent posts and videos for home (now from ngn_2025 database)
             $data['posts'] = get_ngn_posts($pdo, '', 1, 4);
             $data['videos'] = legacy_videos($pdo, '', 1, 4); // Use refactored legacy_videos with $pdo
+            $data['songs'] = [];
+            try {
+                $stmt = $pdo->prepare("SELECT t.*, a.name as artist_name, r.title as release_name, r.cover_url 
+                                       FROM `ngn_2025`.`tracks` t 
+                                       LEFT JOIN `ngn_2025`.`artists` a ON t.artist_id = a.id 
+                                       LEFT JOIN `ngn_2025`.`releases` r ON t.release_id = r.id
+                                       ORDER BY t.id DESC LIMIT 5");
+                $stmt->execute();
+                $data['songs'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            } catch (\Throwable $e) {}
 
             // Chart data for home (NGN Rankings from ngn_rankings_2025)
             $data['artist_rankings'] = [];
@@ -817,7 +828,9 @@ $seoUrl = $baseUrl . '/';
 if ($view === 'post' && !empty($data['post'])) {
     $seoTitle = htmlspecialchars($data['post']['title'] ?? '') . ' | NextGenNoise';
     $seoDesc = htmlspecialchars(substr(strip_tags($data['post']['excerpt'] ?? $data['post']['content'] ?? ''), 0, 160));
-    if (!empty($data['post']['featured_image_url'])) $seoImage = $data['post']['featured_image_url'];
+    $postImg = $data['post']['featured_image_url'] ?? '';
+    if ($postImg && !str_starts_with($postImg, '/')) $postImg = "/uploads/posts/{$postImg}";
+    $seoImage = $postImg ?: $seoImage;
     $postSlug = $data['post']['slug'] ?? $data['post']['id'];
     $seoUrl = "{$baseUrl}/post/{$postSlug}";
 } elseif (in_array($view, ['artist', 'label', 'station', 'venue']) && $entity) {
@@ -884,34 +897,142 @@ if ($view === 'post' && !empty($data['post'])) {
       if (saved ? saved === 'dark' : prefersDark) document.documentElement.classList.add('dark');
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com?v=<?= \NGN\Lib\Env::get('APP_VERSION') ?>"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=<?= \NGN\Lib\Env::get('APP_VERSION') ?>">
+  <script src="https://cdn.tailwindcss.com?v=<?= time() ?>"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=<?= time() ?>">
   <script src="/js/pwa-setup.js?v=<?= \NGN\Lib\Env::get('APP_VERSION') ?>" defer></script>
   <style>
-    /* Loading Skeleton Animations */
-    @keyframes skeleton-pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
+    :root {
+      --bg-base: #000000;
+      --bg-surface: #121212;
+      --bg-elevated: #181818;
+      --bg-highlight: #282828;
+      --text-main: #ffffff;
+      --text-sub: #b3b3b3;
+      --brand: #1DB954;
     }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Loading Skeleton Animations */
     @keyframes skeleton-shimmer {
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
     .skeleton {
-      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+      background: linear-gradient(90deg, #181818 25%, #282828 50%, #181818 75%);
       background-size: 200% 100%;
       animation: skeleton-shimmer 1.5s ease-in-out infinite;
       border-radius: 0.5rem;
     }
-    .dark .skeleton {
-      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
-      background-size: 200% 100%;
+
+    /* Spotify-style scrollbar */
+    ::-webkit-scrollbar { width: 12px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #5a5a5a; border-radius: 6px; border: 3px solid var(--bg-base); }
+    ::-webkit-scrollbar-thumb:hover { background: #b3b3b3; }
+
+    /* Bottom Nav for Mobile */
+    .mobile-bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background: rgba(0,0,0,0.8);
+      backdrop-filter: blur(20px);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+      border-top: 1px solid rgba(255,255,255,0.05);
     }
-    .skeleton-text { height: 1rem; margin-bottom: 0.5rem; }
-    .skeleton-text-sm { height: 0.75rem; margin-bottom: 0.25rem; }
-    .skeleton-avatar { width: 3rem; height: 3rem; border-radius: 9999px; }
-    .skeleton-card { height: 12rem; }
-    .skeleton-image { aspect-ratio: 16/9; }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 700;
+      transition: color 0.2s;
+    }
+
+    .nav-item.active { color: var(--text-main); }
+    .nav-item i { font-size: 24px; }
+
+    /* Content Area Adjustment */
+    .content-container {
+      padding-bottom: 90px; /* Space for bottom nav */
+    }
+
+    @media (min-width: 1024px) {
+      .mobile-bottom-nav { display: none; }
+      .content-container { padding-bottom: 20px; }
+    }
+
+    /* Spotify-style Card */
+    .sp-card {
+      background: var(--bg-surface);
+      padding: 16px;
+      border-radius: 8px;
+      transition: background 0.3s;
+      height: 100%;
+    }
+    .sp-card:hover {
+      background: var(--bg-highlight);
+    }
+
+    /* Global Player Styles */
+    .player-bar {
+      position: fixed;
+      bottom: 70px; /* Above mobile bottom nav */
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: #000;
+      border-top: 1px solid #282828;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      z-index: 90;
+      transition: transform 0.3s ease;
+    }
+    
+    @media (min-width: 1024px) {
+      .player-bar { bottom: 0; padding: 0 32px; height: 90px; }
+    }
+
+    .player-btn {
+      color: #b3b3b3;
+      transition: all 0.2s;
+    }
+    .player-btn:hover { color: #fff; transform: scale(1.1); }
+    .player-btn.play { color: #fff; background: #fff; color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; items-center: center; justify-content: center; }
+    
+    .progress-bar {
+      height: 4px;
+      background: #4d4d4d;
+      border-radius: 2px;
+      position: relative;
+      cursor: pointer;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--brand);
+      border-radius: 2px;
+      width: 0%;
+    }
+    .progress-bar:hover .progress-fill { background: #1fdf64; }
+
+    /* Hide player when not active */
+    .player-bar.hidden { transform: translateY(100%); }
 
     /* Loading overlay for interactions */
     .loading-overlay {
@@ -970,252 +1091,209 @@ if ($view === 'post' && !empty($data['post'])) {
     }
   </style>
 </head>
-<body class="h-full bg-gray-50 text-gray-900 dark:bg-[#0a0a0f] dark:text-gray-100">
-  <div class="min-h-screen flex">
+<body class="h-full selection:bg-brand/30 dark">
+  <div class="min-h-screen flex flex-col lg:flex-row">
 
-    <!-- Sidebar -->
-    <aside class="hidden lg:flex lg:flex-col w-64 bg-white dark:bg-[#111118] border-r border-gray-200 dark:border-white/10 fixed inset-y-0 left-0 z-30">
-      <div class="p-4 border-b border-gray-200 dark:border-white/10">
+    <!-- Desktop Sidebar (Modern Rail Style) -->
+    <aside class="hidden lg:flex lg:flex-col w-[280px] bg-black p-6 gap-8 fixed inset-y-0 left-0 z-30">
+      <div class="mb-2">
         <a href="/" class="block">
-          <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-10 hidden dark:block">
-          <img src="/lib/images/site/web-dark-1.png" alt="NGN" class="h-10 dark:hidden">
+          <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-10">
         </a>
       </div>
 
-      <nav class="flex-1 p-4 space-y-1 overflow-y-auto">
-        <a href="/" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'home' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <i class="bi-house text-lg"></i> Home
+      <nav class="space-y-4">
+        <a href="/" class="flex items-center gap-4 text-sm font-bold <?= $view === 'home' ? 'text-white' : 'text-zinc-400 hover:text-white' ?> transition-colors">
+          <i class="bi-house-door-fill text-2xl"></i> Home
         </a>
-        <a href="/charts" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'charts' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <i class="bi-bar-chart-fill text-lg"></i> NGN Charts
+        <a href="/charts" class="flex items-center gap-4 text-sm font-bold <?= $view === 'charts' ? 'text-white' : 'text-zinc-400 hover:text-white' ?> transition-colors">
+          <i class="bi-bar-chart-fill text-2xl"></i> NGN Charts
         </a>
-        <a href="/smr-charts" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'smr-charts' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <i class="bi-graph-up text-lg"></i> SMR Charts
+        <a href="/smr-charts" class="flex items-center gap-4 text-sm font-bold <?= $view === 'smr-charts' ? 'text-white' : 'text-zinc-400 hover:text-white' ?> transition-colors">
+          <i class="bi-graph-up text-2xl"></i> SMR Charts
         </a>
-
-        <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Browse</div>
-
-        <a href="/artists" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'artists' || $view === 'artist' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-music-note-beamed text-lg"></i> Artists</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['artists']) ?></span>
-        </a>
-        <a href="/labels" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'labels' || $view === 'label' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-building text-lg"></i> Labels</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['labels']) ?></span>
-        </a>
-        <a href="/stations" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'stations' || $view === 'station' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-broadcast text-lg"></i> Stations</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['stations']) ?></span>
-        </a>
-        <a href="/venues" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'venues' || $view === 'venue' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-geo-alt text-lg"></i> Venues</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['venues']) ?></span>
-        </a>
-
-        <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Content</div>
-
-        <a href="/posts" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'posts' || $view === 'post' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-newspaper text-lg"></i> Posts</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['posts']) ?></span>
-        </a>
-        <a href="/videos" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'videos' || $view === 'video' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-play-circle text-lg"></i> Videos</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['videos']) ?></span>
-        </a>
-        <a href="/releases" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'releases' || $view === 'release' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-vinyl text-lg"></i> Releases</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['releases'] ?? 0) ?></span>
-        </a>
-        <a href="/songs" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'songs' || $view === 'song' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <span class="flex items-center gap-3"><i class="bi-music-note-beamed text-lg"></i> Songs</span>
-          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['songs'] ?? 0) ?></span>
-        </a>
-
-        <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</div>
-
-        <a href="/pricing" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'pricing' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <i class="bi-credit-card text-lg"></i> Pricing
-        </a>
-
-        <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Shop</div>
-
-        <a href="/shop" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= in_array($view, ['shop', 'shops']) ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
-          <i class="bi-bag text-lg"></i> Merch Shops
-          <span class="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full ml-auto">Soon</span>
-        </a>
+        <button data-play-track 
+                data-track-url="https://ice1.somafm.com/groovesalad-256-mp3" 
+                data-track-title="The Rage Online" 
+                data-track-artist="Live Station" 
+                data-track-art="/lib/images/site/radio-icon.jpg"
+                class="flex items-center gap-4 text-sm font-bold text-brand hover:scale-105 transition-all text-left">
+          <i class="bi-broadcast text-2xl"></i> Live Radio
+        </button>
       </nav>
 
-      <div class="p-4 border-t border-gray-200 dark:border-white/10">
+      <div class="flex-1 overflow-y-auto mt-4 bg-[#121212] rounded-xl p-4 border border-white/5">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex items-center gap-2 text-zinc-400 font-bold text-sm">
+            <i class="bi-collection-play-fill text-xl"></i> Your Library
+          </div>
+          <button class="text-zinc-400 hover:text-white"><i class="bi-plus-lg"></i></button>
+        </div>
+        
+        <div class="space-y-2">
+          <a href="/artists" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'artists' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-music-note-beamed"></i> Artists
+          </a>
+          <a href="/labels" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'labels' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-building"></i> Labels
+          </a>
+          <a href="/videos" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'videos' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-play-circle"></i> Videos
+          </a>
+          <a href="/releases" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'releases' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-vinyl"></i> Releases
+          </a>
+          <a href="/posts" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'posts' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-newspaper"></i> News
+          </a>
+        </div>
+      </div>
+
+      <div class="mt-auto space-y-4">
         <?php if ($isLoggedIn): ?>
           <?php
-            $userRoleId = (int)($currentUser['RoleId'] ?? 0);
+            $userRoleId = (int)($currentUser['role_id'] ?? $currentUser['RoleId'] ?? 0);
             $dashboardPath = match($userRoleId) {
               3 => '/dashboard/artist/',
               7 => '/dashboard/label/',
               4, 15 => '/dashboard/station/',
               5, 17 => '/dashboard/venue/',
-              default => '/'
+              default => '/profile.php'
             };
           ?>
-          <div class="flex items-center gap-3 px-3 py-2 mb-2">
-            <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? '', $currentUser['Image'] ?? null)) ?>" alt="" class="w-8 h-8 rounded-full object-cover" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+          <a href="<?= $dashboardPath ?>" class="flex items-center gap-3 p-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 transition-colors border border-white/5">
+            <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? $currentUser['username'] ?? '', $currentUser['Image'] ?? $currentUser['avatar_url'] ?? null)) ?>" alt="" class="w-10 h-10 rounded-full object-cover">
             <div class="flex-1 min-w-0">
-              <div class="text-sm font-medium truncate"><?= htmlspecialchars($currentUser['Title'] ?? 'User') ?></div>
-              <div class="text-xs text-gray-500 truncate"><?= htmlspecialchars($currentUser['Email'] ?? '') ?></div>
+              <div class="text-sm font-bold truncate"><?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['Title'] ?? 'User') ?></div>
+              <div class="text-[10px] text-zinc-500 uppercase font-black">View Dashboard</div>
             </div>
-          </div>
-          <a href="<?= $dashboardPath ?>" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5">
-            <i class="bi-speedometer2 text-lg"></i> Dashboard
           </a>
           <?php if ($isAdmin): ?>
-          <a href="/admin/" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5">
-            <i class="bi-gear text-lg"></i> Admin
-          </a>
+            <a href="/admin/" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-zinc-400 hover:text-white"><i class="bi-gear-fill"></i> Admin Console</a>
           <?php endif; ?>
-          <a href="/logout.php" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
-            <i class="bi-box-arrow-right text-lg"></i> Logout
-          </a>
+          <a href="/logout.php" class="flex items-center gap-3 px-3 py-2 text-sm font-bold text-red-500/80 hover:text-red-500"><i class="bi-box-arrow-right"></i> Log out</a>
         <?php else: ?>
-          <a href="/login.php" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium bg-brand text-white hover:bg-brand/90">
-            <i class="bi-box-arrow-in-right text-lg"></i> Sign In
-          </a>
+          <a href="/login.php" class="w-full py-3 bg-white text-black font-black rounded-full hover:scale-105 transition-all text-center block">Log In</a>
+          <a href="/register.php" class="w-full py-3 bg-transparent text-white font-black rounded-full hover:scale-105 transition-all text-center block border border-white/20">Sign Up</a>
         <?php endif; ?>
+        
+        <!-- PWA Install Button -->
+        <button id="install-pwa" class="hidden w-full py-3 bg-brand/20 text-brand font-black rounded-full hover:bg-brand/30 transition-all text-center flex items-center justify-center gap-2">
+            <i class="bi-download"></i> Install NGN App
+        </button>
       </div>
     </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 lg:ml-64">
-      <!-- Top Bar -->
-      <header class="sticky top-0 z-20 bg-white/80 dark:bg-[#0a0a0f]/80 backdrop-blur-lg border-b border-gray-200 dark:border-white/10">
-        <div class="flex items-center justify-between px-4 lg:px-6 h-16">
-          <div class="flex items-center gap-4">
-            <button class="lg:hidden p-2 -ml-2" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
-              <i class="bi-list text-2xl"></i>
-            </button>
-            <a href="/" class="lg:hidden flex items-center">
-              <img src="/lib/images/site/web-light-1.png" alt="NextGenNoise" class="h-8 hidden dark:block">
-              <img src="/lib/images/site/web-dark-1.png" alt="NextGenNoise" class="h-8 dark:hidden">
-            </a>
-            <form method="get" class="hidden sm:flex items-center gap-2">
-              <input type="hidden" name="view" value="<?= htmlspecialchars($view) ?>">
-              <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Search..." class="w-64 px-4 py-2 rounded-lg bg-gray-100 dark:bg-white/10 border-0 text-sm focus:ring-2 focus:ring-brand">
-            </form>
-          </div>
-          <div class="flex items-center gap-3">
-            <button onclick="document.documentElement.classList.toggle('dark'); localStorage.setItem('ngn_theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light')" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10">
-              <i class="bi-moon-fill dark:hidden"></i>
-              <i class="bi-sun-fill hidden dark:inline"></i>
-            </button>
-            <?php if ($isLoggedIn && $currentUser): ?>
-              <span class="text-sm text-gray-600 dark:text-gray-400"><?= htmlspecialchars($currentUser['Title'] ?? $currentUser['Email'] ?? '') ?></span>
-            <?php endif; ?>
-          </div>
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav lg:hidden">
+      <a href="/" class="nav-item <?= $view === 'home' ? 'active' : '' ?>">
+        <i class="bi-house-door<?= $view === 'home' ? '-fill' : '' ?>"></i>
+        <span>Home</span>
+      </a>
+      <a href="/charts" class="nav-item <?= $view === 'charts' ? 'active' : '' ?>">
+        <i class="bi-bar-chart<?= $view === 'charts' ? '-fill' : '' ?>"></i>
+        <span>Charts</span>
+      </a>
+      <a href="/smr-charts" class="nav-item <?= $view === 'smr-charts' ? 'active' : '' ?>">
+        <i class="bi-graph-up"></i>
+        <span>Radio</span>
+      </a>
+      <a href="/artists" class="nav-item <?= in_array($view, ['artists','labels','stations','venues']) ? 'active' : '' ?>">
+        <i class="bi-search"></i>
+        <span>Browse</span>
+      </a>
+      <a href="<?= $isLoggedIn ? '/dashboard/' : '/login.php' ?>" class="nav-item">
+        <i class="bi-person-circle"></i>
+        <span><?= $isLoggedIn ? 'Account' : 'Login' ?></span>
+      </a>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 lg:ml-[280px]">
+      <!-- Mobile Top Bar -->
+      <header class="lg:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg px-4 py-3 flex items-center justify-between border-b border-white/5">
+        <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-8">
+        <div class="flex items-center gap-4">
+          <form method="get" action="/" class="relative">
+            <input type="hidden" name="view" value="artists">
+            <button type="submit" class="text-white text-xl"><i class="bi-search"></i></button>
+          </form>
+          <a href="/dashboard/" class="text-white text-2xl"><i class="bi-person-circle"></i></a>
         </div>
       </header>
 
-      <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden lg:hidden fixed inset-0 z-40 bg-black/50" onclick="this.classList.add('hidden')">
-        <div class="w-72 h-full bg-white dark:bg-[#111118] overflow-y-auto" onclick="event.stopPropagation()">
-          <!-- Mobile Menu Header -->
-          <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/10">
-            <a href="/" class="flex items-center">
-              <img src="/lib/images/site/web-light-1.png" alt="NextGenNoise" class="h-8 hidden dark:block">
-              <img src="/lib/images/site/web-dark-1.png" alt="NextGenNoise" class="h-8 dark:hidden">
-            </a>
-            <button onclick="document.getElementById('mobile-menu').classList.add('hidden')" class="p-2 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg">
-              <i class="bi-x-lg text-xl"></i>
-            </button>
+      <!-- Desktop Header -->
+      <header class="hidden lg:flex items-center justify-between px-8 h-16 sticky top-0 z-20 bg-zinc-900/50 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+          <div class="flex gap-2">
+            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-left"></i></button>
+            <button onclick="history.forward()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-right"></i></button>
           </div>
-
-          <nav class="p-4 space-y-1">
-            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">Main</div>
-            <a href="/" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'home' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-house text-lg"></i> Home</a>
-            <a href="/charts" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'charts' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-bar-chart-fill text-lg"></i> NGN Charts</a>
-            <a href="/smr-charts" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'smr-charts' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-graph-up text-lg"></i> SMR Charts</a>
-
-            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2 mt-4">Discover</div>
-            <a href="/artists" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'artists' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-music-note-beamed text-lg"></i> Artists</a>
-            <a href="/labels" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'labels' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-building text-lg"></i> Labels</a>
-            <a href="/stations" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'stations' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-broadcast text-lg"></i> Stations</a>
-            <a href="/venues" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'venues' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-geo-alt text-lg"></i> Venues</a>
-
-            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2 mt-4">Content</div>
-            <a href="/posts" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'posts' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-newspaper text-lg"></i> News & Posts</a>
-            <a href="/videos" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'videos' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-play-circle text-lg"></i> Videos</a>
-
-            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2 mt-4">Shop</div>
-            <a href="/shop" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium <?= in_array($view, ['shop', 'shops']) ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400' ?>"><i class="bi-bag text-lg"></i> Merch Shops</a>
-          </nav>
-
-          <!-- Mobile Menu Footer -->
-          <div class="p-4 border-t border-gray-200 dark:border-white/10 mt-auto">
-            <?php if ($isLoggedIn && $currentUser): ?>
-              <?php
-                $userRoleId = (int)($currentUser['RoleId'] ?? 0);
-                $dashboardPath = match($userRoleId) {
-                  3 => '/dashboard/artist/',
-                  7 => '/dashboard/label/',
-                  4, 15 => '/dashboard/station/',
-                  5, 17 => '/dashboard/venue/',
-                  default => '/'
-                };
-              ?>
-              <div class="flex items-center gap-3 px-3 py-2 mb-2">
-                <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? '', $currentUser['Image'] ?? null)) ?>" alt="" class="w-8 h-8 rounded-full object-cover" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-                <div class="flex-1 min-w-0">
-                  <div class="text-sm font-medium truncate"><?= htmlspecialchars($currentUser['Title'] ?? 'User') ?></div>
-                  <div class="text-xs text-gray-500 truncate"><?= htmlspecialchars($currentUser['Email'] ?? '') ?></div>
-                </div>
-              </div>
-              <a href="<?= $dashboardPath ?>" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5">
-                <i class="bi-speedometer2 text-lg"></i> Dashboard
-              </a>
-              <?php if ($isAdmin): ?>
-              <a href="/admin/" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5">
-                <i class="bi-gear text-lg"></i> Admin
-              </a>
-              <?php endif; ?>
-              <a href="/logout.php" class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
-                <i class="bi-box-arrow-right text-lg"></i> Logout
-              </a>
-            <?php else: ?>
-              <a href="/login.php" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-brand text-white hover:bg-brand/90">
-                <i class="bi-box-arrow-in-right"></i> Sign In
-              </a>
-            <?php endif; ?>
-          </div>
+          <form method="get" action="/" class="relative group">
+            <input type="hidden" name="view" value="<?= in_array($view, ['artists','labels','stations','venues']) ? htmlspecialchars($view) : 'artists' ?>">
+            <i class="bi-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-white transition-colors"></i>
+            <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
+          </form>
         </div>
-      </div>
+        
+        <div class="flex items-center gap-6">
+          <a href="/pricing" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Premium</a>
+          <a href="/shop" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Merch</a>
+          <div class="h-8 w-[1px] bg-white/10"></div>
+          <?php if ($isLoggedIn): ?>
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-bold text-white"><?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['Title'] ?? '') ?></span>
+                <button class="w-10 h-10 rounded-full bg-black flex items-center justify-center border border-white/10 hover:scale-105 transition-all overflow-hidden">
+                  <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? $currentUser['username'] ?? '', $currentUser['Image'] ?? $currentUser['avatar_url'] ?? null)) ?>" class="w-full h-full object-cover">
+                </button>
+            </div>
+          <?php else: ?>
+            <div class="flex items-center gap-8">
+              <a href="/register.php" class="text-zinc-400 hover:text-white font-bold text-sm">Sign up</a>
+              <a href="/login.php" class="px-8 py-3 bg-white text-black font-black rounded-full hover:scale-105 transition-all">Log in</a>
+            </div>
+          <?php endif; ?>
+        </div>
+      </header>
 
-      <!-- Construction Banner -->
-      <div class="bg-amber-500 text-black px-4 py-2 text-center text-sm font-medium">
-        <i class="bi-cone-striped mr-2"></i>
-        <strong>v2.0 Under Construction</strong> — Some features may be incomplete. Use at your own risk.
-        <a href="/maintenance/" class="underline ml-2 hover:no-underline">View Roadmap</a>
-      </div>
-
-      <!-- Page Content -->
-      <div class="p-4 lg:p-6">
+      <!-- View Wrapper -->
+      <div class="px-4 lg:px-8 py-6">
 
       <?php if ($view === 'home'): ?>
         <?php
         $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
         ?>
         <!-- HERO -->
-        <div class="relative bg-cover bg-center rounded-xl overflow-hidden mb-8">
+        <div class="relative bg-cover bg-center rounded-3xl overflow-hidden mb-12 group">
             <div class="absolute inset-0 bg-black/60"></div>
             <div class="relative p-12 lg:p-24 text-center text-white">
                 <?php if (!empty($featuredPosts)): ?>
                     <div class="flex-1">
-                        <div class="relative" style="height: 400px;">
+                        <div class="relative h-[300px] md:h-[450px]">
                             <?php foreach ($featuredPosts as $index => $post): ?>
                                 <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
-                                <div class="absolute inset-0 transition-opacity duration-500 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
-                                    <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover" alt="<?= htmlspecialchars($post['title']) ?>">
-                                    <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
-                                        <div class="text-center">
-                                            <h1 class="text-4xl lg:text-6xl font-bold mb-4"><?= htmlspecialchars($post['title']) ?></h1>
-                                            <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="bg-brand text-white font-bold py-3 px-8 rounded-lg hover:bg-brand/80 transition-colors">Read More</a>
+                                <div class="absolute inset-0 transition-opacity duration-700 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
+                                    <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title']) ?>">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-center p-12">
+                                        <div class="text-center max-w-2xl">
+                                            <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title']) ?></h1>
+                                            <div class="flex justify-center gap-4">
+                                                <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
+                                                <?php
+                                                // If we have any tracks, let them listen
+                                                $anyTrack = $data['songs'][0] ?? null;
+                                                if ($anyTrack):
+                                                ?>
+                                                <button class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-sm"
+                                                        data-play-track
+                                                        data-track-url="<?= htmlspecialchars($anyTrack['mp3_url']) ?>"
+                                                        data-track-title="<?= htmlspecialchars($anyTrack['title']) ?>"
+                                                        data-track-artist="<?= htmlspecialchars($anyTrack['artist_name']) ?>"
+                                                        data-track-art="<?= htmlspecialchars($anyTrack['cover_url']) ?>">
+                                                    <i class="bi-play-fill mr-2"></i> Listen Now
+                                                </button>
+                                                <?php endif; ?>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -1223,8 +1301,8 @@ if ($view === 'post' && !empty($data['post'])) {
                         </div>
                     </div>
                 <?php else: ?>
-                    <h1 class="text-4xl lg:text-6xl font-bold mb-4">Welcome to NextGenNoise</h1>
-                    <p class="text-lg lg:text-xl mb-8">The command center for indie rock & metal</p>
+                    <h1 class="text-4xl lg:text-6xl font-black mb-4">Welcome to NGN 2.0</h1>
+                    <p class="text-lg lg:text-xl mb-8 font-bold text-zinc-400 uppercase tracking-widest">The command center for indie rock & metal</p>
                 <?php endif; ?>
             </div>
         </div>
@@ -1251,154 +1329,137 @@ if ($view === 'post' && !empty($data['post'])) {
                 }
             });
         </script>
-        <!-- HOME -->
-        
-
-        <!-- Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div class="bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10">
-            <div class="text-3xl font-bold text-brand"><?= number_format($counts['artists']) ?></div>
-            <div class="text-sm text-gray-500">Artists</div>
+        <!-- Stats Grid (Spotify-style cards) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Artists</div>
+            <div class="text-4xl font-black text-white"><?= number_format($counts['artists']) ?></div>
           </div>
-          <div class="bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10">
-            <div class="text-3xl font-bold text-brand"><?= number_format($counts['labels']) ?></div>
-            <div class="text-sm text-gray-500">Labels</div>
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Labels</div>
+            <div class="text-4xl font-black text-white"><?= number_format($counts['labels']) ?></div>
           </div>
-          <div class="bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10">
-            <div class="text-3xl font-bold text-brand"><?= number_format($counts['stations']) ?></div>
-            <div class="text-sm text-gray-500">Stations</div>
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Stations</div>
+            <div class="text-4xl font-black text-white"><?= number_format($counts['stations']) ?></div>
           </div>
-          <div class="bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10">
-            <div class="text-3xl font-bold text-brand"><?= number_format($counts['venues']) ?></div>
-            <div class="text-sm text-gray-500">Venues</div>
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Venues</div>
+            <div class="text-4xl font-black text-white"><?= number_format($counts['venues']) ?></div>
           </div>
         </div>
 
-        <!-- Trending Artists -->
-        <?php if (!empty($data['trending_artists'])): ?>
-        <div class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold">Trending Artists</h2>
+        <!-- Stream Now Section -->
+        <?php if (!empty($data['songs'])): ?>
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Stream Now</h2>
+            <a href="/songs" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <?php foreach ($data['trending_artists'] as $artist): ?>
-            <a href="/artist/<?= htmlspecialchars($artist['slug'] ?? $artist['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-              <img src="<?= htmlspecialchars(($artist['image_url'] ?? null) ?: DEFAULT_AVATAR) ?>" alt="" class="w-full aspect-square object-cover rounded-lg mb-3 bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-              <div class="font-semibold truncate group-hover:text-brand"><?= htmlspecialchars($artist['name']) ?></div>
-              <div class="text-xs text-gray-500"><?= htmlspecialchars($artist['engagement_count']) ?> engagements</div>
-            </a>
-            <?php endforeach; ?>
-          </div>
-        </div>
-        <?php endif; ?>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Featured Station -->
+            <div class="sp-card border border-brand/30 bg-brand/5 flex flex-col justify-center p-8 relative overflow-hidden group cursor-pointer"
+                 data-play-track
+                 data-track-url="https://ice1.somafm.com/groovesalad-256-mp3"
+                 data-track-title="The Rage Online"
+                 data-track-artist="Live Radio"
+                 data-track-art="/lib/images/site/radio-icon.jpg">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-1000">
+                    <i class="bi-broadcast text-9xl text-brand"></i>
+                </div>
+                <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-2">Currently On Air</div>
+                <h3 class="text-2xl font-black text-white mb-4">The Rage Online</h3>
+                <button class="bg-brand text-black w-12 h-12 rounded-full flex items-center justify-center shadow-xl">
+                    <i class="bi-play-fill text-2xl"></i>
+                </button>
+            </div>
 
-        <!-- Featured Artists -->
-        <?php if (!empty($data['artists'])): ?>
-        <div class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold">Featured Artists</h2>
-            <a href="/artists" class="text-brand text-sm font-medium hover:underline">View All →</a>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            <?php foreach ($data['artists'] as $artist): ?>
-            <div class="group bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-              <a href="/artist/<?= htmlspecialchars($artist['slug'] ?? $artist['id']) ?>">
-                <?= ngn_image(
-                    ($artist['image_url'] ?? null) ?: DEFAULT_AVATAR,
-                    $artist['name'],
-                    'w-full aspect-square object-cover rounded-lg mb-3 bg-gray-100 dark:bg-white/10'
-                ) ?>
-                <div class="font-semibold truncate group-hover:text-brand"><?= htmlspecialchars($artist['name']) ?></div>
-              </a>
-              <div class="flex items-center justify-between mt-2">
-                <span class="text-xs text-gray-500">Artist</span>
-                <!-- TODO: Implement follow functionality -->
-                <button class="px-3 py-1 text-xs font-medium bg-gray-100 dark:bg-white/10 rounded-lg hover:bg-brand hover:text-white transition-colors">Follow</button>
-              </div>
+            <?php foreach (array_slice($data['songs'], 0, 2) as $song): ?>
+            <div class="group sp-card border border-white/5 flex items-center gap-6 cursor-pointer"
+                 data-play-track
+                 data-track-url="<?= htmlspecialchars($song['mp3_url']) ?>"
+                 data-track-title="<?= htmlspecialchars($song['title']) ?>"
+                 data-track-artist="<?= htmlspecialchars($song['artist_name']) ?>"
+                 data-track-art="<?= htmlspecialchars($song['cover_url']) ?>">
+                <div class="relative w-20 h-20 flex-shrink-0 shadow-2xl">
+                    <img src="<?= htmlspecialchars($song['cover_url'] ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover rounded-lg">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                        <i class="bi-play-fill text-3xl text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-black text-white text-lg truncate"><?= htmlspecialchars($song['title']) ?></div>
+                    <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1"><?= htmlspecialchars($song['artist_name']) ?></div>
+                </div>
             </div>
             <?php endforeach; ?>
           </div>
-        </div>
+        </section>
         <?php endif; ?>
 
-        <!-- Featured Labels -->
-        <?php if (!empty($data['labels'])): ?>
-        <div class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold">Featured Labels</h2>
-            <a href="/labels" class="text-brand text-sm font-medium hover:underline">View All →</a>
+        <!-- Trending Artists -->
+        <?php if (!empty($data['trending_artists'])): ?>
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Trending Artists</h2>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-            <?php foreach ($data['labels'] as $label): ?>
-            <a href="/label/<?= htmlspecialchars($label['slug'] ?? $label['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10 hover:border-brand transition-colors text-center">
-              <?php
-              $labelImg = DEFAULT_AVATAR;
-              if (!empty($label['image_url']) && !str_starts_with($label['image_url'], '/')) {
-                  $labelImg = "/uploads/labels/{$label['image_url']}";
-              } elseif (!empty($label['image_url'])) {
-                  $labelImg = $label['image_url'];
-              }
-              ?>
-              <img src="<?= htmlspecialchars($labelImg) ?>" alt="" class="w-16 h-16 mx-auto object-cover rounded-full mb-2 bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-              <div class="font-medium text-sm truncate group-hover:text-brand"><?= htmlspecialchars($label['name']) ?></div>
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <?php foreach ($data['trending_artists'] as $artist): ?>
+            <a href="/artist/<?= htmlspecialchars($artist['slug'] ?? $artist['id']) ?>" class="group sp-card border border-white/5 flex flex-col">
+              <div class="relative aspect-square mb-4 shadow-2xl">
+                <img src="<?= htmlspecialchars(($artist['image_url'] ?? null) ?: DEFAULT_AVATAR) ?>" alt="" class="w-full h-full object-cover rounded-xl bg-zinc-800 shadow-xl group-hover:scale-[1.02] transition-transform duration-500" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+                <button class="absolute bottom-3 right-3 w-12 h-12 bg-brand text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-xl shadow-black/40">
+                    <i class="bi-play-fill text-2xl"></i>
+                </button>
+              </div>
+              <div class="font-black truncate text-white"><?= htmlspecialchars($artist['name']) ?></div>
+              <div class="text-xs font-bold text-zinc-500 uppercase tracking-tighter mt-1"><?= htmlspecialchars($artist['engagement_count']) ?> signals</div>
             </a>
             <?php endforeach; ?>
           </div>
-        </div>
+        </section>
         <?php endif; ?>
 
-        <!-- Recent Posts -->
-        <?php if (!empty($data['posts'])): ?>
-        <div class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold">Latest News</h2>
-            <a href="/posts" class="text-brand text-sm font-medium hover:underline">View All →</a>
+        <!-- Top Labels -->
+        <?php if (!empty($data['labels'])): ?>
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Top Labels</h2>
+            <a href="/labels" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-6">
+            <?php foreach ($data['labels'] as $label): ?>
+            <a href="/label/<?= htmlspecialchars($label['slug'] ?? $label['id']) ?>" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="<?= htmlspecialchars(($label['image_url'] ?? null) ?: DEFAULT_AVATAR) ?>" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($label['name']) ?></div>
+            </a>
+            <?php endforeach; ?>
+          </div>
+        </section>
+        <?php endif; ?>
+
+        <!-- Latest News -->
+        <?php if (!empty($data['posts'])): ?>
+        <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Latest News</h2>
+            <a href="/posts" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <?php foreach ($data['posts'] as $post): ?>
             <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
-            <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-              <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full aspect-video object-cover bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-              <div class="p-4">
-                <div class="font-semibold text-sm line-clamp-2 group-hover:text-brand mb-1"><?= htmlspecialchars($post['title']) ?></div>
-                <div class="text-xs text-gray-500"><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
+            <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col">
+              <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
+                <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
               </div>
+              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors"><?= htmlspecialchars($post['title']) ?></div>
+              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2"><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
             </a>
             <?php endforeach; ?>
           </div>
-        </div>
-        <?php endif; ?>
-
-        <!-- Recent Videos -->
-        <?php if (!empty($data['videos'])): ?>
-        <div class="mb-8">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-bold">Latest Videos</h2>
-            <a href="/videos" class="text-brand text-sm font-medium hover:underline">View All →</a>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <?php foreach ($data['videos'] as $video): ?>
-            <a href="/video/<?= htmlspecialchars($video['slug']) ?>" class="group bg-white dark:bg-white/5 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-              <div class="aspect-video bg-black relative overflow-hidden">
-                <?php if ($video['platform'] === 'youtube' && !empty($video['external_id'])): ?>
-                <img src="https://img.youtube.com/vi/<?= htmlspecialchars($video['external_id']) ?>/sddefault.jpg" alt="" class="w-full h-full object-cover group-hover:opacity-75 transition-opacity">
-                <div class="absolute inset-0 flex items-center justify-center group-hover:bg-black/20 transition-all">
-                  <div class="bg-brand rounded-full p-3 group-hover:scale-110 transition-transform"><i class="bi-play-fill text-white text-lg"></i></div>
-                </div>
-                <?php else: ?>
-                <div class="w-full h-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                  <i class="bi-video text-gray-500 text-3xl"></i>
-                </div>
-                <?php endif; ?>
-              </div>
-              <div class="p-3">
-                <div class="font-semibold text-sm line-clamp-2 mb-1 group-hover:text-brand"><?= htmlspecialchars($video['title']) ?></div>
-                <div class="text-xs text-gray-500"><?= htmlspecialchars($video['platform']) ?></div>
-              </div>
-            </a>
-            <?php endforeach; ?>
-          </div>
-        </div>
+        </section>
         <?php endif; ?>
 
         <!-- NGN Rankings - Artists Chart -->
@@ -1476,14 +1537,20 @@ if ($view === 'post' && !empty($data['post'])) {
 
       <?php elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])): ?>
         <!-- ENTITY LIST VIEW -->
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold capitalize"><?= $view ?></h1>
-          <span class="text-sm text-gray-500"><?= number_format($total) ?> total</span>
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-4xl font-black capitalize tracking-tighter text-white"><?= $view ?></h1>
+            <p class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1">Discover the NGN network</p>
+          </div>
+          <div class="text-right">
+            <div class="text-3xl font-black text-brand"><?= number_format($total) ?></div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Active</div>
+          </div>
         </div>
 
         <?php $items = $data[$view] ?? []; ?>
         <?php if (!empty($items)): ?>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           <?php foreach ($items as $item): ?>
           <?php
             $imgUrl = DEFAULT_AVATAR;
@@ -1495,128 +1562,142 @@ if ($view === 'post' && !empty($data['post'])) {
               }
             }
           ?>
-          <a href="/<?= rtrim($view, 's') ?>/<?= htmlspecialchars($item['slug'] ?? $item['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl p-4 border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-            <img src="<?= htmlspecialchars($imgUrl) ?>" alt="" class="w-full aspect-square object-cover rounded-lg mb-3 bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-            <div class="font-semibold text-sm truncate group-hover:text-brand"><?= htmlspecialchars($item['name'] ?? $item['title'] ?? 'Unknown') ?></div>
-            <?php if (!empty($item['city'])): ?>
-            <div class="text-xs text-gray-500 truncate"><?= htmlspecialchars($item['city']) ?></div>
-            <?php endif; ?>
+          <a href="/<?= rtrim($view, 's') ?>/<?= htmlspecialchars($item['slug'] ?? $item['id']) ?>" class="group sp-card border border-white/5">
+            <div class="aspect-square mb-4 shadow-2xl relative">
+                <img src="<?= htmlspecialchars($imgUrl) ?>" alt="" class="w-full h-full object-cover <?= $view === 'labels' ? 'rounded-full' : 'rounded-xl' ?> bg-zinc-800 shadow-xl group-hover:scale-[1.02] transition-transform duration-500" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+                <button class="absolute bottom-2 right-2 w-10 h-10 bg-brand text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
+                    <i class="bi-play-fill text-xl"></i>
+                </button>
+            </div>
+            <div class="font-black text-sm truncate text-white"><?= htmlspecialchars($item['name'] ?? $item['title'] ?? 'Unknown') ?></div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($item['city'] ?? 'Active') ?></div>
           </a>
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="text-center py-12 text-gray-500">No <?= $view ?> found.</div>
+        <div class="text-center py-24 sp-card border border-dashed border-white/10">
+            <i class="bi-search text-4xl text-zinc-700 mb-4 block"></i>
+            <h2 class="text-xl font-black">No results found</h2>
+            <p class="text-zinc-500">Try adjusting your search filters.</p>
+        </div>
         <?php endif; ?>
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-        <div class="flex items-center justify-center gap-2 mt-8">
+        <div class="flex items-center justify-center gap-4 mt-16">
           <?php if ($page > 1): ?>
-          <a href="/<?= $view ?><?= $page > 1 ? '?page='.($page-1) : '' ?><?= $search ? ($page > 1 ? '&' : '?') . 'q='.urlencode($search) : '' ?>" class="px-4 py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand">← Prev</a>
+          <a href="/<?= $view ?>?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-zinc-800 text-white font-black hover:bg-zinc-700 transition-all">Previous</a>
           <?php endif; ?>
-          <span class="px-4 py-2 text-sm text-gray-500">Page <?= $page ?> of <?= $totalPages ?></span>
           <?php if ($page < $totalPages): ?>
-          <a href="/<?= $view ?>?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-4 py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand">Next →</a>
+          <a href="/<?= $view ?>?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all">Next</a>
           <?php endif; ?>
         </div>
         <?php endif; ?>
 
       <?php elseif ($view === 'posts'): ?>
         <!-- POSTS LIST VIEW -->
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold">News & Articles</h1>
-          <span class="text-sm text-gray-500"><?= number_format($total) ?> total</span>
+        <div class="mb-12">
+            <h1 class="text-4xl font-black tracking-tighter mb-2 text-white">NGN Newswire</h1>
+            <p class="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]">Industry reports & daily music intelligence</p>
         </div>
 
         <?php $items = $data['posts'] ?? []; ?>
         <?php if (!empty($items)): ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <?php foreach ($items as $post): ?>
           <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
-          <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-            <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full aspect-video object-cover bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-            <div class="p-4">
-              <div class="font-semibold line-clamp-2 group-hover:text-brand mb-2"><?= htmlspecialchars($post['title']) ?></div>
-              <?php if (!empty($post['excerpt'])): ?>
-              <p class="text-sm text-gray-500 line-clamp-2 mb-2"><?= htmlspecialchars($post['excerpt']) ?></p>
-              <?php endif; ?>
-              <div class="flex items-center gap-2 text-xs text-gray-400">
-                <span><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></span>
-                <?php if (!empty($post['author_name'])): ?>
-                <span>•</span>
-                <span>by <?= htmlspecialchars($post['author_name']) ?></span>
+          <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col sp-card border border-white/5">
+            <div class="aspect-video rounded-xl overflow-hidden mb-6 shadow-2xl">
+              <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+            </div>
+            <div class="flex-1">
+                <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-3">Feature Article</div>
+                <h3 class="text-xl font-black text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors mb-4"><?= htmlspecialchars($post['title']) ?></h3>
+                <?php if (!empty($post['excerpt'])): ?>
+                <p class="text-zinc-400 text-sm line-clamp-3 leading-relaxed mb-6 font-medium"><?= htmlspecialchars($post['excerpt']) ?></p>
                 <?php endif; ?>
+            </div>
+            <div class="flex items-center justify-between pt-6 border-t border-white/5">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-black text-brand">NGN</div>
+                <div class="text-[10px] font-black text-zinc-500 uppercase"><?= htmlspecialchars($post['author_name'] ?? 'Staff') ?></div>
               </div>
+              <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
             </div>
           </a>
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="text-center py-12 text-gray-500">No posts found.</div>
+        <div class="text-center py-24 sp-card border border-dashed border-white/10">
+            <i class="bi-newspaper text-4xl text-zinc-700 mb-4 block"></i>
+            <h2 class="text-xl font-black">No posts available</h2>
+            <p class="text-zinc-500">Check back later for fresh updates.</p>
+        </div>
         <?php endif; ?>
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-        <div class="flex items-center justify-center gap-2 mt-8">
+        <div class="flex items-center justify-center gap-4 mt-16">
           <?php if ($page > 1): ?>
-          <a href="/posts<?= $page > 1 ? '?page='.($page-1) : '' ?><?= $search ? ($page > 1 ? '&' : '?') . 'q='.urlencode($search) : '' ?>" class="px-4 py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand">← Prev</a>
+          <a href="/posts?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-zinc-800 text-white font-black hover:bg-zinc-700 transition-all">Previous</a>
           <?php endif; ?>
-          <span class="px-4 py-2 text-sm text-gray-500">Page <?= $page ?> of <?= $totalPages ?></span>
-          <?php if ($page < $totalPages): ?>
-          <a href="/posts?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-4 py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand">Next →</a>
-          <?php endif; ?>
+          <a href="/posts?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all">Next</a>
         </div>
         <?php endif; ?>
 
       <?php elseif ($view === 'videos'): ?>
         <!-- VIDEOS LIST VIEW -->
-        <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold">Videos</h1>
-          <span class="text-sm text-gray-500"><?= number_format($total) ?> total</span>
+        <div class="mb-12">
+            <h1 class="text-4xl font-black tracking-tighter mb-2 text-white">Video Vault</h1>
+            <p class="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]">Exclusive premieres, interviews & live performances</p>
         </div>
 
         <?php $items = $data['videos'] ?? []; ?>
         <?php if (!empty($items)): ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <?php foreach ($items as $video): ?>
-          <a href="/video/<?= htmlspecialchars($video['slug']) ?>" class="group bg-white dark:bg-white/5 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
-            <div class="aspect-video bg-black relative overflow-hidden">
+          <a href="/video/<?= htmlspecialchars($video['slug']) ?>" class="group sp-card border border-white/5 flex flex-col">
+            <div class="aspect-video bg-zinc-900 relative overflow-hidden rounded-xl mb-6 shadow-2xl">
               <?php if ($video['platform'] === 'youtube' && !empty($video['external_id'])): ?>
-              <img src="https://img.youtube.com/vi/<?= htmlspecialchars($video['external_id']) ?>/sddefault.jpg" alt="" class="w-full h-full object-cover group-hover:opacity-75 transition-opacity">
+              <img src="https://img.youtube.com/vi/<?= htmlspecialchars($video['external_id']) ?>/maxresdefault.jpg" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onerror="this.src='https://img.youtube.com/vi/<?= htmlspecialchars($video['external_id']) ?>/hqdefault.jpg'">
               <div class="absolute inset-0 flex items-center justify-center group-hover:bg-black/20 transition-all">
-                <div class="bg-brand rounded-full p-3 group-hover:scale-110 transition-transform"><i class="bi-play-fill text-white text-lg"></i></div>
+                <div class="bg-brand text-black w-16 h-16 rounded-full flex items-center justify-center scale-90 group-hover:scale-100 transition-all shadow-2xl shadow-brand/40">
+                    <i class="bi-play-fill text-4xl ml-1"></i>
+                </div>
               </div>
               <?php else: ?>
-              <div class="w-full h-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center">
-                <i class="bi-video text-gray-500 text-3xl"></i>
+              <div class="w-full h-full flex items-center justify-center">
+                <i class="bi-play-circle text-zinc-700 text-6xl"></i>
               </div>
               <?php endif; ?>
-            </div>
-            <div class="p-4">
-              <div class="font-semibold line-clamp-2 group-hover:text-brand mb-2"><?= htmlspecialchars($video['title']) ?></div>
-              <div class="flex items-center gap-2 text-xs text-gray-400">
-                <span><?= $video['published_at'] ? date('M j, Y', strtotime($video['published_at'])) : '' ?></span>
-                <span>•</span>
-                <span><?= htmlspecialchars($video['platform']) ?></span>
+              
+              <div class="absolute bottom-3 right-3 px-2 py-1 bg-black/80 rounded font-black text-[10px] text-white uppercase tracking-widest border border-white/10">
+                <?= htmlspecialchars($video['platform']) ?>
               </div>
+            </div>
+            
+            <div class="flex-1">
+                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2"><?= $video['published_at'] ? date('F j, Y', strtotime($video['published_at'])) : '' ?></div>
+                <h3 class="text-xl font-black text-white leading-tight group-hover:text-brand transition-colors"><?= htmlspecialchars($video['title']) ?></h3>
             </div>
           </a>
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="text-center py-12 text-gray-500">No videos found.</div>
+        <div class="text-center py-24 sp-card border border-dashed border-white/10">
+            <i class="bi-play-circle text-4xl text-zinc-700 mb-4 block"></i>
+            <h2 class="text-xl font-black">The vault is currently locked</h2>
+            <p class="text-zinc-500">New video content is being processed. Check back soon.</p>
+        </div>
         <?php endif; ?>
 
         <!-- Pagination -->
         <?php if ($totalPages > 1): ?>
-        <div class="flex items-center justify-center gap-2 mt-8">
+        <div class="flex items-center justify-center gap-4 mt-16">
           <?php if ($page > 1): ?>
-          <a href="/videos<?= $page > 1 ? '?page='.($page-1) : '' ?><?= $search ? ($page > 1 ? '&' : '?') . 'q='.urlencode($search) : '' ?>" class="px-4 py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand">← Prev</a>
+          <a href="/videos?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-zinc-800 text-white font-black hover:bg-zinc-700 transition-all">Previous</a>
           <?php endif; ?>
-          <span class="px-4 py-2 text-sm text-gray-500">Page <?= $page ?> of <?= $totalPages ?></span>
-          <?php if ($page < $totalPages): ?>
-          <a href="/videos?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-4 py-2 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand">Next →</a>
-          <?php endif; ?>
+          <a href="/videos?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all">Next</a>
         </div>
         <?php endif; ?>
 
@@ -1720,14 +1801,19 @@ if ($view === 'post' && !empty($data['post'])) {
         <div class="bg-white/5 rounded-3xl border border-white/5 overflow-hidden">
             <div class="divide-y divide-white/5">
                 <?php foreach ($data['songs'] as $song): ?>
-                <div class="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors group">
+                <div class="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors group cursor-pointer"
+                     data-play-track
+                     data-track-url="<?= htmlspecialchars($song['mp3_url'] ?? '') ?>"
+                     data-track-title="<?= htmlspecialchars($song['title']) ?>"
+                     data-track-artist="<?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?>"
+                     data-track-art="<?= htmlspecialchars(($song['cover_url'] ?? '') ?: DEFAULT_AVATAR) ?>">
                     <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white/10 border border-white/5">
                         <img src="<?= htmlspecialchars(($song['cover_url'] ?? '') ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
                     </div>
                     <div class="flex-1 min-w-0">
-                        <a href="/song/<?= htmlspecialchars($song['slug']) ?>" class="font-bold truncate group-hover:text-brand block"><?= htmlspecialchars($song['title']) ?></a>
+                        <div class="font-bold truncate group-hover:text-brand block"><?= htmlspecialchars($song['title']) ?></div>
                         <div class="text-xs text-white/40 truncate">
-                            <a href="/artist/<?= htmlspecialchars($song['artist_id'] ?? '') ?>" class="hover:text-white"><?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?></a>
+                            <?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?>
                              • 
                             <span class="italic"><?= htmlspecialchars($song['release_name'] ?? 'Single') ?></span>
                         </div>
@@ -3065,173 +3151,6 @@ if ($view === 'post' && !empty($data['post'])) {
             <i class="bi-house"></i> Go Home
           </a>
         </div>
-      <?php endif; ?>
-
-      </div>
-    </main>
-  </div>
-
-  <!-- Audio Player (Fixed Bottom) -->
-  <div id="audio-player" class="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-white/10 p-3 transform translate-y-full transition-transform z-50" style="display:none;">
-    <div class="max-w-7xl mx-auto flex items-center gap-4">
-      <button onclick="togglePlay()" id="play-btn" class="w-10 h-10 flex items-center justify-center rounded-full bg-brand text-white">
-        <i class="bi-play-fill" id="play-icon"></i>
-      </button>
-      <div class="flex-1 min-w-0">
-        <div id="track-title" class="font-medium text-sm truncate">-</div>
-        <div id="track-artist" class="text-xs text-gray-500 truncate">-</div>
-      </div>
-      <div class="flex items-center gap-2 text-xs text-gray-500">
-        <span id="current-time">0:00</span>
-        <input type="range" id="seek-bar" class="w-24 md:w-48 accent-brand" min="0" max="100" value="0">
-        <span id="duration">0:00</span>
-      </div>
-      <button onclick="closePlayer()" class="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600">
-        <i class="bi-x-lg"></i>
-      </button>
-    </div>
-    <audio id="audio-element"></audio>
-  </div>
-
-  <script>
-    const audio = document.getElementById('audio-element');
-    const player = document.getElementById('audio-player');
-    const playBtn = document.getElementById('play-btn');
-    const playIcon = document.getElementById('play-icon');
-    const seekBar = document.getElementById('seek-bar');
-    const currentTimeEl = document.getElementById('current-time');
-    const durationEl = document.getElementById('duration');
-    const trackTitleEl = document.getElementById('track-title');
-    const trackArtistEl = document.getElementById('track-artist');
-
-    function formatTime(s) {
-      const m = Math.floor(s / 60);
-      const sec = Math.floor(s % 60);
-      return m + ':' + (sec < 10 ? '0' : '') + sec;
-    }
-
-    function playTrack(url, title, artist) {
-      audio.src = url;
-      trackTitleEl.textContent = title;
-      trackArtistEl.textContent = artist;
-      player.style.display = 'block';
-      setTimeout(() => player.classList.remove('translate-y-full'), 10);
-      audio.play();
-      playIcon.className = 'bi-pause-fill';
-    }
-
-    function togglePlay() {
-      if (audio.paused) {
-        audio.play();
-        playIcon.className = 'bi-pause-fill';
-      } else {
-        audio.pause();
-        playIcon.className = 'bi-play-fill';
-      }
-    }
-
-    function closePlayer() {
-      audio.pause();
-      player.classList.add('translate-y-full');
-      setTimeout(() => player.style.display = 'none', 300);
-    }
-
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        seekBar.value = (audio.currentTime / audio.duration) * 100;
-        currentTimeEl.textContent = formatTime(audio.currentTime);
-      }
-    });
-
-    audio.addEventListener('loadedmetadata', () => {
-      durationEl.textContent = formatTime(audio.duration);
-    });
-
-    audio.addEventListener('ended', () => {
-      playIcon.className = 'bi-play-fill';
-    });
-
-    seekBar.addEventListener('input', () => {
-      if (audio.duration) {
-        audio.currentTime = (seekBar.value / 100) * audio.duration;
-      }
-    });
-
-    // Loading overlay for page transitions
-    const loadingOverlay = document.createElement('div');
-    loadingOverlay.className = 'loading-overlay';
-    loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
-    document.body.appendChild(loadingOverlay);
-
-    function showLoading() {
-      loadingOverlay.classList.add('active');
-    }
-    function hideLoading() {
-      loadingOverlay.classList.remove('active');
-    }
-
-    // Add loading state to navigation links
-    document.querySelectorAll('a:not([href^="#"]):not([target="_blank"])').forEach(link => {
-      link.addEventListener('click', function(e) {
-        // Don't show loading for same-page anchors, external links, or javascript
-        const href = this.getAttribute('href');
-        if (!href || href.startsWith('#') || href.startsWith('javascript:') || this.target === '_blank') return;
-        showLoading();
-      });
-    });
-
-    // Add loading state to forms
-    document.querySelectorAll('form').forEach(form => {
-      form.addEventListener('submit', function() {
-        showLoading();
-        const btn = this.querySelector('button[type="submit"]');
-        if (btn) btn.classList.add('btn-loading');
-      });
-    });
-
-    // Hide loading on page load (for back/forward navigation)
-    window.addEventListener('pageshow', hideLoading);
-
-    // Feature Comparison Modal functions
-    function openFeatureModal() {
-      const modal = document.getElementById('featureModal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    function closeFeatureModal() {
-      const modal = document.getElementById('featureModal');
-      if (modal) {
-        modal.classList.add('hidden');
-        document.body.style.overflow = 'auto';
-      }
-    }
-
-    // Close modal when clicking outside
-    document.getElementById('featureModal')?.addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeFeatureModal();
-      }
-    });
-
-    // Expose functions for onclick handlers
-    window.openFeatureModal = openFeatureModal;
-    window.closeFeatureModal = closeFeatureModal;
-  </script>
-
-  <!-- Feature Comparison Modal -->
-  <div id="featureModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-[#111118] rounded-xl shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="sticky top-0 bg-white dark:bg-[#111118] border-b border-gray-200 dark:border-white/10 p-6 flex items-center justify-between">
-        <h2 class="text-2xl font-bold">Feature Comparison</h2>
-        <button onclick="closeFeatureModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-          <i class="bi-x text-2xl"></i>
-        </button>
-      </div>
-
-      <div class="p-6">
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
@@ -3324,6 +3243,132 @@ if ($view === 'post' && !empty($data['post'])) {
     </div>
   </div>
 
+  <!-- GLOBAL MUSIC PLAYER -->
+  <div id="global-player" class="player-bar hidden">
+    <div class="flex items-center w-full max-w-[100vw] gap-4 lg:gap-8">
+        
+        <!-- Track Info -->
+        <div class="flex items-center gap-4 w-[30%] min-w-0">
+            <div class="w-14 h-14 rounded bg-zinc-800 flex-shrink-0 overflow-hidden shadow-lg">
+                <img id="player-art" src="<?= DEFAULT_AVATAR ?>" class="w-full h-full object-cover">
+            </div>
+            <div class="min-w-0">
+                <div id="player-title" class="text-sm font-black text-white truncate">Select a Track</div>
+                <div id="player-artist" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate">NextGenNoise</div>
+            </div>
+            <button class="text-zinc-500 hover:text-brand transition-colors ml-2"><i class="bi-heart"></i></button>
+        </div>
+
+        <!-- Controls & Progress -->
+        <div class="flex-1 flex flex-col items-center max-w-[40%]">
+            <div class="flex items-center gap-6 mb-2">
+                <button class="player-btn text-xl"><i class="bi-shuffle"></i></button>
+                <button class="player-btn text-2xl"><i class="bi-skip-start-fill"></i></button>
+                <button id="player-play-toggle" class="player-btn play shadow-xl"><i class="bi-play-fill text-2xl"></i></button>
+                <button class="player-btn text-2xl"><i class="bi-skip-end-fill"></i></button>
+                <button class="player-btn text-xl"><i class="bi-repeat"></i></button>
+            </div>
+            <div class="w-full flex items-center gap-3">
+                <span id="player-time-cur" class="text-[10px] font-mono text-zinc-500 w-10 text-right">0:00</span>
+                <div class="progress-bar flex-1" id="player-progress-container">
+                    <div id="player-progress" class="progress-fill"></div>
+                </div>
+                <span id="player-time-total" class="text-[10px] font-mono text-zinc-500 w-10">0:00</span>
+            </div>
+        </div>
+
+        <!-- Volume / Extra -->
+        <div class="hidden md:flex items-center justify-end gap-4 w-[30%]">
+            <button class="player-btn"><i class="bi-mic-fill"></i></button>
+            <button class="player-btn"><i class="bi-list-ul"></i></button>
+            <div class="flex items-center gap-2 w-32">
+                <i class="bi-volume-up text-zinc-500"></i>
+                <div class="progress-bar flex-1 h-1">
+                    <div class="progress-fill w-3/4"></div>
+                </div>
+            </div>
+            <button class="player-btn"><i class="bi-fullscreen"></i></button>
+        </div>
+    </div>
+  </div>
+
+  <audio id="audio-engine" class="hidden"></audio>
+
+  <!-- Global Loader -->
+  <div class="loading-overlay" id="global-loader">
+    <div class="loading-spinner"></div>
+  </div>
+
+  <script>
+    const audio = document.getElementById('audio-engine');
+    const player = document.getElementById('global-player');
+    const playBtn = document.getElementById('player-play-toggle');
+    const playerTitle = document.getElementById('player-title');
+    const playerArtist = document.getElementById('player-artist');
+    const playerArt = document.getElementById('player-art');
+    const progressBar = document.getElementById('player-progress');
+    const timeCur = document.getElementById('player-time-cur');
+    const timeTotal = document.getElementById('player-time-total');
+
+    function formatTime(secs) {
+        if (!secs || isNaN(secs)) return "0:00";
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60);
+        return m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
+    function playTrack(url, title, artist, art) {
+        if (!url) return;
+        
+        player.classList.remove('hidden');
+        audio.src = url;
+        audio.play();
+        
+        playerTitle.innerText = title;
+        playerArtist.innerText = artist;
+        if (art) playerArt.src = art;
+        
+        updatePlayIcon(true);
+    }
+
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            updatePlayIcon(true);
+        } else {
+            audio.pause();
+            updatePlayIcon(false);
+        }
+    }
+
+    function updatePlayIcon(isPlaying) {
+        playBtn.innerHTML = isPlaying ? '<i class="bi-pause-fill text-2xl"></i>' : '<i class="bi-play-fill text-2xl"></i>';
+    }
+
+    playBtn.addEventListener('click', togglePlay);
+
+    audio.addEventListener('timeupdate', () => {
+        const pct = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = pct + '%';
+        timeCur.innerText = formatTime(audio.currentTime);
+        timeTotal.innerText = formatTime(audio.duration);
+    });
+
+    // Add play events to all data-play-track elements
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-play-track]');
+        if (btn) {
+            e.preventDefault();
+            playTrack(
+                btn.dataset.trackUrl,
+                btn.dataset.trackTitle,
+                btn.dataset.trackArtist,
+                btn.dataset.trackArt
+            );
+        }
+    });
+  </script>
 </body>
 </html>
 
+} // END if ($pdo)

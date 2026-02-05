@@ -14,6 +14,27 @@ SELECT
 FROM nextgennoise.videos;
 "
 
+echo "Restoring Entity Images..."
+mysql -h 127.0.0.1 -u root -p$PASS -e "
+-- Fix Artist Images
+UPDATE ngn_2025.artists a
+JOIN nextgennoise.users u ON a.id = u.ArtistId
+SET a.image_url = CONCAT('/uploads/users/', u.Slug, '/', u.Image)
+WHERE u.Image IS NOT NULL AND u.Image != '';
+
+-- Fix Label Images
+UPDATE ngn_2025.labels l
+JOIN nextgennoise.users u ON l.id = u.LabelId
+SET l.image_url = CONCAT('/uploads/users/', u.Slug, '/', u.Image)
+WHERE u.Image IS NOT NULL AND u.Image != '';
+
+-- Fix Station Images
+UPDATE ngn_2025.stations s
+JOIN nextgennoise.users u ON s.id = u.StationId
+SET s.image_url = CONCAT('/uploads/users/', u.Slug, '/', u.Image)
+WHERE u.Image IS NOT NULL AND u.Image != '';
+"
+
 echo "Migrating Releases..."
 mysql -h 127.0.0.1 -u root -p$PASS -e "
 DELETE FROM ngn_2025.releases;
