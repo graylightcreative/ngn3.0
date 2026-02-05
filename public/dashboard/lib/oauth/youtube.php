@@ -17,8 +17,8 @@ if (!$entity) {
 }
 
 // TODO: User needs to provide these values in .env
-$clientId = $_ENV['GOOGLE_CLIENT_ID'] ?? '';
-$clientSecret = $_ENV['GOOGLE_CLIENT_SECRET'] ?? '';
+$clientId = $_ENV['NGN_GOOGLE_CLIENT_ID'] ?? '';
+$clientSecret = $_ENV['NGN_GOOGLE_CLIENT_SECRET'] ?? '';
 $redirectUri = ($_ENV['APP_URL'] ?? 'https://nextgennoise.com') . '/dashboard/lib/oauth/youtube.php';
 
 if (empty($clientId) || empty($clientSecret)) {

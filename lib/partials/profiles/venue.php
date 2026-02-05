@@ -1,12 +1,15 @@
 <?php
 /**
- * Venue Profile Partial
+ * Venue Profile Partial - Modern 2.0
  */
-$legacy = $entity['legacy'] ?? [];
-$scores = $entity['scores'] ?? [];
+$venue = $entity;
+$venueName = $venue['name'] ?? 'Unknown Venue';
+$venueImg = user_image($venue['slug'] ?? '', $venue['image_url'] ?? null);
+$bio = $venue['bio'] ?? '';
+$scores = $venue['scores'] ?? [];
 
-// Fetch venue ranking if missing
-if (empty($entity['chart_rankings'])) {
+// Unified Chart History Fetching
+if (empty($venue['chart_rankings'])) {
     try {
         $rankingsPdo = \NGN\Lib\DB\ConnectionFactory::named($config, 'rankings2025');
         $stmt = $rankingsPdo->prepare('
@@ -14,142 +17,152 @@ if (empty($entity['chart_rankings'])) {
             FROM `ngn_rankings_2025`.`ranking_items` ri
             JOIN `ngn_rankings_2025`.`ranking_windows` rw ON ri.window_id = rw.id
             WHERE ri.entity_type = \'venue\' AND ri.entity_id = ?
-            ORDER BY rw.period_end DESC LIMIT 5
+            ORDER BY rw.period_end DESC LIMIT 10
         ');
-        $stmt->execute([$entity['id']]);
-        $entity['chart_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    } catch (\Throwable $e) {
-        error_log("Error fetching venue rankings: " . $e->getMessage());
-    }
+        $stmt->execute([$venue['id']]);
+        $venue['chart_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (\Throwable $e) {}
 }
-
-$legacySlug = $legacy['Slug'] ?? $entity['slug'] ?? '';
-$entityImg = !empty($legacy['Image']) ? user_image($legacySlug, $legacy['Image']) : (($entity['image_url'] ?? null) ?: DEFAULT_AVATAR);
 ?>
 
-<div class="relative -mt-6 -mx-4 lg:-mx-6 mb-8">
-    <div class="h-48 lg:h-64 w-full relative bg-gray-900 overflow-hidden">
-        <div class="w-full h-full bg-gradient-to-r from-purple-900/40 to-black"></div>
-        <div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
-        <div class="absolute bottom-0 left-0 w-full p-6 lg:p-12 flex items-center gap-6">
-            <div class="w-32 h-32 lg:w-40 lg:h-40 flex-shrink-0 rounded-lg overflow-hidden shadow-2xl border-2 border-purple-500/20 bg-black">
-                <img src="<?= htmlspecialchars($entityImg) ?>" class="w-full h-full object-cover" alt="<?= htmlspecialchars($entity['name']) ?>" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
-            </div>
-            <div>
-                <span class="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs font-bold rounded uppercase tracking-wider">Music Venue</span>
-                <h1 class="text-3xl lg:text-5xl font-black mt-2 mb-2"><?= htmlspecialchars($entity['name']) ?></h1>
-                <div class="flex gap-4 text-sm font-medium text-white/60">
-                    <span><i class="bi-calendar-event text-purple-400"></i> <?= number_format(count($entity['upcoming_shows'] ?? [])) ?> Upcoming Shows</span>
-                    <span><i class="bi-geo-alt-fill text-purple-400"></i> <?= htmlspecialchars($entity['city'] ?? 'TBA') ?></span>
-                </div>
-            </div>
+<!-- HERO HEADER -->
+<div class="relative -mt-8 -mx-8 mb-12 h-[450px] flex items-end overflow-hidden group">
+    <!-- Immersive Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-purple-600/40 to-black z-0 transition-transform duration-1000 group-hover:scale-105"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent z-10"></div>
+    
+    <div class="relative z-20 p-12 flex flex-col md:flex-row items-center md:items-end gap-10 w-full">
+        <!-- Venue Image -->
+        <div class="w-48 h-48 md:w-64 md:h-64 flex-shrink-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)] rounded-3xl overflow-hidden bg-zinc-900 border-4 border-white/5 group-hover:scale-[1.02] transition-transform duration-500 relative">
+            <img src="<?= htmlspecialchars($venueImg) ?>" class="w-full h-full object-cover" alt="<?= htmlspecialchars($venueName) ?>" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
         </div>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-    <div class="lg:col-span-8 space-y-12">
         
-        <!-- Upcoming Shows -->
-        <section>
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                <i class="bi-ticket-perforated text-purple-400"></i> Upcoming Events
-            </h2>
-            <div class="bg-white/5 border border-white/5 rounded-2xl overflow-hidden divide-y divide-white/5">
-                <?php if (!empty($entity['upcoming_shows'])): ?>
-                    <?php foreach ($entity['upcoming_shows'] as $show): 
-                        $showDate = strtotime($show['starts_at']);
-                    ?>
-                    <div class="flex items-center gap-6 p-6 hover:bg-white/5 transition-colors group">
-                        <div class="w-16 h-16 rounded-xl bg-purple-500/10 text-purple-400 flex flex-col items-center justify-center flex-shrink-0 border border-purple-500/20">
-                            <span class="text-xs font-bold uppercase"><?= date('M', $showDate) ?></span>
-                            <span class="text-2xl font-black leading-none"><?= date('j', $showDate) ?></span>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="font-bold text-lg truncate group-hover:text-purple-400 transition-colors"><?= htmlspecialchars($show['title'] ?? $show['Title'] ?? 'Live Show') ?></div>
-                            <div class="text-sm text-white/40"><?= date('g:i A', $showDate) ?> • <?= htmlspecialchars($show['venue_name'] ?? '') ?></div>
-                        </div>
-                        <?php if (!empty($show['ticket_url'])): ?>
-                        <a href="<?= htmlspecialchars($show['ticket_url']) ?>" target="_blank" class="px-6 py-2 rounded-lg bg-brand text-black font-bold hover:scale-105 transition-all text-sm">TICKETS</a>
-                        <?php endif; ?>
-                    </div>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="p-12 text-center">
-                        <div class="text-white/20 text-4xl mb-4"><i class="bi-calendar-x"></i></div>
-                        <div class="text-white/40">No upcoming shows scheduled.</div>
-                    </div>
+        <!-- Info -->
+        <div class="flex-1 text-center md:text-left">
+            <div class="flex items-center justify-center md:justify-start gap-2 mb-4">
+                <span class="px-3 py-1 bg-purple-500 text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full">Verified Venue</span>
+                <?php if (!empty($scores['Score'])): ?>
+                    <span class="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10">
+                        Rank #<?= number_format($scores['Score'], 0) ?>
+                    </span>
                 <?php endif; ?>
             </div>
-        </section>
-
-        <!-- Venue Chart History -->
-        <?php if (!empty($entity['chart_rankings'])): ?>
-        <section>
-            <h2 class="text-2xl font-bold mb-6 flex items-center gap-2">
-                <i class="bi-star text-purple-400"></i> Venue Popularity
-            </h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <?php foreach ($entity['chart_rankings'] as $rank): ?>
-                <div class="bg-white/5 p-4 rounded-xl border border-white/5 flex items-center justify-between">
-                    <div>
-                        <div class="text-xs text-white/40 uppercase"><?= date('M Y', strtotime($rank['PeriodEnd'])) ?></div>
-                        <div class="font-black text-xl text-purple-400">#<?= $rank['RankNum'] ?></div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-xs text-white/40 uppercase">NGN Score</div>
-                        <div class="font-bold"><?= number_format($rank['Score'], 1) ?></div>
-                    </div>
-                </div>
-                <?php endforeach; ?>
-            </div>
-        </section>
-        <?php endif; ?>
-
-        <!-- Venue About -->
-        <?php if (!empty($entity['bio']) || !empty($legacy['Body'])): ?>
-        <section class="bg-white/5 rounded-2xl p-8 border border-white/5">
-            <h2 class="text-2xl font-bold mb-4">About the Venue</h2>
-            <div class="text-white/70 leading-relaxed prose prose-invert max-w-none">
-                <?= $entity['bio'] ?: $legacy['Body'] ?>
-            </div>
-        </section>
-        <?php endif; ?>
-
-    </div>
-
-    <!-- Sidebar -->
-    <div class="lg:col-span-4 space-y-8">
-        <!-- Location Card -->
-        <div class="bg-white/5 border border-white/5 rounded-2xl p-6">
-            <h3 class="text-xs font-bold uppercase tracking-widest text-white/40 mb-6">Location & Info</h3>
-            <div class="space-y-4 text-sm">
-                <div class="flex gap-3">
-                    <i class="bi-geo-alt text-purple-400"></i>
-                    <div class="text-white/80">
-                        <?= htmlspecialchars($entity['address'] ?? 'Address TBA') ?><br>
-                        <?= htmlspecialchars(($entity['city'] ?? '') . ', ' . ($entity['region'] ?? '')) ?>
-                    </div>
-                </div>
-                <?php if (!empty($entity['phone'])): ?>
-                <div class="flex gap-3">
-                    <i class="bi-telephone text-purple-400"></i>
-                    <div class="text-white/80"><?= htmlspecialchars($entity['phone']) ?></div>
-                </div>
-                <?php endif; ?>
-            </div>
-            <button class="w-full mt-6 py-3 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-xs font-bold uppercase tracking-widest transition-all">Get Directions</button>
-        </div>
-
-        <!-- Venue Metrics -->
-        <div class="bg-gradient-to-br from-purple-900/20 to-transparent border border-purple-500/20 rounded-2xl p-6">
-            <div class="flex justify-between items-end mb-2">
-                <span class="text-xs font-bold uppercase tracking-widest text-white/40">Popularity</span>
-                <span class="text-xl font-black text-purple-400">Top 10%</span>
-            </div>
-            <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div class="h-full bg-purple-500 rounded-full" style="width: 92%"></div>
+            <h1 class="text-5xl lg:text-8xl font-black mb-6 tracking-tighter leading-none text-white drop-shadow-2xl"><?= htmlspecialchars($venueName) ?></h1>
+            <div class="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm font-black uppercase tracking-widest text-zinc-400">
+                <div class="flex items-center gap-2"><i class="bi-calendar-event-fill text-purple-400"></i> <?= count($venue['upcoming_shows'] ?? []) ?> Upcoming Events</div>
+                <div class="flex items-center gap-2"><i class="bi-geo-alt-fill text-purple-400"></i> <?= htmlspecialchars($venue['city'] ?? 'TBA') ?></div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- ACTION BAR -->
+<div class="flex flex-wrap items-center gap-6 mb-16 px-4">
+    <button class="px-10 py-4 bg-purple-500 text-black font-black rounded-full hover:scale-105 transition-all shadow-xl shadow-purple-500/20 uppercase tracking-widest text-xs">Book Venue</button>
+    <button class="w-14 h-14 rounded-full border-2 border-zinc-800 text-white flex items-center justify-center hover:border-white transition-all text-xl"><i class="bi-heart"></i></button>
+    <button class="w-14 h-14 rounded-full border-2 border-zinc-800 text-white flex items-center justify-center hover:border-white transition-all text-xl"><i class="bi-share"></i></button>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 px-4">
+    <div class="lg:col-span-8 space-y-20">
+        
+        <!-- Upcoming Events -->
+        <section>
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-3xl font-black tracking-tight text-white">Upcoming Events</h2>
+            </div>
+            
+            <div class="bg-zinc-900/30 rounded-3xl border border-white/5 overflow-hidden">
+                <div class="divide-y divide-white/5">
+                    <?php if (!empty($venue['upcoming_shows'])): ?>
+                        <?php foreach ($venue['upcoming_shows'] as $show): 
+                            $showDate = strtotime($show['starts_at']);
+                        ?>
+                        <div class="flex items-center gap-8 p-8 hover:bg-white/5 transition-all group">
+                            <div class="w-20 h-20 rounded-2xl bg-purple-500/10 text-purple-400 flex flex-col items-center justify-center flex-shrink-0 border border-purple-500/20 shadow-lg">
+                                <span class="text-xs font-black uppercase"><?= date('M', $showDate) ?></span>
+                                <span class="text-3xl font-black leading-none"><?= date('j', $showDate) ?></span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-black text-2xl truncate text-white group-hover:text-purple-400 transition-colors"><?= htmlspecialchars($show['title'] ?? 'Live Show') ?></div>
+                                <div class="flex items-center gap-4 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mt-2">
+                                    <span><?= date('g:i A', $showDate) ?></span>
+                                    <span class="w-1 h-1 bg-zinc-800 rounded-full"></span>
+                                    <span><?= htmlspecialchars($show['venue_name'] ?? $venueName) ?></span>
+                                </div>
+                            </div>
+                            <?php if (!empty($show['ticket_url'])): ?>
+                            <a href="<?= htmlspecialchars($show['ticket_url']) ?>" target="_blank" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all text-xs uppercase tracking-widest shadow-xl">Tickets</a>
+                            <?php endif; ?>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="p-24 text-center">
+                            <i class="bi-calendar-x text-6xl text-zinc-800 mb-6 block"></i>
+                            <div class="text-zinc-500 font-black uppercase tracking-widest text-xs">No Upcoming Events Scheduled</div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </section>
+
+        <!-- About / Story -->
+        <?php if (!empty($bio)): ?>
+        <section class="sp-card border border-white/5 p-12 relative overflow-hidden">
+            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-purple-400 mb-8">About the Space</h2>
+            <div class="prose prose-invert max-w-none text-zinc-400 font-medium leading-[1.8] text-lg">
+                <?= $bio ?>
+            </div>
+        </section>
+        <?php endif; ?>
+
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="lg:col-span-4 space-y-8">
+        
+        <!-- Intelligence -->
+        <div class="bg-zinc-900/50 rounded-3xl border border-white/5 p-8">
+            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Intelligence</h3>
+            <div class="space-y-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-zinc-400 font-bold">Network Rank</span>
+                    <span class="text-3xl font-black text-purple-400"><?= number_format((float)($scores['Score'] ?? 0), 1) ?></span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-zinc-400 font-bold">Engagement Score</span>
+                    <span class="text-xl font-black text-white"><?= number_format($venue['engagement_metrics']['total_posts'] ?? 0) ?></span>
+                </div>
+                
+                <div class="pt-6 border-t border-white/5">
+                    <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Location</div>
+                    <div class="flex items-start gap-3 text-white font-bold">
+                        <i class="bi-geo-alt-fill text-purple-500 mt-1"></i>
+                        <div class="text-sm">
+                            <?= htmlspecialchars($venue['address'] ?? 'Address TBA') ?><br>
+                            <?= htmlspecialchars($venue['city'] ?? '') ?><?= !empty($venue['region']) ? ', ' . htmlspecialchars($venue['region']) : '' ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Official Links -->
+        <div class="bg-zinc-900/50 rounded-3xl border border-white/5 p-8">
+            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-zinc-500 mb-8">Official Links</h3>
+            <div class="flex flex-col gap-3">
+                <?php if (!empty($venue['website_url'])): ?>
+                <a href="<?= htmlspecialchars($venue['website_url']) ?>" target="_blank" class="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 font-black text-xs uppercase tracking-[0.2em] transition-all text-center">
+                    <i class="bi-globe mr-2"></i> Website
+                </a>
+                <?php endif; ?>
+                <?php if (!empty($venue['social_links']['facebook'])): ?>
+                <a href="<?= htmlspecialchars($venue['social_links']['facebook']) ?>" target="_blank" class="w-full py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 font-black text-xs uppercase tracking-[0.2em] transition-all text-center">
+                    <i class="bi-facebook mr-2"></i> Facebook
+                </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+

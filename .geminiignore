@@ -1,0 +1,10 @@
+.env*
+vendor/
+node_modules/
+lib/images/
+lib/data/
+.git/
+storage/
+temp/
+tmp/
+*.log

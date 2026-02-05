@@ -1,0 +1,16 @@
+{
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    },
+    "environmentVariableRedaction": {
+      "enabled": true
+    }
+  },
+  "general": {
+    "previewFeatures": true
+  },
+  "model": {
+    "preferred": "gemini-3-pro-preview"
+  }
+}

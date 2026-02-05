@@ -173,15 +173,15 @@ $sections = [
         'TIKTOK_CLIENT_SECRET' => ['type' => 'password', 'label' => 'Client Secret'],
     ],
     'Google Cloud / AI' => [
-        'GOOGLE_CLOUD_PROJECT_ID' => ['type' => 'text', 'label' => 'Project ID'],
-        'GOOGLE_CLOUD_API_KEY' => ['type' => 'password', 'label' => 'API Key'],
-        'GOOGLE_APPLICATION_CREDENTIALS' => ['type' => 'text', 'label' => 'Service Account Path', 'hint' => 'Full path to JSON file'],
-        'GOOGLE_CLOUD_API_ENDPOINT' => ['type' => 'text', 'label' => 'API Endpoint', 'hint' => 'e.g., us-central1-aiplatform.googleapis.com'],
-        'GEMINI_MODEL_NAME' => ['type' => 'text', 'label' => 'Gemini Model', 'hint' => 'e.g., gemini-1.5-flash-002'],
+        'NGN_GOOGLE_CLOUD_PROJECT_ID' => ['type' => 'text', 'label' => 'Project ID'],
+        'NGN_GOOGLE_CLOUD_API_KEY' => ['type' => 'password', 'label' => 'API Key'],
+        'NGN_GOOGLE_APPLICATION_CREDENTIALS' => ['type' => 'text', 'label' => 'Service Account Path', 'hint' => 'Full path to JSON file'],
+        'NGN_GOOGLE_CLOUD_API_ENDPOINT' => ['type' => 'text', 'label' => 'API Endpoint', 'hint' => 'e.g., us-central1-aiplatform.googleapis.com'],
+        'NGN_GEMINI_MODEL_NAME' => ['type' => 'text', 'label' => 'Gemini Model', 'hint' => 'e.g., gemini-1.5-flash-002'],
     ],
     'Google reCAPTCHA' => [
-        'GOOGLE_RECAPTCHA_SITE_KEY' => ['type' => 'text', 'label' => 'Site Key'],
-        'GOOGLE_RECAPTCHA_SECRET_KEY' => ['type' => 'password', 'label' => 'Secret Key'],
+        'NGN_GOOGLE_RECAPTCHA_SITE_KEY' => ['type' => 'text', 'label' => 'Site Key'],
+        'NGN_GOOGLE_RECAPTCHA_SECRET_KEY' => ['type' => 'password', 'label' => 'Secret Key'],
     ],
     'Tracking Pixels' => [
         'GA4_MEASUREMENT_ID' => ['type' => 'text', 'label' => 'GA4 Measurement ID', 'hint' => 'G-XXXXXXXXXX'],

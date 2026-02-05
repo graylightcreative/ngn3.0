@@ -18,7 +18,7 @@ $config = new Config();
 $pdo = ConnectionFactory::write($config);
 
 // Use credentials path from .env (set via bootstrap)
-$credPath = $_ENV['GOOGLE_APPLICATION_CREDENTIALS'] ?? getenv('GOOGLE_APPLICATION_CREDENTIALS') ?: '';
+$credPath = $_ENV['NGN_GOOGLE_APPLICATION_CREDENTIALS'] ?? getenv('NGN_GOOGLE_APPLICATION_CREDENTIALS') ?: '';
 if (!empty($credPath)) {
     putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $credPath);
 }
@@ -29,7 +29,7 @@ $message = $_POST['message'] ?? killWithMessage('Please provide a valid message'
 
 // Ensure the environment variable for credentials is set
 if (!getenv('GOOGLE_APPLICATION_CREDENTIALS') || !file_exists(getenv('GOOGLE_APPLICATION_CREDENTIALS'))) {
-    $pageResponse['error'] = 'Google Cloud credentials file not found. Set GOOGLE_APPLICATION_CREDENTIALS in .env';
+    $pageResponse['error'] = 'Google Cloud credentials file not found. Set NGN_GOOGLE_APPLICATION_CREDENTIALS in .env';
     $pageResponse['code'] = 500;
     header('Content-Type: application/json');
     echo json_encode($pageResponse);

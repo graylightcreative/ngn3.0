@@ -9,10 +9,10 @@ use Google\Auth\Credentials\ServiceAccountCredentials;
  * Intelligence - AI integration class for NGN
  *
  * Required environment variables:
- * - GOOGLE_APPLICATION_CREDENTIALS: Path to Google Cloud service account JSON file
- * - GOOGLE_CLOUD_PROJECT_ID: Google Cloud project ID (e.g., 'ngn2024')
- * - GEMINI_MODEL_NAME: (optional) Gemini model to use (default: 'gemini-1.5-flash-002')
- * - GOOGLE_CLOUD_API_ENDPOINT: (optional) API endpoint (default: 'us-central1-aiplatform.googleapis.com')
+ * - NGN_GOOGLE_APPLICATION_CREDENTIALS: Path to Google Cloud service account JSON file
+ * - NGN_GOOGLE_CLOUD_PROJECT_ID: Google Cloud project ID (e.g., 'ngn2024')
+ * - NGN_GEMINI_MODEL_NAME: (optional) Gemini model to use (default: 'gemini-1.5-flash-002')
+ * - NGN_GOOGLE_CLOUD_API_ENDPOINT: (optional) API endpoint (default: 'us-central1-aiplatform.googleapis.com')
  */
 class Intelligence
 {
@@ -34,14 +34,14 @@ class Intelligence
     {
         // Initialize connection properties from env vars with fallbacks
         $this->vertexEndpoint = $vertexEndpoint;
-        $this->vertexCredentials = $vertexCredentials ?: $this->getEnv('GOOGLE_APPLICATION_CREDENTIALS');
-        $this->geminiEndpoint = $geminiEndpoint ?: $this->getEnv('GOOGLE_CLOUD_API_ENDPOINT', 'us-central1-aiplatform.googleapis.com');
+        $this->vertexCredentials = $vertexCredentials ?: $this->getEnv('NGN_GOOGLE_APPLICATION_CREDENTIALS');
+        $this->geminiEndpoint = $geminiEndpoint ?: $this->getEnv('NGN_GOOGLE_CLOUD_API_ENDPOINT', 'us-central1-aiplatform.googleapis.com');
         $this->geminiAccessToken = $geminiAccessToken;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
-        $this->projectId = $this->getEnv('GOOGLE_CLOUD_PROJECT_ID');
+        $this->projectId = $this->getEnv('NGN_GOOGLE_CLOUD_PROJECT_ID');
         $this->region = 'us-central1';
-        $this->modelId = self::LOW_COST_MODEL;
+        $this->modelId = $this->getEnv('NGN_GEMINI_MODEL_NAME', self::LOW_COST_MODEL);
     }
 
     /**
@@ -57,8 +57,8 @@ class Intelligence
      */
     public function isConfigured(): bool
     {
-        $credPath = $this->getEnv('GOOGLE_APPLICATION_CREDENTIALS');
-        $projectId = $this->getEnv('GOOGLE_CLOUD_PROJECT_ID');
+        $credPath = $this->getEnv('NGN_GOOGLE_APPLICATION_CREDENTIALS');
+        $projectId = $this->getEnv('NGN_GOOGLE_CLOUD_PROJECT_ID');
         return !empty($credPath) && !empty($projectId) && file_exists($credPath);
     }
 
@@ -67,10 +67,10 @@ class Intelligence
      */
     public function getConfigStatus(): array
     {
-        $credPath = $this->getEnv('GOOGLE_APPLICATION_CREDENTIALS');
+        $credPath = $this->getEnv('NGN_GOOGLE_APPLICATION_CREDENTIALS');
         return [
             'configured' => $this->isConfigured(),
-            'project_id' => $this->getEnv('GOOGLE_CLOUD_PROJECT_ID') ?: '(not set)',
+            'project_id' => $this->getEnv('NGN_GOOGLE_CLOUD_PROJECT_ID') ?: '(not set)',
             'credentials_path' => $credPath ?: '(not set)',
             'credentials_exists' => !empty($credPath) && file_exists($credPath),
             'model' => $this->modelId,
@@ -84,9 +84,9 @@ class Intelligence
 
     private function connectToVertex()
     {
-        $credPath = $this->getEnv('GOOGLE_APPLICATION_CREDENTIALS');
+        $credPath = $this->getEnv('NGN_GOOGLE_APPLICATION_CREDENTIALS');
         if (empty($credPath) || !file_exists($credPath)) {
-            throw new \Exception('GOOGLE_APPLICATION_CREDENTIALS not set or file not found');
+            throw new \Exception('NGN_GOOGLE_APPLICATION_CREDENTIALS not set or file not found');
         }
 
         // Set the environment variable for your service account key file
@@ -99,9 +99,9 @@ class Intelligence
         $this->endpointClient = new EndpointServiceClient();
 
         // Store project ID and region
-        $this->projectId = $this->getEnv('GOOGLE_CLOUD_PROJECT_ID');
+        $this->projectId = $this->getEnv('NGN_GOOGLE_CLOUD_PROJECT_ID');
         if (empty($this->projectId)) {
-            throw new \Exception('GOOGLE_CLOUD_PROJECT_ID not set');
+            throw new \Exception('NGN_GOOGLE_CLOUD_PROJECT_ID not set');
         }
         $this->region = 'us-central1';
     }
@@ -160,7 +160,7 @@ class Intelligence
             return 'AI not configured: ' . json_encode($status);
         }
 
-        $credPath = $this->getEnv('GOOGLE_APPLICATION_CREDENTIALS');
+        $credPath = $this->getEnv('NGN_GOOGLE_APPLICATION_CREDENTIALS');
         $credentials = new ServiceAccountCredentials(
             'https://www.googleapis.com/auth/cloud-platform',
             $credPath
@@ -168,7 +168,7 @@ class Intelligence
 
         $accessToken = $credentials->fetchAuthToken()['access_token'];
 
-        $projectId = $this->projectId ?: $this->getEnv('GOOGLE_CLOUD_PROJECT_ID');
+        $projectId = $this->projectId ?: $this->getEnv('NGN_GOOGLE_CLOUD_PROJECT_ID');
         $locationId = $this->region;
         $modelId = $this->modelId;
         $apiUrl = "https://{$this->geminiEndpoint}/v1/projects/{$projectId}/locations/{$locationId}/publishers/google/models/{$modelId}:generateContent";

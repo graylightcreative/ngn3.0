@@ -5,8 +5,9 @@ use Google\Cloud\Language\V1\Document;
 
 function assignTask($data, $botName)
 {
-    // Set the Google Application Credentials environment variable
-    putenv('GOOGLE_APPLICATION_CREDENTIALS=/home/brockstarr2/nextgennoise/lib/definitions/ngn2024-2bd251265e1a.json');
+    // Set the Google Application Credentials environment variable from .env if available
+    $credPath = $_ENV['NGN_GOOGLE_APPLICATION_CREDENTIALS'] ?? getenv('NGN_GOOGLE_APPLICATION_CREDENTIALS') ?: '/www/wwwroot/nextgennoise/lib/definitions/ngn2024-2bd251265e1a.json';
+    putenv('GOOGLE_APPLICATION_CREDENTIALS=' . $credPath);
 
     // Retrieve task from provided data
     $task = $data['task'] ?? '';
