@@ -26,17 +26,17 @@ if ($stationId > 0) {
         $pdo = dashboard_pdo();
 
         // Get total spins
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM `ngn_2025`.`station_spins` WHERE `StationId` = ?");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM `ngn_2025`.`station_spins` WHERE `station_id` = ?");
         $stmt->execute([$stationId]);
         $totalSpins = (int)$stmt->fetchColumn();
 
         // Get spins this week
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM `ngn_2025`.`station_spins` WHERE `StationId` = ? AND `PlayedAt` > DATE_SUB(NOW(), INTERVAL 7 DAY)");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM `ngn_2025`.`station_spins` WHERE `station_id` = ? AND `played_at` > DATE_SUB(NOW(), INTERVAL 7 DAY)");
         $stmt->execute([$stationId]);
         $spinsThisWeek = (int)$stmt->fetchColumn();
 
         // Get unique artists played
-        $stmt = $pdo->prepare("SELECT COUNT(DISTINCT `ArtistName`) FROM `ngn_2025`.`station_spins` WHERE `StationId` = ?");
+        $stmt = $pdo->prepare("SELECT COUNT(DISTINCT `artist_name`) FROM `ngn_2025`.`station_spins` WHERE `station_id` = ?");
         $stmt->execute([$stationId]);
         $uniqueArtists = (int)$stmt->fetchColumn();
 
