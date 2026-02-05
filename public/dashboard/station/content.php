@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
     } else {
         try {
             // Check if BYOS uploads are allowed
-            if (!$tierService->hasFeature($entity['id'], 'byos_upload')) {
+            if (!$entity || !$tierService->hasFeature($entity['id'], 'byos_upload')) {
                 $error = 'BYOS uploads are not available on your current tier. Please upgrade.';
             } else {
                 // Prepare metadata
@@ -107,19 +107,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 // Fetch content list
 try {
     if ($entity) {
-        $result = $contentService->listContent($entity['id'], $filterStatus);
+        $result = $contentService->listContent($entity['id'], $filterStatus ?: null, 1, 50);
         if ($result['success']) {
             $contents = $result['items'] ?? [];
+        } else {
+            $error = 'Failed to load content list.';
         }
-    }
-} catch (\Throwable $e) {
-    $error = 'Error loading content: ' . $e->getMessage();
-}
-    $result = $contentService->listContent($entity['id'], $filterStatus ?: null, 1, 50);
-    if ($result['success']) {
-        $contents = $result['items'] ?? [];
     } else {
-        $error = 'Failed to load content list.';
+        $error = 'Station profile not found. Please set up your profile first.';
     }
 } catch (\Throwable $e) {
     $error = 'Failed to load content: ' . $e->getMessage();
@@ -154,7 +149,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         <?php endif; ?>
 
         <!-- Upload Section -->
-        <?php if ($tierService->hasFeature($entity['id'], 'byos_upload')): ?>
+        <?php if ($entity && $tierService->hasFeature($entity['id'], 'byos_upload')): ?>
         <div class="card" style="margin-bottom: 2rem;">
             <h2 class="text-xl" style="margin-top: 0;">Upload New Track</h2>
             <form method="post" enctype="multipart/form-data">

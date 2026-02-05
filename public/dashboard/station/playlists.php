@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     } else {
         try {
             // Check tier access
-            if (!$tierService->hasFeature($entity['id'], 'pln_playlists')) {
+            if (!$entity || !$tierService->hasFeature($entity['id'], 'pln_playlists')) {
                 $error = 'PLN playlists are not available on your current tier. Please upgrade.';
             } else {
                 $title = $_POST['title'] ?? '';
@@ -113,17 +113,8 @@ try {
         if ($result['success']) {
             $playlists = $result['items'] ?? [];
         }
-    }
-} catch (\Throwable $e) {
-    $error = 'Error loading playlists: ' . $e->getMessage();
-}
-// Fetch playlists
-try {
-    $result = $playlistService->listPlaylists($entity['id']);
-    if ($result['success']) {
-        $playlists = $result['items'] ?? [];
     } else {
-        $error = 'Failed to load playlists: ' . ($result['message'] ?? 'Unknown error');
+        $error = 'Station profile not found. Please set up your profile first.';
     }
 } catch (\Throwable $e) {
     $error = 'Error loading playlists: ' . $e->getMessage();
@@ -149,7 +140,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         <?php endif; ?>
 
         <!-- Create Playlist Section -->
-        <?php if ($tierService->hasFeature($entity['id'], 'pln_playlists')): ?>
+        <?php if ($entity && $tierService->hasFeature($entity['id'], 'pln_playlists')): ?>
         <div class="card" style="margin-bottom: 2rem;">
             <h2 class="text-xl" style="margin-top: 0;">Create New Playlist</h2>
             <form method="post">
