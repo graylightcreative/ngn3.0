@@ -54,7 +54,8 @@ function dashboard_get_entity_type(): ?string {
  */
 function dashboard_require_auth(): void {
     if (!dashboard_is_logged_in()) {
-        header('Location: /login.php');
+        $config = new Config();
+        header('Location: ' . $config->baseUrl() . '/login.php');
         exit;
     }
 }
@@ -65,7 +66,8 @@ function dashboard_require_auth(): void {
 function dashboard_require_entity_type(string $type): void {
     $current = dashboard_get_entity_type();
     if ($current !== $type) {
-        header('Location: /');
+        $config = new Config();
+        header('Location: ' . $config->baseUrl() . '/');
         exit;
     }
 }
@@ -88,15 +90,8 @@ function dashboard_get_entity(string $type): ?array {
     
     try {
         $pdo = dashboard_pdo();
-        // Try different column name variations for compatibility
-        $slubCol = match($type) {
-            'station' => 'Slug',  // stations table uses Slug
-            'artist' => 'slug',   // artists table likely uses slug
-            'label' => 'slug',    // labels table likely uses slug
-            'venue' => 'slug',    // venues table likely uses slug
-            default => 'slug'
-        };
-        $stmt = $pdo->prepare("SELECT * FROM `{$table}` WHERE `{$slubCol}` = ? LIMIT 1");
+        // Use consistent column names for all entities
+        $stmt = $pdo->prepare("SELECT * FROM `{$table}` WHERE `slug` = ? LIMIT 1");
         $stmt->execute([$user['Slug']]);
         $entity = $stmt->fetch(PDO::FETCH_ASSOC);
 
