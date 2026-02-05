@@ -59,8 +59,16 @@ class Config
     public function adminAllowedOrigins(): ?string { return Env::get('ADMIN_ALLOWED_ORIGINS', null); }
 
     public function logPath(): string { 
-    error_log('logPath __DIR__: ' . __DIR__);
-    return Env::get('LOG_PATH', __DIR__.'/../storage/logs') ?? __DIR__.'/../storage/logs'; }
+        $path = Env::get('LOG_PATH');
+        if ($path) {
+            // If path is relative, make it absolute relative to project root
+            if ($path[0] !== DIRECTORY_SEPARATOR && !preg_match('/^[a-zA-Z]:\\\\/', $path)) {
+                return dirname(__DIR__) . '/' . $path;
+            }
+            return $path;
+        }
+        return dirname(__DIR__) . '/storage/logs';
+    }
     public function logLevel(): string { return Env::get('LOG_LEVEL', 'info') ?? 'info'; }
 
 	    // Feature flags
