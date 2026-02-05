@@ -156,8 +156,11 @@ $menu = [
       <?php endif; ?>
     <?php endforeach; ?>
   </nav>
-  <div class="p-3 border-t border-gray-200 dark:border-white/10 text-xs text-gray-500 dark:text-gray-400">
-    <div class="flex items-center justify-between">
+  <div class="p-3 border-t border-gray-200 dark:border-white/10">
+    <button onclick="startNgnTour()" class="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs bg-brand/10 text-brand border border-brand/20 rounded hover:bg-brand/20 transition-colors mb-2">
+      <i class="bi bi-compass"></i> Take a Tour
+    </button>
+    <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
       <span>NGN 2.0 Admin</span>
       <a href="/" class="text-brand hover:underline">View Site →</a>
     </div>

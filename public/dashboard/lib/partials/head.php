@@ -385,6 +385,7 @@ $entityLabel = ucfirst($entityType);
         }
     </style>
     <script src="https://js.stripe.com/v3/"></script>
+    <script src="/js/ngn-tour.js"></script>
 </head>
 <body>
 

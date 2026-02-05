@@ -120,6 +120,9 @@ if (in_array($shopEnabled, ['1','true','on','yes'], true)) {
     </nav>
     
     <div class="sidebar-footer">
+        <button onclick="startNgnTour()" class="btn btn-secondary w-full mb-3" style="padding: 8px; font-size: 12px; gap: 6px;">
+            <i class="bi bi-compass"></i> Take a Tour
+        </button>
         <div class="user-card">
             <div class="user-avatar">
                 <?php if (!empty($user['Image'])): ?>

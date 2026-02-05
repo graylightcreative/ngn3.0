@@ -44,16 +44,50 @@ Multi-Platform Strategy - iOS/Android optimization and deep linking.
 
 Part 4: Integrity, Growth & Future
 
-Transparency & Integrity - The Fairness Receipt and anti-gaming.
+17. Transparency & Integrity - The Fairness Receipt and anti-gaming.
 
-Gap Analysis - Discovery engines, EPK exports, and localization.
+18. Gap Analysis - Discovery engines, EPK exports, and localization.
 
-Identity Migration & Auth - The JIT Bridge for legacy stakeholders.
+19. Identity Migration & Auth - The JIT Bridge for legacy stakeholders.
 
-Future-Proofing & Roadblocks - The 5-year global trajectory.
+20. Future-Proofing & Roadblocks - The 5-year global trajectory.
 
-Public Integrity & Anti-Cheat - Cryptographic signatures and bot-kill logs.
+21. Public Integrity & Anti-Cheat - Cryptographic signatures and bot-kill logs.
 
-Social Feed & Engagement Algorithm - Earned reach and engagement velocity.
+22. Social Feed & Engagement Algorithm - Earned reach and engagement velocity.
 
-Retention Loops & Daily Utility - The Dopamine Facet and habit-forming triggers.
+23. Retention Loops & Daily Utility - The Dopamine Facet and habit-forming triggers.
+
+Part 5: Governance & Operations
+
+24. SMR Operational Ruleset - 6 bounty rules and no-bot policy.
+
+25. Institutional Governance - Dual-tier board structure and mandates.
+
+26. SaaS & Fintech Directorate Workflow - Brandon Lamb's operational protocols.
+
+27. Strategic Ecosystem & Advisory Workflow - Pepper Gomez's operational protocols.
+
+28. SMR Data Ingestion & Integrity Workflow - Erik Baker's operational protocols.
+
+30. Founder Payout & Equity Lifecycle - 4-phase payout schedule and logic.
+
+31. The Directorate Action Registry & Protocol - SIR management and verification.
+
+32. Community Investment Notes Implementation - Fixed-term notes and APY logic.
+
+33. Tactical Leverage and Counter Party Logic - Strategic maneuver protocols.
+
+34. Beta Launch Guide - Deployment, setup, and configuration for v2.0.1.
+
+35. Beta Tester Onboarding - Instructions and workflows for beta participants.
+
+36. Troubleshooting and Support - P0-P3 issue resolution and support paths.
+
+37. aaPanel Cron Setup - Step-by-step cron job configuration guide.
+
+38. Governance API Reference - Complete endpoint documentation for SIR system.
+
+39. Monitoring and Alerts - Performance, security, and health monitoring setup.
+
+40. Growth Architecture - The Yelp Model and 10,000 artist roadmap logic.

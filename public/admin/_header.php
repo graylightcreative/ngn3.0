@@ -32,6 +32,7 @@ $pageTitle = $pageTitle ?? 'Admin';
     })();
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/ngn-tour.js"></script>
   <?php if (!empty($mintedToken)): ?>
   <script>
     (function(){

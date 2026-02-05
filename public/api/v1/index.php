@@ -30,6 +30,8 @@ use NGN\Lib\Commerce\OrderService;
 use NGN\Lib\Commerce\InvestmentService;
 use NGN\Lib\Posts\PostService;
 use NGN\Lib\Feed\FeedService;
+use NGN\Lib\Fans\LibraryService;
+use NGN\Lib\Services\Advertiser\AdvertiserService;
 use NGN\Lib\Stations\StationContentService;
 use NGN\Lib\Stations\StationTierService;
 use NGN\Lib\Stations\StationPlaylistService;
@@ -38,6 +40,7 @@ use NGN\Lib\Stations\GeoBlockingService;
 use NGN\Lib\Stations\StationStreamService;
 use NGN\Lib\Services\Media\StreamingService;
 use NGN\Lib\Services\Royalties\PlaybackService;
+use NGN\Lib\Rankings\RankingService;
 use NGN\Lib\Writer\{ArticleService as WriterArticleService, SafetyFilterService};
 use NGN\Lib\Logging\LoggerFactory;
 
@@ -75,7 +78,10 @@ $geoBlockingService = null;
 $stationStreamService = null;
 $streamingService = null;
 $playbackService = null;
+$rankingService = null;
 $metricsService = null;
+$libraryService = null;
+$advertiserService = null;
 $timingMiddleware = null;
 
 try {
@@ -168,6 +174,24 @@ try {
     $playbackService = new PlaybackService($pdo);
 } catch (\Throwable $e) {
     $logger->warning("Failed to initialize PlaybackService: " . $e->getMessage());
+}
+
+try {
+    $rankingService = new RankingService($config);
+} catch (\Throwable $e) {
+    $logger->warning("Failed to initialize RankingService: " . $e->getMessage());
+}
+
+try {
+    $libraryService = new LibraryService($pdo);
+} catch (\Throwable $e) {
+    $logger->warning("Failed to initialize LibraryService: " . $e->getMessage());
+}
+
+try {
+    $advertiserService = new AdvertiserService($pdo);
+} catch (\Throwable $e) {
+    $logger->warning("Failed to initialize AdvertiserService: " . $e->getMessage());
 }
 
 try {
@@ -733,6 +757,276 @@ $router->get('/venues', function (Request $request) use ($pdo) {
     } catch (\Throwable $e) {
         error_log("API Error: /venues endpoint failed - " . $e->getMessage());
         return new JsonResponse(['success' => false, 'message' => 'Error fetching venues.'], 500);
+    }
+});
+
+// ============================================
+// ADVERTISER API ENDPOINTS
+// ============================================
+
+// GET /api/v1/advertiser/campaigns - Get my campaign requests
+$router->get('/advertiser/campaigns', function (Request $request) use ($advertiserService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user || $user['role_id'] != 11 && $user['role_id'] != 1) {
+        return new JsonResponse(['success' => false, 'message' => 'Unauthorized or not an advertiser'], 403);
+    }
+    if (!$advertiserService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $requests = $advertiserService->getRequests($user['id']);
+    return new JsonResponse(['success' => true, 'data' => ['items' => $requests]], 200);
+});
+
+// POST /api/v1/advertiser/campaigns - Submit a campaign request
+$router->post('/advertiser/campaigns', function (Request $request) use ($advertiserService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user || $user['role_id'] != 11 && $user['role_id'] != 1) {
+        return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+    }
+    if (!$advertiserService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $data = $request->json();
+    $id = $advertiserService->submitRequest($user['id'], $data);
+
+    return new JsonResponse(['success' => true, 'message' => 'Campaign request submitted', 'id' => $id], 201);
+});
+
+// POST /api/v1/advertiser/campaigns/draft - AI Drafting Assistant
+$router->post('/advertiser/campaigns/draft', function (Request $request) use ($advertiserService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$advertiserService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $data = $request->json();
+    $objective = $data['objective'] ?? '';
+    $type = $data['campaign_type'] ?? 'display';
+
+    if (empty($objective)) return new JsonResponse(['success' => false, 'message' => 'Objective required'], 400);
+
+    $suggestions = $advertiserService->generateSuggestions($objective, $type);
+    return new JsonResponse(['success' => true, 'data' => $suggestions], 200);
+});
+
+// GET /api/v1/admin/advertiser/campaigns - Admin review all requests
+$router->get('/admin/advertiser/campaigns', function (Request $request) use ($advertiserService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user || $user['role_id'] != 1) return new JsonResponse(['success' => false, 'message' => 'Admin only'], 403);
+    
+    // We'll use a slightly different method or just raw query for all
+    // For now, let's just use the service with a special case or get all
+    // I'll add a getAllRequests method to AdvertiserService later if needed, 
+    // but for now let's just query directly here for speed.
+    $pdo = ConnectionFactory::read(new Config());
+    $stmt = $pdo->query("SELECT cr.*, u.email as advertiser_email FROM `ngn_2025`.`campaign_requests` cr JOIN `ngn_2025`.`users` u ON cr.user_id = u.id ORDER BY cr.created_at DESC");
+    $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return new JsonResponse(['success' => true, 'data' => ['items' => $items]], 200);
+});
+
+// PATCH /api/v1/admin/advertiser/campaigns/:id - Update status
+$router->patch('/admin/advertiser/campaigns/(\d+)', function (Request $request, $id) use ($advertiserService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user || $user['role_id'] != 1) return new JsonResponse(['success' => false, 'message' => 'Admin only'], 403);
+    if (!$advertiserService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $data = $request->json();
+    $status = $data['status'] ?? 'pending';
+    $notes = $data['admin_notes'] ?? null;
+
+    $success = $advertiserService->updateStatus((int)$id, $status, $notes);
+    return new JsonResponse(['success' => $success], $success ? 200 : 500);
+});
+
+// ============================================
+// LIBRARY (ME) API ENDPOINTS
+// ============================================
+
+// GET /api/v1/me/favorites - Get user favorites
+$router->get('/me/favorites', function (Request $request) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $type = $request->query('type', null);
+    $limit = (int)$request->query('per_page', 50);
+    $offset = (int)$request->query('offset', 0);
+
+    try {
+        $data = $libraryService->getFavorites($user['id'], $type, $limit, $offset);
+        return new JsonResponse(['success' => true, 'data' => ['items' => $data]], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error fetching favorites'], 500);
+    }
+});
+
+// POST /api/v1/me/favorites - Add to favorites
+$router->post('/me/favorites', function (Request $request) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $data = $request->json();
+    $type = $data['entity_type'] ?? '';
+    $id = (int)($data['entity_id'] ?? 0);
+
+    if (!$type || !$id) return new JsonResponse(['success' => false, 'message' => 'Missing entity info'], 400);
+
+    try {
+        $libraryService->addFavorite($user['id'], $type, $id);
+        return new JsonResponse(['success' => true, 'message' => 'Added to favorites'], 201);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error adding favorite'], 500);
+    }
+});
+
+// DELETE /api/v1/me/favorites/:type/:id - Remove from favorites
+$router->delete('/me/favorites/([^/]+)/(\d+)', function (Request $request, $type, $id) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    try {
+        $libraryService->removeFavorite($user['id'], $type, (int)$id);
+        return new JsonResponse(['success' => true, 'message' => 'Removed from favorites'], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error removing favorite'], 500);
+    }
+});
+
+// GET /api/v1/me/follows - Get followed artists
+$router->get('/me/follows', function (Request $request) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $limit = (int)$request->query('per_page', 50);
+    $offset = (int)$request->query('offset', 0);
+
+    try {
+        $data = $libraryService->getFollowedArtists($user['id'], $limit, $offset);
+        return new JsonResponse(['success' => true, 'data' => ['items' => $data]], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error fetching followed artists'], 500);
+    }
+});
+
+// POST /api/v1/me/follows/:id - Follow an artist
+$router->post('/me/follows/(\d+)', function (Request $request, $id) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    try {
+        $libraryService->follow($user['id'], (int)$id);
+        return new JsonResponse(['success' => true, 'message' => 'Followed artist'], 201);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error following artist'], 500);
+    }
+});
+
+// DELETE /api/v1/me/follows/:id - Unfollow an artist
+$router->delete('/me/follows/(\d+)', function (Request $request, $id) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    try {
+        $libraryService->unfollow($user['id'], (int)$id);
+        return new JsonResponse(['success' => true, 'message' => 'Unfollowed artist'], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error unfollowing artist'], 500);
+    }
+});
+
+// GET /api/v1/me/history - Get playback history
+$router->get('/me/history', function (Request $request) use ($libraryService, $tokenSvc) {
+    $user = getCurrentUser($tokenSvc, $request);
+    if (!$user) return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 401);
+    if (!$libraryService) return new JsonResponse(['success' => false, 'message' => 'Service unavailable'], 500);
+
+    $limit = (int)$request->query('per_page', 50);
+    $offset = (int)$request->query('offset', 0);
+
+    try {
+        $data = $libraryService->getHistory($user['id'], $limit, $offset);
+        return new JsonResponse(['success' => true, 'data' => ['items' => $data]], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error fetching history'], 500);
+    }
+});
+
+// ============================================
+// RANKINGS API ENDPOINTS
+// ============================================
+
+// GET /api/v1/rankings/artists - Get artist rankings
+$router->get('/rankings/artists', function (Request $request) use ($rankingService) {
+    if (!$rankingService) {
+        return new JsonResponse(['success' => false, 'message' => 'Ranking service unavailable.'], 500);
+    }
+
+    $interval = $request->query('interval', 'daily');
+    $page = (int)$request->query('page', 1);
+    $perPage = (int)$request->query('per_page', 10);
+    $sort = $request->query('sort', 'rank');
+    $dir = $request->query('dir', 'asc');
+
+    try {
+        $data = $rankingService->list('artists', $interval, $page, $perPage, $sort, $dir);
+        return new JsonResponse([
+            'success' => true,
+            'data' => $data,
+            'interval' => $interval
+        ], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error fetching artist rankings: ' . $e->getMessage()], 500);
+    }
+});
+
+// GET /api/v1/rankings/labels - Get label rankings
+$router->get('/rankings/labels', function (Request $request) use ($rankingService) {
+    if (!$rankingService) {
+        return new JsonResponse(['success' => false, 'message' => 'Ranking service unavailable.'], 500);
+    }
+
+    $interval = $request->query('interval', 'daily');
+    $page = (int)$request->query('page', 1);
+    $perPage = (int)$request->query('per_page', 10);
+    $sort = $request->query('sort', 'rank');
+    $dir = $request->query('dir', 'asc');
+
+    try {
+        $data = $rankingService->list('labels', $interval, $page, $perPage, $sort, $dir);
+        return new JsonResponse([
+            'success' => true,
+            'data' => $data,
+            'interval' => $interval
+        ], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error fetching label rankings: ' . $e->getMessage()], 500);
+    }
+});
+
+// GET /api/v1/rankings/genres - Get genre rankings
+$router->get('/rankings/genres', function (Request $request) use ($rankingService) {
+    if (!$rankingService) {
+        return new JsonResponse(['success' => false, 'message' => 'Ranking service unavailable.'], 500);
+    }
+
+    $interval = $request->query('interval', 'daily');
+    $page = (int)$request->query('page', 1);
+    $perPage = (int)$request->query('per_page', 10);
+    $sort = $request->query('sort', 'rank');
+    $dir = $request->query('dir', 'asc');
+
+    try {
+        $data = $rankingService->list('genres', $interval, $page, $perPage, $sort, $dir);
+        return new JsonResponse([
+            'success' => true,
+            'data' => $data,
+            'interval' => $interval
+        ], 200);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => 'Error fetching genre rankings: ' . $e->getMessage()], 500);
     }
 });
 

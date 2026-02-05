@@ -61,7 +61,7 @@ $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 function ngn_query(PDO $pdo, string $table, string $search = '', int $page = 1, int $perPage = 24): array {
     $offset = ($page - 1) * $perPage;
     $where = $search !== '' ? "WHERE name LIKE :search" : '';
-    $sql = "SELECT * FROM `ngn_2025`.`{$table}` {$where} ORDER BY name ASC LIMIT :limit OFFSET :offset";
+    $sql = "SELECT * FROM `ngn_2025`.`{$table}` {$where} ORDER BY id DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     if ($search !== '') $stmt->bindValue(':search', '%'.$search.'%');
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
@@ -93,9 +93,9 @@ function get_ngn_posts(PDO $pdo, string $search = '', int $page = 1, int $perPag
     $offset = ($page - 1) * $perPage;
     $where = "WHERE p.status = 'published'";
     if ($search !== '') $where .= " AND p.title LIKE :search";
-    $sql = "SELECT p.id, p.slug, p.title, p.teaser, p.image_url, p.published_at, p.created_at, p.updated_at, u.display_name as author_name
+    $sql = "SELECT p.id, p.slug, p.title, p.excerpt, p.featured_image_url, p.published_at, p.created_at, p.updated_at, a.name as author_name
             FROM `ngn_2025`.`posts` p
-            LEFT JOIN `ngn_2025`.`users` u ON p.author_id = u.id
+            LEFT JOIN `ngn_2025`.`artists` a ON p.author_id = a.id
             {$where} ORDER BY p.published_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     if ($search !== '') $stmt->bindValue(':search', '%'.$search.'%');
@@ -120,11 +120,11 @@ function legacy_videos(PDO $pdo, string $search = '', int $page = 1, int $perPag
     $where = "WHERE 1=1";
     if ($search !== '') $where .= " AND v.title LIKE :search";
 
-    $sql = "SELECT v.id, v.slug, v.title, v.summary as description, v.platform,
-                   v.video_id as external_id, v.release_date as published_at, v.created_at, v.artist_id,
-                   a.display_name as ArtistName, a.username as ArtistSlug, a.id as ArtistId
+    $sql = "SELECT v.id, v.slug, v.title, v.description, v.video_type as platform,
+                   v.video_id as external_id, v.published_at, v.created_at, v.entity_id as artist_id,
+                   a.name as ArtistName, a.slug as ArtistSlug, a.id as ArtistId
             FROM `ngn_2025`.`videos` v
-            LEFT JOIN `ngn_2025`.`users` a ON v.artist_id = a.id
+            LEFT JOIN `ngn_2025`.`artists` a ON v.entity_id = a.id AND v.entity_type = 'artist'
             {$where} ORDER BY v.created_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     if ($search !== '') $stmt->bindValue(':search', '%'.$search.'%');
@@ -134,12 +134,6 @@ function legacy_videos(PDO $pdo, string $search = '', int $page = 1, int $perPag
 
     // Videos are transformed to match template expectations
     $videos = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-    // Ensure consistent keys expected by template
-    foreach ($videos as &$v) {
-        $v['ArtistName'] = $v['ArtistName'] ?? 'Unknown';
-        $v['ArtistSlug'] = $v['ArtistSlug'] ?? 'unknown';
-        $v['ArtistId'] = $v['ArtistId'] ?? null;
-    }
     return $videos;
 }
 
@@ -222,13 +216,13 @@ if ($pdo) {
             $data['artist_rankings'] = [];
             $data['label_rankings'] = [];
             
-            // Get top 10 artist rankings (distinct entities by highest score)
+            // Get top 10 artist rankings (latest window available)
             try {
                 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_2025`.`artists` a ON ri.entity_id = a.id
-                                         WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(id) FROM `ngn_rankings_2025`.`ranking_windows` WHERE interval = \'weekly\')
+                                         WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'artist\')
                                          ORDER BY ri.rank ASC LIMIT 10');
                 $stmt->execute();
                 $data['artist_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -236,13 +230,13 @@ if ($pdo) {
                 error_log("Error fetching artist rankings: " . $e->getMessage());
             }
 
-            // Get top 10 label rankings (distinct entities by highest score)
+            // Get top 10 label rankings (latest window available)
             try {
                 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, l.name AS Name, ri.score AS Score, l.slug, l.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_2025`.`labels` l ON ri.entity_id = l.id
-                                         WHERE ri.entity_type = \'label\' AND ri.window_id = (SELECT MAX(id) FROM `ngn_rankings_2025`.`ranking_windows` WHERE interval = \'weekly\')
+                                         WHERE ri.entity_type = \'label\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'label\')
                                          ORDER BY ri.rank ASC LIMIT 10');
                 $stmt->execute();
                 $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -263,19 +257,19 @@ if ($pdo) {
         } elseif ($view === 'videos') { // Removed legacyPdo check
             $data['videos'] = legacy_videos($pdo, $search, $page, $perPage); // Use $pdo for consistency
             $total = legacy_videos_count($pdo, $search);
-        } elseif ($view === 'video' && isset($_GET['slug'])) { // Removed legacyPdo check
-            // Get video from ngn_2205.videos
-            $slug = trim($_GET['slug']);
-            $stmt = $pdo->prepare('SELECT id, slug, title, description, platform, external_id, published_at, created_at, user_id FROM `ngn_2025`.`videos` WHERE slug = ? AND status = \'published\' LIMIT 1'); // Assuming 'status' column exists and published
-            $stmt->execute([$slug]);
+        } elseif ($view === 'video' && (isset($_GET['slug']) || isset($_GET['id']))) {
+            $identifier = trim($_GET['slug'] ?? $_GET['id']);
+            $stmt = $pdo->prepare('SELECT id, slug, title, description, video_type as platform, video_id as external_id, published_at, created_at, entity_id FROM `ngn_2025`.`videos` WHERE (slug = :id OR id = :id) LIMIT 1');
+            $stmt->execute([':id' => $identifier]);
             $video = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($video) {
                 // Get artist info (author)
-                if (!empty($video['user_id'])) {
+                $author_id = $video['entity_id'] ?? null;
+                if ($author_id) {
                     try {
-                        $userStmt = $pdo->prepare('SELECT id, display_name AS name, username AS slug, avatar_url AS image FROM `ngn_2025`.`users` WHERE id = ? LIMIT 1');
-                        $userStmt->execute([$video['user_id']]);
+                        $userStmt = $pdo->prepare('SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE id = ? LIMIT 1');
+                        $userStmt->execute([$author_id]);
                         $user = $userStmt->fetch(PDO::FETCH_ASSOC);
                         if ($user) {
                             $video['author_entity'] = [
@@ -288,10 +282,8 @@ if ($pdo) {
                     }
                 }
 
-                // Transform to match template expectations (already mostly done by direct selection)
-                // Add any missing keys expected by the template
-                $video['is_locked'] = false; // Placeholder, integrate with subscriptions if needed
-
+                // Transform to match template expectations
+                $video['is_locked'] = false; 
                 $data['video'] = $video;
             }
         } elseif ($view === 'charts') {
@@ -301,13 +293,13 @@ if ($pdo) {
             $data['artist_rankings'] = [];
             $data['label_rankings'] = [];
 
-            // Get top 100 artist rankings (distinct entities by highest score)
+            // Get top 100 artist rankings
             try {
                 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_2025`.`artists` a ON ri.entity_id = a.id
-                                         WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(id) FROM `ngn_rankings_2025`.`ranking_windows` WHERE interval = \'weekly\')
+                                         WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'artist\')
                                          ORDER BY ri.rank ASC LIMIT 100');
                 $stmt->execute();
                 $data['artist_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -315,13 +307,13 @@ if ($pdo) {
                 error_log("Error fetching artist rankings: " . $e->getMessage());
             }
 
-            // Get top 100 label rankings (distinct entities by highest score)
+            // Get top 100 label rankings
             try {
                 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, l.name AS Name, ri.score AS Score, l.slug, l.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_2025`.`labels` l ON ri.entity_id = l.id
-                                         WHERE ri.entity_type = \'label\' AND ri.window_id = (SELECT MAX(id) FROM `ngn_rankings_2025`.`ranking_windows` WHERE interval = \'weekly\')
+                                         WHERE ri.entity_type = \'label\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'label\')
                                          ORDER BY ri.rank ASC LIMIT 100');
                 $stmt->execute();
                 $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -371,6 +363,30 @@ if ($pdo) {
             } catch (\Throwable $e) {
                 error_log("Error fetching SMR charts: " . $e->getMessage());
                 $data['smr_charts'] = [];
+            }
+        } elseif ($view === 'release' && isset($_GET['slug'])) {
+            $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`releases` WHERE slug = ? LIMIT 1');
+            $stmt->execute([trim($_GET['slug'])]);
+            $release = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($release) {
+                // Get tracks
+                $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`tracks` WHERE release_id = ? ORDER BY track_number ASC');
+                $stmt->execute([$release['id']]);
+                $release['tracks'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                
+                // Get artist
+                $stmt = $pdo->prepare('SELECT id, name, slug FROM `ngn_2025`.`artists` WHERE id = ? LIMIT 1');
+                $stmt->execute([$release['artist_id']]);
+                $release['artist'] = $stmt->fetch(PDO::FETCH_ASSOC);
+                
+                $data['release'] = $release;
+            }
+        } elseif ($view === 'song' && isset($_GET['slug'])) {
+            $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`tracks` WHERE slug = ? LIMIT 1');
+            $stmt->execute([trim($_GET['slug'])]);
+            $track = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($track) {
+                $data['track'] = $track;
             }
         } elseif ($view === 'pricing') {
             // Pricing page - show all tiers
@@ -459,9 +475,10 @@ if ($pdo) {
                     ]
                 ]
             ];
-        } elseif ($view === 'post' && isset($_GET['slug'])) {
-            $stmt = $pdo->prepare('SELECT id, slug, title, teaser, body, tags, image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE slug = ? AND status = ? LIMIT 1');
-            $stmt->execute([trim($_GET['slug']), 'published']);
+        } elseif ($view === 'post' && (isset($_GET['slug']) || isset($_GET['id']))) {
+            $identifier = trim($_GET['slug'] ?? $_GET['id']);
+            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, content as body, tags, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :id OR id = :id) AND status = :status LIMIT 1');
+            $stmt->execute([':id' => $identifier, ':status' => 'published']);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($post) {
@@ -545,7 +562,12 @@ if ($pdo) {
                     $oauthTokens = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                     $entity['social_links'] = [];
                     foreach ($oauthTokens as $token) {
-                        $entity['social_links'][strtolower($token['provider'])] = '#'; // Placeholder, actual URL would be service-dependent
+                        $provider = strtolower($token['provider']);
+                        // Map provider to legacy keys used in templates
+                        if ($provider === 'facebook') $entity['legacy']['FacebookUrl'] = $token['access_token']; // Note: access_token might be used as URL or we might need actual profile URL
+                        if ($provider === 'instagram') $entity['legacy']['InstagramUrl'] = $token['access_token'];
+                        if ($provider === 'spotify') $entity['legacy']['SpotifyUrl'] = $token['access_token'];
+                        $entity['social_links'][$provider] = $token['access_token'];
                     }
                 } catch (\Throwable $e) {
                     error_log("Error fetching social links for {$view} {$entity['id']}: " . $e->getMessage());
@@ -604,8 +626,8 @@ if ($pdo) {
                     $entity['collaborators'] = []; // Placeholder
 
                     // Get artist mentions/references in posts
-                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE author_id = ? OR (title LIKE :artistNamePattern OR body LIKE :artistNamePattern OR tags LIKE :artistNamePattern) ORDER BY published_at DESC LIMIT 20');
-                    $stmt->execute([':artistId' => $entity['id'], ':artistNamePattern' => '%' . $entity['name'] . '%']);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE author_id = :authorId OR (title LIKE :namePattern OR body LIKE :namePattern OR tags LIKE :namePattern) ORDER BY published_at DESC LIMIT 20');
+                    $stmt->execute([':authorId' => $entity['id'], ':namePattern' => '%' . $entity['name'] . '%']);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get label information
@@ -693,6 +715,47 @@ if ($pdo) {
                         'total_videos' => count($entity['videos'] ?? []),
                         'total_posts' => count($entity['posts'] ?? []),
                     ];
+                }
+
+                // Get data for stations
+                if ($view === 'station') {
+                    // Fetch recent spins from SMR
+                    try {
+                        $smrPdo = ConnectionFactory::named($config, 'smr2025');
+                        $stmt = $smrPdo->prepare('
+                            SELECT sc.track AS Song, sc.artist AS Artist, sc.window_date AS chart_date
+                            FROM `ngn_smr_2025`.`smr_chart` sc
+                            WHERE sc.station_id = :stationId
+                            ORDER BY sc.window_date DESC LIMIT 20
+                        ');
+                        $stmt->execute([':stationId' => $entity['id']]);
+                        $entity['smr_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                    } catch (\Throwable $e) {
+                        error_log("Error fetching station spins: " . $e->getMessage());
+                    }
+
+                    // Posts mentioning this station
+                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE (title LIKE :stationNamePattern OR body LIKE :stationNamePattern OR tags LIKE :stationNamePattern) ORDER BY published_at DESC LIMIT 10');
+                    $stmt->execute([':stationNamePattern' => '%' . $entity['name'] . '%']);
+                    $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                }
+
+                // Unified Chart History Fetching
+                if (empty($entity['chart_rankings']) && in_array($view, ['artist', 'label', 'venue', 'station'])) {
+                    try {
+                        $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
+                        $stmt = $rankingsPdo->prepare('
+                            SELECT ri.rank AS RankNum, ri.score AS Score, rw.period_end AS PeriodEnd, rw.interval AS Interval
+                            FROM `ngn_rankings_2025`.`ranking_items` ri
+                            JOIN `ngn_rankings_2025`.`ranking_windows` rw ON ri.window_id = rw.id
+                            WHERE ri.entity_type = :entityType AND ri.entity_id = :entityId
+                            ORDER BY rw.period_end DESC, rw.id DESC LIMIT 10
+                        ');
+                        $stmt->execute([':entityType' => $view, ':entityId' => $entity['id']]);
+                        $entity['chart_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                    } catch (\Throwable $e) {
+                        error_log("Error fetching chart history for {$view}: " . $e->getMessage());
+                    }
                 }
             }
         }
@@ -1096,7 +1159,7 @@ if ($view === 'post' && !empty($data['post'])) {
                     <div class="flex-1">
                         <div class="relative" style="height: 400px;">
                             <?php foreach ($featuredPosts as $index => $post): ?>
-                                <?php $postImg = !empty($post['image_url']) ? "/uploads/posts/{$post['image_url']}" : DEFAULT_AVATAR; ?>
+                                <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
                                 <div class="absolute inset-0 transition-opacity duration-500 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
                                     <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover" alt="<?= htmlspecialchars($post['title']) ?>">
                                     <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
@@ -1243,7 +1306,7 @@ if ($view === 'post' && !empty($data['post'])) {
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <?php foreach ($data['posts'] as $post): ?>
-            <?php $postImg = !empty($post['image_url']) ? "/uploads/posts/{$post['image_url']}" : DEFAULT_AVATAR; ?>
+            <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
             <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
               <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full aspect-video object-cover bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
               <div class="p-4">
@@ -1419,13 +1482,13 @@ if ($view === 'post' && !empty($data['post'])) {
         <?php if (!empty($items)): ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <?php foreach ($items as $post): ?>
-          <?php $postImg = !empty($post['image_url']) ? "/uploads/posts/{$post['image_url']}" : DEFAULT_AVATAR; ?>
+          <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
           <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group bg-white dark:bg-white/5 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 hover:border-brand transition-colors">
             <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full aspect-video object-cover bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
             <div class="p-4">
               <div class="font-semibold line-clamp-2 group-hover:text-brand mb-2"><?= htmlspecialchars($post['title']) ?></div>
-              <?php if (!empty($post['teaser'])): ?>
-              <p class="text-sm text-gray-500 line-clamp-2 mb-2"><?= htmlspecialchars($post['teaser']) ?></p>
+              <?php if (!empty($post['excerpt'])): ?>
+              <p class="text-sm text-gray-500 line-clamp-2 mb-2"><?= htmlspecialchars($post['excerpt']) ?></p>
               <?php endif; ?>
               <div class="flex items-center gap-2 text-xs text-gray-400">
                 <span><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></span>
@@ -1557,89 +1620,161 @@ if ($view === 'post' && !empty($data['post'])) {
         
 
       <?php elseif ($view === 'charts'): ?>
-        <!-- NGN CHARTS -->
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold">NGN Charts</h1>
-          <p class="text-gray-500">Top ranked artists and labels based on spins, engagement, and popularity</p>
-        </div>
-
-        <!-- Chart Type Tabs -->
-        <?php $chartType = $data['chart_type'] ?? 'artists'; ?>
-        <div class="flex gap-2 mb-6">
-          <a href="/charts?type=artists" class="px-4 py-2 rounded-lg font-medium <?= $chartType === 'artists' ? 'bg-brand text-white' : 'bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand' ?>">Artists</a>
-          <a href="/charts?type=labels" class="px-4 py-2 rounded-lg font-medium <?= $chartType === 'labels' ? 'bg-brand text-white' : 'bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:border-brand' ?>">Labels</a>
-        </div>
-
-        <?php if ($chartType === 'artists' && !empty($data['artist_rankings'])): ?>
-        <div class="bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
-          <?php foreach ($data['artist_rankings'] as $i => $item): ?>
-          <?php $slug = $item['slug'] ?? ''; $img = ($item['image_url'] ?? null) ?: DEFAULT_AVATAR; ?>
-          <a href="/artist/<?= htmlspecialchars($slug) ?>" class="flex items-center gap-4 p-4 border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-            <div class="w-8 text-center font-bold text-lg <?= $i < 3 ? 'text-brand' : 'text-gray-400' ?>"><?= $i + 1 ?></div>
-            <img src="<?= htmlspecialchars($img) ?>" alt="" class="w-12 h-12 rounded-lg object-cover bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold truncate"><?= htmlspecialchars($item['Name'] ?? 'Unknown') ?></div>
-              <div class="text-sm text-gray-500">Score: <?= number_format((float)($item['Score'] ?? 0), 2) ?></div>
+        <!-- NGN CHARTS OVERHAUL -->
+        <div class="mb-12">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 class="text-4xl font-black mb-2 tracking-tight">NGN Charts</h1>
+              <p class="text-gray-500 dark:text-gray-400">The industry standard for metal & rock popularity, driven by real-time engagement data.</p>
             </div>
-          </a>
-          <?php endforeach; ?>
+            
+            <?php $chartType = $data['chart_type'] ?? 'artists'; ?>
+            <div class="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl w-fit">
+              <a href="/charts?type=artists" class="px-6 py-2 rounded-lg text-sm font-bold transition-all <?= $chartType === 'artists' ? 'bg-white dark:bg-white/10 shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' ?>">Artists</a>
+              <a href="/charts?type=labels" class="px-6 py-2 rounded-lg text-sm font-bold transition-all <?= $chartType === 'labels' ? 'bg-white dark:bg-white/10 shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' ?>">Labels</a>
+            </div>
+          </div>
         </div>
-        <?php elseif ($chartType === 'labels' && !empty($data['label_rankings'])): ?>
-        <div class="bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
-          <?php foreach ($data['label_rankings'] as $i => $item): ?>
-          <?php $slug = $item['slug'] ?? ''; $img = ($item['image_url'] ?? null) ?: DEFAULT_AVATAR; ?>
-          <a href="/label/<?= htmlspecialchars($slug) ?>" class="flex items-center gap-4 p-4 border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-            <div class="w-8 text-center font-bold text-lg <?= $i < 3 ? 'text-brand' : 'text-gray-400' ?>"><?= $i + 1 ?></div>
-            <img src="<?= htmlspecialchars($img) ?>" alt="" class="w-12 h-12 rounded-lg object-cover bg-gray-100 dark:bg-white/10" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+
+        <?php 
+          $rankings = ($chartType === 'artists') ? ($data['artist_rankings'] ?? []) : ($data['label_rankings'] ?? []);
+          $entityPath = ($chartType === 'artists') ? 'artist' : 'label';
+        ?>
+
+        <?php if (!empty($rankings)): ?>
+        <div class="space-y-4">
+          <?php foreach ($rankings as $i => $item): ?>
+          <?php 
+            $slug = $item['slug'] ?? ''; 
+            $img = ($item['image_url'] ?? null) ?: DEFAULT_AVATAR;
+            $isTop3 = $i < 3;
+          ?>
+          <a href="/<?= $entityPath ?>/<?= htmlspecialchars($slug) ?>" class="group flex items-center gap-6 p-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 hover:border-brand dark:hover:border-brand/50 transition-all hover:scale-[1.01] hover:shadow-xl hover:shadow-brand/5">
+            <div class="w-12 text-center flex-shrink-0">
+              <?php if ($i === 0): ?>
+                <span class="text-3xl">🥇</span>
+              <?php elseif ($i === 1): ?>
+                <span class="text-3xl">🥈</span>
+              <?php elseif ($i === 2): ?>
+                <span class="text-3xl">🥉</span>
+              <?php else: ?>
+                <span class="text-xl font-black text-gray-300 dark:text-white/20">#<?= $i + 1 ?></span>
+              <?php endif; ?>
+            </div>
+            
+            <div class="relative flex-shrink-0">
+              <img src="<?= htmlspecialchars($img) ?>" alt="" class="w-16 h-16 rounded-xl object-cover shadow-lg group-hover:rotate-3 transition-transform" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+              <?php if ($isTop3): ?>
+                <div class="absolute -top-2 -right-2 w-6 h-6 bg-brand text-black rounded-full flex items-center justify-center text-[10px] font-black border-2 border-white dark:border-gray-900">
+                  <i class="bi-star-fill"></i>
+                </div>
+              <?php endif; ?>
+            </div>
+
             <div class="flex-1 min-w-0">
-              <div class="font-semibold truncate"><?= htmlspecialchars($item['Name'] ?? 'Unknown') ?></div>
-              <div class="text-sm text-gray-500">Score: <?= number_format((float)($item['Score'] ?? 0), 2) ?></div>
+              <div class="font-black text-lg truncate group-hover:text-brand transition-colors"><?= htmlspecialchars($item['Name'] ?? 'Unknown') ?></div>
+              <div class="flex items-center gap-3 mt-1 text-xs font-bold uppercase tracking-widest text-gray-500">
+                <span class="flex items-center gap-1"><i class="bi-lightning-charge-fill text-brand"></i> <?= number_format($item['Score'], 1) ?> pts</span>
+                <span class="w-1 h-1 bg-gray-300 dark:bg-white/20 rounded-full"></span>
+                <span class="text-gray-400">Stable</span>
+              </div>
+            </div>
+
+            <div class="hidden md:block text-right flex-shrink-0">
+                <div class="text-[10px] uppercase font-black text-gray-400 mb-1">Rank Velocity</div>
+                <div class="flex items-center justify-end gap-1 text-brand">
+                    <i class="bi-caret-up-fill"></i>
+                    <span class="font-bold">Hot</span>
+                </div>
+            </div>
+            
+            <div class="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center group-hover:bg-brand group-hover:text-black transition-colors">
+              <i class="bi-chevron-right"></i>
             </div>
           </a>
           <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="text-center py-12 text-gray-500">No chart data available.</div>
+        <div class="bg-white dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-200 dark:border-white/10 p-20 text-center">
+          <div class="text-6xl mb-6">📊</div>
+          <h2 class="text-2xl font-bold mb-2">Compiling Chart Data...</h2>
+          <p class="text-gray-500 max-sm mx-auto">We're currently aggregating the latest engagement signals. Check back in a few minutes for the updated rankings.</p>
+        </div>
         <?php endif; ?>
 
       <?php elseif ($view === 'smr-charts'): ?>
-        <!-- SMR CHARTS -->
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold">SMR Charts</h1>
-          <p class="text-gray-500">Spins Music Radio chart rankings<?= $data['smr_date'] ? ' - ' . htmlspecialchars($data['smr_date']) : '' ?></p>
+        <!-- SMR CHARTS OVERHAUL -->
+        <div class="mb-12">
+          <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+              <h1 class="text-4xl font-black mb-2 tracking-tight">SMR Airplay Charts</h1>
+              <p class="text-gray-500 dark:text-gray-400">Spins Music Radio - Official radio airplay monitoring for independent metal & rock.</p>
+            </div>
+            
+            <?php if ($data['smr_date']): ?>
+            <div class="px-4 py-2 bg-brand/10 text-brand rounded-full text-xs font-black uppercase tracking-tighter border border-brand/20">
+              Week of <?= htmlspecialchars($data['smr_date']) ?>
+            </div>
+            <?php endif; ?>
+          </div>
         </div>
 
         <?php if (!empty($data['smr_charts'])): ?>
-        <div class="bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
-          <div class="grid grid-cols-12 gap-2 p-3 bg-gray-50 dark:bg-white/5 text-xs font-semibold text-gray-500 uppercase">
-            <div class="col-span-1">TWP</div>
-            <div class="col-span-1">LWP</div>
-            <div class="col-span-4">Artist</div>
-            <div class="col-span-3">Track</div>
-            <div class="col-span-2">Label</div>
-            <div class="col-span-1">WOC</div>
+        <div class="bg-white dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-2xl">
+          <div class="grid grid-cols-12 gap-4 p-6 bg-gray-50 dark:bg-white/5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-200 dark:border-white/10">
+            <div class="col-span-1 text-center">TW</div>
+            <div class="col-span-1 text-center">LW</div>
+            <div class="col-span-5 md:col-span-4">Artist / Track</div>
+            <div class="hidden md:block col-span-3">Label</div>
+            <div class="col-span-2 text-center">Spins</div>
+            <div class="col-span-1 text-center">WOC</div>
           </div>
-          <?php foreach ($data['smr_charts'] as $item): ?>
-          <div class="grid grid-cols-12 gap-2 p-3 border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-gray-50 dark:hover:bg-white/5 items-center text-sm">
-            <div class="col-span-1 font-bold <?= ($item['TWP'] ?? 0) <= 10 ? 'text-brand' : 'text-gray-400' ?>"><?= $item['TWP'] ?? '-' ?></div>
-            <div class="col-span-1 text-gray-500"><?= $item['LWP'] ?? '-' ?></div>
-            <div class="col-span-4 flex items-center gap-2">
-              <?php if (!empty($item['artist'])): ?>
-              <?php $img = ($item['artist']['image_url'] ?? null) ?: DEFAULT_AVATAR; ?>
-              <img src="<?= htmlspecialchars($img) ?>" alt="" class="w-8 h-8 rounded object-cover" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-              <a href="/artist/<?= htmlspecialchars($item['artist']['slug'] ?? '') ?>" class="font-medium hover:text-brand truncate"><?= htmlspecialchars($item['Artists'] ?? 'Unknown') ?></a>
-              <?php else: ?>
-              <span class="font-medium truncate"><?= htmlspecialchars($item['Artists'] ?? 'Unknown') ?></span>
-              <?php endif; ?>
+          
+          <div class="divide-y divide-gray-100 dark:divide-white/5">
+            <?php foreach ($data['smr_charts'] as $i => $item): ?>
+            <div class="grid grid-cols-12 gap-4 p-6 hover:bg-gray-50 dark:hover:bg-white/5 items-center transition-all group">
+              <div class="col-span-1 text-center font-black text-xl <?= $i < 10 ? 'text-brand' : 'text-gray-400' ?>">
+                <?= $item['TWP'] ?? ($i + 1) ?>
+              </div>
+              <div class="col-span-1 text-center text-gray-400 font-bold text-xs">
+                <?= $item['LWP'] ?? '-' ?>
+              </div>
+              
+              <div class="col-span-5 md:col-span-4 flex items-center gap-4 min-w-0">
+                <div class="relative flex-shrink-0">
+                  <img src="<?= htmlspecialchars($item['artist']['image_url'] ?? DEFAULT_AVATAR) ?>" class="w-12 h-12 rounded-lg object-cover shadow-md" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                  <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity text-white">
+                    <i class="bi-play-fill text-xl"></i>
+                  </button>
+                </div>
+                <div class="min-w-0">
+                  <a href="/artist/<?= htmlspecialchars($item['artist']['slug'] ?? '') ?>" class="font-black truncate block hover:text-brand transition-colors"><?= htmlspecialchars($item['Artists'] ?? 'Unknown Artist') ?></a>
+                  <div class="text-sm text-gray-500 truncate font-medium"><?= htmlspecialchars($item['Song'] ?? 'Unknown Track') ?></div>
+                </div>
+              </div>
+              
+              <div class="hidden md:block col-span-3 truncate text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <?= htmlspecialchars($item['Label'] ?? 'Independent') ?>
+              </div>
+              
+              <div class="col-span-2 text-center">
+                <div class="font-black text-lg"><?= number_format($item['spins'] ?? 0) ?></div>
+                <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total Spins</div>
+              </div>
+              
+              <div class="col-span-1 text-center font-bold text-gray-400">
+                <?= $item['WOC'] ?? '1' ?>
+              </div>
             </div>
-            <div class="col-span-3 truncate text-gray-600 dark:text-gray-400"><?= htmlspecialchars($item['Song'] ?? '-') ?></div>
-            <div class="col-span-2 truncate text-gray-500"><?= htmlspecialchars($item['Label'] ?? '-') ?></div>
-            <div class="col-span-1 text-gray-500"><?= $item['WOC'] ?? '-' ?></div>
+            <?php endforeach; ?>
           </div>
-          <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="text-center py-12 text-gray-500">No SMR chart data available.</div>
+        <div class="bg-white dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-200 dark:border-white/10 p-20 text-center">
+          <div class="text-6xl mb-6">📻</div>
+          <h2 class="text-2xl font-bold mb-2">Waiting for Radio Reports</h2>
+          <p class="text-gray-500 max-w-sm mx-auto">The SMR airplay data is being synchronized with our tracking partners. Please check back shortly.</p>
+        </div>
         <?php endif; ?>
 
       <?php elseif ($view === 'pricing'): ?>
@@ -1807,13 +1942,13 @@ if ($view === 'post' && !empty($data['post'])) {
 
       <?php elseif ($view === 'post' && !empty($data['post'])): ?>
         <!-- SINGLE POST VIEW -->
-        <?php $post = $data['post']; $postImg = !empty($post['image_url']) ? "/uploads/posts/{$post['image_url']}" : DEFAULT_AVATAR; ?>
+        <?php $post = $data['post']; $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
         <a href="/posts" class="inline-flex items-center gap-2 text-brand hover:underline mb-6">
           <i class="bi-arrow-left"></i> Back to Posts
         </a>
 
         <article class="bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
-          <?php if (!empty($post['image_url'])): ?>
+          <?php if (!empty($post['featured_image_url'])): ?>
           <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full aspect-video object-cover" onerror="this.style.display='none'">
           <?php endif; ?>
           <div class="p-6 lg:p-8">
@@ -2675,6 +2810,89 @@ if ($view === 'post' && !empty($data['post'])) {
             </div>
           </div>
         <?php endif; ?>
+
+      <?php elseif ($view === 'release' && !empty($data['release'])): ?>
+        <!-- SINGLE RELEASE VIEW -->
+        <?php $release = $data['release']; ?>
+        <div class="max-w-5xl mx-auto">
+            <a href="/artist/<?= htmlspecialchars($release['artist']['slug'] ?? '') ?>" class="inline-flex items-center gap-2 text-brand hover:underline mb-8 font-bold">
+                <i class="bi-arrow-left"></i> Back to Artist
+            </a>
+
+            <div class="flex flex-col md:flex-row gap-10 mb-12">
+                <div class="w-full md:w-80 flex-shrink-0">
+                    <img src="<?= htmlspecialchars(($release['cover_url'] ?? $release['cover_image_url'] ?? '') ?: DEFAULT_AVATAR) ?>" 
+                         class="w-full aspect-square object-cover rounded-2xl shadow-2xl border border-white/5" alt=""
+                         onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                </div>
+                <div class="flex-1 flex flex-col justify-end">
+                    <span class="text-xs font-black uppercase tracking-[0.2em] text-brand mb-2"><?= ucfirst($release['type'] ?? 'Album') ?></span>
+                    <h1 class="text-4xl lg:text-6xl font-black mb-4 tracking-tighter"><?= htmlspecialchars($release['title']) ?></h1>
+                    <div class="flex items-center gap-3 text-sm font-bold text-white/60">
+                        <a href="/artist/<?= htmlspecialchars($release['artist']['slug'] ?? '') ?>" class="hover:text-white transition-colors underline decoration-brand underline-offset-4"><?= htmlspecialchars($release['artist']['name'] ?? 'Unknown Artist') ?></a>
+                        <span class="w-1 h-1 bg-white/20 rounded-full"></span>
+                        <span><?= !empty($release['release_date']) ? date('Y', strtotime($release['release_date'])) : 'N/A' ?></span>
+                        <span class="w-1 h-1 bg-white/20 rounded-full"></span>
+                        <span><?= count($release['tracks'] ?? []) ?> Songs</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tracklist -->
+            <div class="bg-white/5 rounded-3xl border border-white/5 overflow-hidden mb-12">
+                <div class="p-6 border-b border-white/5 flex items-center justify-between">
+                    <h2 class="text-xl font-bold">Tracklist</h2>
+                    <button class="bg-brand text-black w-12 h-12 rounded-full flex items-center justify-center hover:scale-105 transition-all shadow-lg shadow-brand/20">
+                        <i class="bi-play-fill text-2xl"></i>
+                    </button>
+                </div>
+                <div class="divide-y divide-white/5">
+                    <?php if (!empty($release['tracks'])): ?>
+                        <?php foreach ($release['tracks'] as $i => $track): ?>
+                        <div class="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors group">
+                            <span class="w-6 text-center text-white/20 font-bold group-hover:text-brand"><?= $i + 1 ?></span>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-bold truncate"><?= htmlspecialchars($track['title']) ?></div>
+                                <div class="text-xs text-white/40"><?= htmlspecialchars($release['artist']['name'] ?? '') ?></div>
+                            </div>
+                            <div class="text-sm text-white/40 font-mono"><?= ($track['duration_seconds'] ?? 0) ? gmdate('i:s', $track['duration_seconds']) : '--:--' ?></div>
+                            <button class="text-white/20 hover:text-brand transition-colors"><i class="bi-plus-circle"></i></button>
+                        </div>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <div class="p-12 text-center text-white/40">No tracks listed for this release.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- About Release -->
+            <?php if (!empty($release['description'])): ?>
+            <div class="prose prose-invert max-w-none bg-white/5 p-8 rounded-3xl border border-white/5">
+                <h3 class="text-white">About this release</h3>
+                <?= nl2br($release['description']) ?>
+            </div>
+            <?php endif; ?>
+        </div>
+
+      <?php elseif ($view === 'song' && !empty($data['track'])): ?>
+        <!-- SINGLE TRACK VIEW -->
+        <?php $track = $data['track']; ?>
+        <div class="max-w-3xl mx-auto py-12 text-center">
+            <div class="mb-8">
+                <i class="bi-music-note-beamed text-brand text-6xl opacity-20"></i>
+            </div>
+            <h1 class="text-4xl font-black mb-4"><?= htmlspecialchars($track['title']) ?></h1>
+            <p class="text-gray-500 mb-8 font-bold uppercase tracking-widest">Single Track View</p>
+            
+            <div class="flex flex-wrap justify-center gap-4">
+                <button class="px-8 py-3 bg-brand text-black font-black rounded-full hover:scale-105 transition-all shadow-lg shadow-brand/20 flex items-center gap-2">
+                    <i class="bi-play-fill text-xl"></i> PLAY SONG
+                </button>
+                <button class="px-8 py-3 bg-white/5 text-white font-bold rounded-full hover:bg-white/10 transition-all border border-white/10">
+                    ADD TO PLAYLIST
+                </button>
+            </div>
+        </div>
 
       <?php elseif ($view === '404'): ?>
         <!-- 404 PAGE -->

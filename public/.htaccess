@@ -1,4 +1,5 @@
 RewriteEngine On
+Options -MultiViews -Indexes
 
 # ============================================================================
 # HTTP CACHING & COMPRESSION
@@ -116,15 +117,17 @@ RewriteEngine On
 # CLEAN URLS
 # ============================================================================
 
+RewriteBase /
+
 # Clean URLs for videos
-RewriteRule ^video/([a-z0-9-]+)/?$ video.php?slug=$1 [L,QSA]
-RewriteRule ^videos/?$ videos.php [L,QSA]
+RewriteRule ^video/([a-z0-9-]+)/?$ index.php?view=video&slug=$1 [L,QSA]
+RewriteRule ^videos/?$ index.php?view=videos [L,QSA]
 
 # Clean URLs for profiles
-RewriteRule ^artist/([a-z0-9-]+)/?$ artist-profile.php?slug=$1 [L,QSA]
-RewriteRule ^label/([a-z0-9-]+)/?$ label-profile.php?slug=$1 [L,QSA]
-RewriteRule ^venue/([a-z0-9-]+)/?$ venue-profile.php?slug=$1 [L,QSA]
-RewriteRule ^station/([a-z0-9-]+)/?$ station-profile.php?slug=$1 [L,QSA]
+RewriteRule ^artist/([a-z0-9-]+)/?$ index.php?view=artist&slug=$1 [L,QSA]
+RewriteRule ^label/([a-z0-9-]+)/?$ index.php?view=label&slug=$1 [L,QSA]
+RewriteRule ^venue/([a-z0-9-]+)/?$ index.php?view=venue&slug=$1 [L,QSA]
+RewriteRule ^station/([a-z0-9-]+)/?$ index.php?view=station&slug=$1 [L,QSA]
 
 # Clean URLs for index.php content pages
 RewriteRule ^post/([a-z0-9-]+)/?$ index.php?view=post&slug=$1 [L,QSA]
@@ -149,6 +152,11 @@ RewriteRule ^shop/?$ index.php?view=shop [L,QSA]
 RewriteRule ^charts/?$ index.php?view=charts [L,QSA]
 RewriteRule ^smr-charts/?$ index.php?view=smr-charts [L,QSA]
 RewriteRule ^pricing/?$ index.php?view=pricing [L,QSA]
+
+# Fallback for all other non-file/dir requests to index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
 
 # Trailing slash normalization
 RewriteCond %{REQUEST_FILENAME} !-d
