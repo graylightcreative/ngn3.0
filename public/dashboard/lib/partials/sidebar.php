@@ -120,9 +120,15 @@ if (in_array($shopEnabled, ['1','true','on','yes'], true)) {
     </nav>
     
     <div class="sidebar-footer">
+        <?php if (dashboard_is_test_account()): ?>
+        <button onclick="startNgnTour()" class="btn btn-primary w-full mb-3" style="padding: 10px; font-size: 14px; gap: 8px; box-shadow: 0 0 15px var(--brand);">
+            <i class="bi bi-magic"></i> Start Testing Tour
+        </button>
+        <?php else: ?>
         <button onclick="startNgnTour()" class="btn btn-secondary w-full mb-3" style="padding: 8px; font-size: 12px; gap: 6px;">
             <i class="bi bi-compass"></i> Take a Tour
         </button>
+        <?php endif; ?>
         <div class="user-card">
             <div class="user-avatar">
                 <?php if (!empty($user['Image'])): ?>

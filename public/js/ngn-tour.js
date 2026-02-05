@@ -38,10 +38,10 @@ function runTour() {
     const commonSteps = [
         {
             title: 'Welcome to NGN 2.0 Beta!',
-            intro: 'This tour will guide you through the core features of your dashboard. Let's get started!'
+            intro: 'This tour will guide you through the core features of your dashboard. Let\'s get started!'
         },
         {
-            element: document.querySelector('.sk-sidebar') || document.querySelector('nav'),
+            element: document.querySelector('.sidebar') || document.querySelector('.sk-sidebar') || document.querySelector('nav'),
             intro: 'Use the sidebar to navigate between your analytics, settings, and tools.',
             position: 'right'
         }
@@ -52,27 +52,52 @@ function runTour() {
         steps = [
             ...commonSteps,
             {
-                element: document.querySelector('a[href*="api-health"]'),
-                intro: 'Monitor the heartbeat of the NGN ecosystem here.',
+                element: document.querySelector('.metric-card'),
+                intro: '<strong>Capital Raised:</strong> Monitor investments from NGN stakeholders and track platform growth.',
                 position: 'bottom'
             },
             {
+                element: document.querySelector('a[href*="api-health"]'),
+                intro: '<strong>Service Health:</strong> Real-time monitoring of all microservices, including P95 latency and external API status.',
+                position: 'right'
+            },
+            {
                 element: document.querySelector('a[href*="governance"]'),
-                intro: 'Review and audit platform actions in the Governance center.',
-                position: 'bottom'
+                intro: '<strong>Directorate Board:</strong> Audit platform actions and manage the SIR (Status Inquiry Report) system.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="users.php"]'),
+                intro: '<strong>User Management:</strong> Full control over roles, profile claims, and system-wide bans.',
+                position: 'right'
             }
         ];
     } else if (path.includes('/dashboard/artist/')) {
         steps = [
             ...commonSteps,
             {
+                element: document.querySelector('.stat-card'),
+                intro: '<strong>Real-time Stats:</strong> View your current NGN Rank and Score. Rankings update weekly based on platform-wide engagement.',
+                position: 'bottom'
+            },
+            {
                 element: document.querySelector('a[href*="score.php"]'),
-                intro: 'Your NGN Score is the heartbeat of your ranking. See how it's calculated here.',
+                intro: '<strong>Score Breakdown:</strong> If you are an investor, you\'ll see your 1.05x Influence Weighting applied here to boost your impact.',
                 position: 'right'
             },
             {
-                element: document.querySelector('a[href*="tools/bio-writer.php"]'),
-                intro: 'Try our AI tools to generate bios and optimize release timing.',
+                element: document.querySelector('a[href*="releases.php"]'),
+                intro: '<strong>Discography:</strong> Manage your albums, EPs, and singles. Link merch to your releases through the admin portal.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="fans.php"]'),
+                intro: '<strong>Fan Engagement:</strong> Track your Spark balance here. Fans can "Tip" you Sparks which translate to real revenue.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="tiers.php"]'),
+                intro: '<strong>Fan Tiers:</strong> Create Gold and Silver subscription levels to offer exclusive content and early access to your fans.',
                 position: 'right'
             }
         ];
@@ -81,12 +106,32 @@ function runTour() {
             ...commonSteps,
             {
                 element: document.querySelector('a[href*="spins.php"]'),
-                intro: 'Upload and manage your station spins to power the NGN charts.',
+                intro: '<strong>Radio Spins:</strong> Log individual plays manually or use the CSV Bulk Upload to report hundreds of spins at once.',
                 position: 'right'
             },
             {
                 element: document.querySelector('a[href*="content.php"]'),
-                intro: 'Manage the content and announcements for your station.',
+                intro: '<strong>BYOS Library:</strong> Upload your own station identifiers, ads, and local content to mix into your playlists.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="playlists.php"]'),
+                intro: '<strong>Playlist Manager:</strong> Build custom streams mixing NGN catalog tracks with your BYOS content using drag-and-drop.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="live.php"]'),
+                intro: '<strong>Listener Requests:</strong> A real-time queue of fan requests and dedications. Approve them to instantly update your rotation.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="tier.php"]'),
+                intro: '<strong>Subscription:</strong> Manage your station tier. Higher tiers unlock more storage and advanced PLN playlist features.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="connections.php"]'),
+                intro: '<strong>Social Matrix:</strong> Connect Facebook, Instagram, TikTok, and YouTube to sync your station presence.',
                 position: 'right'
             }
         ];
@@ -94,13 +139,18 @@ function runTour() {
         steps = [
             ...commonSteps,
             {
+                element: document.querySelector('.stat-card:nth-of-type(3)') || document.querySelector('.stat-card'),
+                intro: '<strong>Roster Stats:</strong> Unified view of your signed artists and their collective performance.',
+                position: 'bottom'
+            },
+            {
                 element: document.querySelector('a[href*="roster.php"]'),
-                intro: 'Manage your entire artist roster and view aggregate analytics.',
+                intro: '<strong>Unified Roster:</strong> Manage all your signed artists from a single view and monitor their aggregated analytics.',
                 position: 'right'
             },
             {
                 element: document.querySelector('a[href*="campaigns.php"]'),
-                intro: 'Create and track marketing campaigns for your artists.',
+                intro: '<strong>Marketing ROI:</strong> Create targeted email campaigns for your roster and track conversion rates and engagement.',
                 position: 'right'
             }
         ];
@@ -109,10 +159,30 @@ function runTour() {
             ...commonSteps,
             {
                 element: document.querySelector('a[href*="shows.php"]'),
-                intro: 'Schedule shows and manage ticket sales directly through NGN.',
+                intro: '<strong>Show Calendar:</strong> Publish your monthly events. You can generate and print unique QR codes for each event to link to tickets.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="artist-discovery.php"]') || document.querySelector('a[href*="analytics.php"]'),
+                intro: '<strong>Talent Discovery:</strong> Search the Artist directory by "Local" to find the perfect openers for your upcoming headliners.',
+                position: 'right'
+            },
+            {
+                element: document.querySelector('a[href*="bookings.php"]'),
+                intro: '<strong>Booking Desk:</strong> Manage incoming performance requests and track contracts for every show.',
                 position: 'right'
             }
         ];
+    }
+
+    // Add Mock Data step if Test Account Controls exist
+    const testControls = document.querySelector('form[method="post"] button i.bi-magic')?.closest('.card');
+    if (testControls) {
+        steps.push({
+            element: testControls,
+            intro: '<strong>Test Account Feature:</strong> Use this magic button to instantly populate your dashboard with mock data for testing!',
+            position: 'top'
+        });
     }
 
     if (steps.length > 0) {
@@ -120,7 +190,10 @@ function runTour() {
             steps: steps,
             showProgress: true,
             showBullets: false,
-            exitOnOverlayClick: false
+            exitOnOverlayClick: false,
+            nextLabel: 'Next &rarr;',
+            prevLabel: '&larr; Back',
+            doneLabel: 'Got it!'
         }).start();
     }
 }
