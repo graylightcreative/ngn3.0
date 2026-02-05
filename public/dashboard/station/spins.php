@@ -35,6 +35,8 @@ if ($entity) {
         error_log('Station spins fetch error: ' . $e->getMessage());
         // Tables may not exist
     }
+} else {
+    $error = 'Station profile not found. Please set up your profile first.';
 }
 
 // Helper function to validate file is actually CSV
