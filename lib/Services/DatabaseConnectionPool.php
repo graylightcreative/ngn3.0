@@ -58,14 +58,14 @@ class DatabaseConnectionPool {
                 'port' => $db['port'],
                 'user' => $db['user'],
                 'pass' => $db['pass'],
-                'database' => 'ngn_spins_2025'
+                'database' => $db['name']
             ],
             'rankings' => [
                 'host' => $db['host'],
                 'port' => $db['port'],
                 'user' => $db['user'],
                 'pass' => $db['pass'],
-                'database' => 'ngn_rankings_2025'
+                'database' => $db['name']
             ]
         ];
     }
