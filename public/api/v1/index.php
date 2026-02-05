@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
 
 use NGN\Lib\Config;
+use NGN\Lib\Env;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Http\{Request, Response, Router, JsonResponse};
 use NGN\Lib\Auth\TokenService;
@@ -4313,7 +4314,7 @@ try {
 } catch (\Throwable $e) {
     // If something goes wrong, log it and return a generic server error
     error_log('API Dispatch Error: ' . $e->getMessage());
-    if ($config && $config->debug()) {
+    if ($config && $config->appDebug()) {
         Response::json(['error' => 'Internal Server Error', 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
     } else {
         Response::json(['error' => 'Internal Server Error'], 500);
