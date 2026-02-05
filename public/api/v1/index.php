@@ -246,6 +246,20 @@ function checkEditorialAccess(?array $user): array
 
 
 // --- API Routes ---
+
+// GET /api/v1/health - Basic system health check
+$router->get('/health', function (Request $request) use ($config) {
+    return new JsonResponse([
+        'success' => true,
+        'data' => [
+            'status' => 'ok',
+            'version' => Env::get('APP_VERSION', '0.1.0'),
+            'time' => date('Y-m-d H:i:s'),
+            'env' => Env::get('APP_ENV', 'production')
+        ]
+    ], 200);
+});
+
 require_once __DIR__ . '/admin_routes.php';
 require_once __DIR__ . '/writer_routes.php';
 
@@ -4296,8 +4310,12 @@ try {
     // Send the response
     $response->send();
 
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // If something goes wrong, log it and return a generic server error
     error_log('API Dispatch Error: ' . $e->getMessage());
-    Response::json(['error' => 'Internal Server Error'], 500);
+    if ($config && $config->debug()) {
+        Response::json(['error' => 'Internal Server Error', 'message' => $e->getMessage(), 'trace' => $e->getTraceAsString()], 500);
+    } else {
+        Response::json(['error' => 'Internal Server Error'], 500);
+    }
 }

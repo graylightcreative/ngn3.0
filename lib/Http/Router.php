@@ -25,6 +25,11 @@ class Router
         $this->routes['DELETE'][$path] = $handler;
     }
 
+    public function patch(string $path, callable $handler): void
+    {
+        $this->routes['PATCH'][$path] = $handler;
+    }
+
     public function dispatch(Request $req): ?callable
     {
         $method = $req->method();
