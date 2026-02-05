@@ -68,26 +68,48 @@ foreach ($testUsers as $u) {
         $userIdStmt->execute([$u['email']]);
         $userId = $userIdStmt->fetchColumn();
         
-        // Link to entity if applicable
+        // Link to entity if applicable and assign highest subscription tier
         $slug = $u['username'];
         $name = $u['display_name'];
+        $entityType = null;
+        $entityId = null;
+        $tierId = 4; // Default to Enterprise for most
+
         if ($u['role_id'] == 3) { // Artist
+            $entityType = 'artist';
             $db->exec("INSERT INTO `ngn_2025`.`artists` (slug, name, user_id, status) 
                        VALUES ('$slug', '$name', $userId, 'active')
                        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
+            $entityId = $db->query("SELECT id FROM `ngn_2025`.`artists` WHERE user_id = $userId")->fetchColumn();
         } elseif ($u['role_id'] == 4) { // Station
+            $entityType = 'station';
+            $tierId = 7; // Station Elite
             $db->exec("INSERT INTO `ngn_2025`.`stations` (slug, name, user_id) 
                        VALUES ('$slug', '$name', $userId)
                        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
+            $entityId = $db->query("SELECT id FROM `ngn_2025`.`stations` WHERE user_id = $userId")->fetchColumn();
         } elseif ($u['role_id'] == 5) { // Venue
+            $entityType = 'venue';
             $db->exec("INSERT INTO `ngn_2025`.`venues` (slug, name, user_id) 
                        VALUES ('$slug', '$name', $userId)
                        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
+            $entityId = $db->query("SELECT id FROM `ngn_2025`.`venues` WHERE user_id = $userId")->fetchColumn();
         } elseif ($u['role_id'] == 7) { // Label
+            $entityType = 'label';
             $db->exec("INSERT INTO `ngn_2025`.`labels` (slug, name, user_id) 
                        VALUES ('$slug', '$name', $userId)
                        ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
+            $entityId = $db->query("SELECT id FROM `ngn_2025`.`labels` WHERE user_id = $userId")->fetchColumn();
         }
+
+        // Assign Subscription
+        if ($entityType && $entityId) {
+            $db->exec("INSERT INTO `ngn_2025`.`user_subscriptions` 
+                       (user_id, tier_id, entity_type, entity_id, billing_cycle, status, current_period_end)
+                       VALUES ($userId, $tierId, '$entityType', $entityId, 'lifetime', 'active', '2099-12-31 23:59:59')
+                       ON DUPLICATE KEY UPDATE tier_id = VALUES(tier_id), status = 'active', current_period_end = '2099-12-31 23:59:59'");
+        }
+
         $db->commit();
 
         echo "✓ Created/Updated: {$u['email']}\n";
