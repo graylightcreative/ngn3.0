@@ -181,6 +181,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         <?php endif; ?>
 
         <!-- Upgrade Notification Banner -->
+        <?php if (!dashboard_is_test_account()): ?>
         <div style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; padding: 20px 24px; margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; gap: 20px;">
             <div>
                 <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;"><i class="bi bi-star-fill" style="color: #fbbf24; margin-right: 8px;"></i>Unlock More Features</div>
@@ -197,6 +198,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 </a>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Stats Grid -->
         <div class="grid grid-4">
@@ -248,6 +250,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         </div>
 
         <!-- Ticket Sales Analytics (Pro/Premium Feature) -->
+        <?php if (!dashboard_is_test_account()): ?>
         <div class="card" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.05) 0%, rgba(236, 72, 153, 0.05) 100%); border: 1px solid rgba(168, 85, 247, 0.2);">
             <div class="card-header" style="border-bottom: 1px solid rgba(168, 85, 247, 0.2);">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -284,6 +287,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 </div>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Talent Discovery -->
         <div class="card">

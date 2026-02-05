@@ -71,11 +71,9 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         <?php endif; ?>
 
         <!-- Tier Comparison -->
+        <?php if (!dashboard_is_test_account()): ?>
         <div style="margin-bottom: 2rem;">
             <h2 class="page-title" style="margin-top: 0;">Available Tiers</h2>
-            <?php /* TODO: Consider enhancing the tier comparison by adding a detailed comparison table
-                          or more prominent display of feature differences for each tier to help users
-                          make informed upgrade decisions. */ ?>
             <div id="tier-comparison-placeholder" style="/* Placeholder styles for tier comparison */ margin-bottom: 1.5rem; padding: 1rem; border: 1px dashed var(--accent); text-align: center; color: var(--text-muted);">
                 <i class="bi bi-bar-chart-line" style="font-size: 2rem; margin-bottom: 0.5rem; display: block;"></i>
                 <span>Detailed Tier Comparison Table / Benefits Display Area</span>
@@ -137,6 +135,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 <?php endforeach; ?>
             </div>
         </div>
+        <?php endif; ?>
 
         <!-- Usage & Stats -->
         <?php if ($currentTier): ?>

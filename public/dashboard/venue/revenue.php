@@ -70,6 +70,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
 
     <div class="page-content">
         <!-- Feature Status -->
+        <?php if (!dashboard_is_test_account()): ?>
         <div style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 12px; padding: 20px; margin-bottom: 32px;">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 20px;">
                 <div>
@@ -85,39 +86,40 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 </a>
             </div>
         </div>
+        <?php endif; ?>
 
-        <!-- Revenue Summary (Locked) -->
-        <div class="grid grid-4" style="margin-bottom: 32px; opacity: 0.6; pointer-events: none;">
+        <!-- Revenue Summary -->
+        <div class="grid grid-4" style="margin-bottom: 32px; <?= !dashboard_is_test_account() ? 'opacity: 0.6; pointer-events: none;' : '' ?>">
             <div class="stat-card">
                 <div class="stat-label">Total Revenue</div>
-                <div class="stat-value" style="color: var(--brand);">—</div>
+                <div class="stat-value" style="color: var(--brand);"><?= dashboard_is_test_account() ? '$58,625.00' : '—' ?></div>
                 <div class="stat-change">All time</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Tickets Sold</div>
-                <div class="stat-value">—</div>
+                <div class="stat-value"><?= dashboard_is_test_account() ? '1,275' : '—' ?></div>
                 <div class="stat-change">All time</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">This Month</div>
-                <div class="stat-value" style="color: var(--accent);">—</div>
+                <div class="stat-value" style="color: var(--accent);"><?= dashboard_is_test_account() ? '$12,450.00' : '—' ?></div>
                 <div class="stat-change">Revenue</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Avg Ticket Price</div>
-                <div class="stat-value">—</div>
+                <div class="stat-value"><?= dashboard_is_test_account() ? '$46.00' : '—' ?></div>
                 <div class="stat-change">All time</div>
             </div>
         </div>
 
-        <!-- Events Revenue Table (Locked) -->
+        <!-- Events Revenue Table -->
         <div class="card">
             <div class="card-header">
                 <h2 class="card-title"><i class="bi-table" style="margin-right: 8px;"></i>Events Revenue</h2>
-                <a href="#" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; opacity: 0.5; pointer-events: none;">Export CSV</a>
+                <a href="#" class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px; <?= !dashboard_is_test_account() ? 'opacity: 0.5; pointer-events: none;' : '' ?>">Export CSV</a>
             </div>
             <div style="position: relative;">
-                <table style="width: 100%; border-collapse: collapse; opacity: 0.5;">
+                <table style="width: 100%; border-collapse: collapse; <?= !dashboard_is_test_account() ? 'opacity: 0.5;' : '' ?>">
                     <thead>
                         <tr style="border-bottom: 1px solid var(--border);">
                             <th style="text-align: left; padding: 12px; font-weight: 600;">Event</th>
@@ -147,64 +149,70 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                         </tr>
                     </tbody>
                 </table>
+                <?php if (!dashboard_is_test_account()): ?>
                 <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                     <div style="text-align: center;">
                         <i class="bi-lock" style="font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.5;"></i>
                         <p style="font-weight: 600;">Unlock detailed revenue tracking with Pro</p>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
-        <!-- Ticket Tier Breakdown (Locked) -->
+        <!-- Ticket Tier Breakdown -->
         <div class="card" style="margin-top: 32px;">
             <div class="card-header">
                 <h2 class="card-title"><i class="bi-pie-chart" style="margin-right: 8px;"></i>Ticket Tier Breakdown</h2>
             </div>
             <div style="position: relative; padding: 24px;">
                 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-                    <div style="text-align: center; opacity: 0.5;">
-                        <div style="font-size: 48px; font-weight: bold; color: var(--brand); margin-bottom: 8px;">—</div>
+                    <div style="text-align: center; <?= !dashboard_is_test_account() ? 'opacity: 0.5;' : '' ?>">
+                        <div style="font-size: 48px; font-weight: bold; color: var(--brand); margin-bottom: 8px;"><?= dashboard_is_test_account() ? '72%' : '—' ?></div>
                         <div style="font-size: 14px; color: var(--text-secondary);">General Admission</div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">— sold • $— revenue</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><?= dashboard_is_test_account() ? '918 sold • $22,950 revenue' : '— sold • $— revenue' ?></div>
                     </div>
-                    <div style="text-align: center; opacity: 0.5;">
-                        <div style="font-size: 48px; font-weight: bold; color: #a855f7; margin-bottom: 8px;">—</div>
+                    <div style="text-align: center; <?= !dashboard_is_test_account() ? 'opacity: 0.5;' : '' ?>">
+                        <div style="font-size: 48px; font-weight: bold; color: #a855f7; margin-bottom: 8px;"><?= dashboard_is_test_account() ? '21%' : '—' ?></div>
                         <div style="font-size: 14px; color: var(--text-secondary);">VIP</div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">— sold • $— revenue</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><?= dashboard_is_test_account() ? '267 sold • $20,025 revenue' : '— sold • $— revenue' ?></div>
                     </div>
-                    <div style="text-align: center; opacity: 0.5;">
-                        <div style="font-size: 48px; font-weight: bold; color: #f59e0b; margin-bottom: 8px;">—</div>
+                    <div style="text-align: center; <?= !dashboard_is_test_account() ? 'opacity: 0.5;' : '' ?>">
+                        <div style="font-size: 48px; font-weight: bold; color: #f59e0b; margin-bottom: 8px;"><?= dashboard_is_test_account() ? '7%' : '—' ?></div>
                         <div style="font-size: 14px; color: var(--text-secondary);">Early Bird</div>
-                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">— sold • $— revenue</div>
+                        <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;"><?= dashboard_is_test_account() ? '90 sold • $1,350 revenue' : '— sold • $— revenue' ?></div>
                     </div>
                 </div>
+                <?php if (!dashboard_is_test_account()): ?>
                 <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                     <div style="text-align: center;">
                         <i class="bi-lock" style="font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.5;"></i>
                         <p style="font-weight: 600;">Unlock ticket tier analytics with Pro</p>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 
-        <!-- Payout Schedule (Locked) -->
+        <!-- Payout Schedule -->
         <div class="card" style="margin-top: 32px;">
             <div class="card-header">
                 <h2 class="card-title"><i class="bi-calendar-event" style="margin-right: 8px;"></i>Payout Schedule</h2>
             </div>
             <div style="position: relative; padding: 24px;">
-                <div style="text-align: center; opacity: 0.5;">
+                <div style="text-align: center; <?= !dashboard_is_test_account() ? 'opacity: 0.5;' : '' ?>">
                     <i class="bi-calendar3" style="font-size: 48px; display: block; margin-bottom: 16px;"></i>
                     <p style="font-weight: 600; margin-bottom: 8px;">Payouts processed weekly</p>
                     <p style="font-size: 14px; color: var(--text-secondary);">Funds transferred 7 days after event</p>
                 </div>
+                <?php if (!dashboard_is_test_account()): ?>
                 <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                     <div style="text-align: center;">
                         <i class="bi-lock" style="font-size: 48px; display: block; margin-bottom: 16px; opacity: 0.5;"></i>
                         <p style="font-weight: 600;">Unlock payout tracking with Pro</p>
                     </div>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

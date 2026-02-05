@@ -21,17 +21,18 @@ use NGN\Lib\AI\MixFeedbackAssistant; // Import MixFeedbackAssistant
 
 // Basic page setup (assuming a minimal PHP environment)
 $config = new Config(); // Load configuration
-$pageTitle = 'AI Mix Feedback';
+$pageTitle = 'AI Release Timing Optimizer';
 
 // Placeholder paths for assets. In a real application, these would be managed by an asset pipeline.
-$jsApp = '/assets/js/mix-feedback.js'; // Assuming JS will be served from an /assets/js/ directory
+$jsApp = '/assets/js/timing-optimizer.js'; 
 
 // Fetch user investor status for UI conditionally
 $isInvestor = false; // Default to false
-$currentUser = null;
+$userId = null;
 
 // Try to get user info if authenticated
 try {
+    $request = new Request();
     $authHeader = $request->header('Authorization');
     if ($authHeader && stripos($authHeader, 'Bearer ') === 0) {
         $tokenSvc = new TokenService($config);
@@ -39,7 +40,6 @@ try {
         $sub = (string)($claims['sub'] ?? '');
         if ($sub) {
             // Resolve numeric user id
-            $userId = null;
             if (ctype_digit($sub)) {
                 $userId = (int)$sub;
             } else {
@@ -64,9 +64,15 @@ try {
     }
 } catch (\Throwable $e) {
     // Ignore auth errors for page load, API will handle them.
-    // Log error if needed: $logger->warning('Could not fetch user investor status on page load: ' . $e->getMessage());
 }
 
+// Treat test accounts as investors
+if (dashboard_is_test_account()) {
+    $isInvestor = true;
+}
+
+// Button configuration
+$buttonText = $isInvestor ? 'Optimize (Free - Test Account/Investor Perk)' : 'Optimize (20 Sparks)';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -225,7 +231,7 @@ try {
                     <input type="text" id="genre" name="genre" class="sk-input-text" placeholder="e.g., Electronic, Rock, Ambient" required>
                 </div>
 
-                <button type="submit" id="optimize-btn" class="sk-btn-neon" disabled>Optimize Release Date</button>
+                <button type="submit" id="optimize-btn" class="sk-btn-neon" <?php echo $isInvestor ? '' : 'disabled'; ?>><?php echo htmlspecialchars($buttonText); ?></button>
             </form>
 
             <div id="loading-spinner" class="sk-loading-spinner"></div>
@@ -250,7 +256,7 @@ try {
 
             // Mocking the check for Elite subscription for UI purposes.
             // The actual check and 403 will be enforced by the backend API.
-            const isEliteUser = true; // For demo purposes, assume user is Elite.
+            const isEliteUser = <?php echo json_encode($isInvestor); ?>; 
 
             form.addEventListener('submit', async function(event) {
                 event.preventDefault(); // Prevent default form submission
@@ -349,7 +355,7 @@ try {
             }
 
             // Function to show a 'Locked' overlay on the card if not Elite
-            function showLockedOverlay() {
+            function showLockedOverlay() { if (<?php echo json_encode(dashboard_is_test_account()); ?>) return;
                 const cardBody = form.closest('.sk-card-body');
                 if (cardBody) {
                     const overlay = document.createElement('div');

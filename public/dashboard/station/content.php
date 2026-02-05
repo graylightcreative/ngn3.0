@@ -248,7 +248,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                 <button type="submit" class="btn btn-primary">Upload Track</button>
             </form>
         </div>
-        <?php else: ?>
+        <?php elseif (!dashboard_is_test_account()): ?>
         <div class="alert alert-info">
             <i class="bi bi-info-circle"></i> BYOS uploads are available on Pro and Elite tiers. <a href="tier.php">Upgrade your station</a> to start uploading your music.
         </div>

@@ -70,11 +70,15 @@ try {
     }
 } catch (\Throwable $e) {
     // Ignore auth errors for page load, API will handle them.
-    // Log error if needed: error_log("Could not fetch user investor status on page load: " . $e->getMessage());
+}
+
+// Treat test accounts as investors for perk demonstration
+if (dashboard_is_test_account()) {
+    $isInvestor = true;
 }
 
 // Dynamically set button text and disable state based on investor status and disclaimer
-$buttonText = $isInvestor ? 'Analyze (Free - Investor Perk)' : 'Analyze (15 Sparks)';
+$buttonText = $isInvestor ? 'Analyze (Free - Test Account/Investor Perk)' : 'Analyze (15 Sparks)';
 $submitButtonDisabled = !$isInvestor; // Initially disable if not investor, JS will enable if disclaimer is checked
 
 ?>
@@ -419,7 +423,7 @@ $submitButtonDisabled = !$isInvestor; // Initially disable if not investor, JS w
             }
 
             // Function to show a 'Locked' overlay on the card if not Elite (only applicable if tool requires Elite)
-            function showLockedOverlay() {
+            function showLockedOverlay() { if (<?php echo json_encode(dashboard_is_test_account()); ?>) return;
                 const cardBody = form.closest('.sk-card-body');
                 if (cardBody) {
                     const overlay = document.createElement('div');
