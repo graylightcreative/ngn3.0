@@ -49,7 +49,7 @@ if (!empty($_SESSION['User']['role_id'])) {
 
 // Router
 $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
-$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'shop', 'shops', 'product', 'pricing', '404'];
+$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
 // Pagination
@@ -197,9 +197,11 @@ if ($pdo) {
         $counts['labels'] = ngn_count($pdo, 'labels');
         $counts['stations'] = ngn_count($pdo, 'stations');
         $counts['venues'] = ngn_count($pdo, 'venues');
-        // Posts and videos from ngn_2025 tables
+        // Content counts
         $counts['posts'] = ngn_count($pdo, 'posts');
-        $counts['videos'] = legacy_videos_count($pdo); // Use the refactored legacy_videos_count with $pdo
+        $counts['videos'] = ngn_count($pdo, 'videos');
+        $counts['releases'] = ngn_count($pdo, 'releases');
+        $counts['songs'] = ngn_count($pdo, 'tracks');
 
         // Fetch view-specific data
         if ($view === 'home') {
@@ -286,6 +288,44 @@ if ($pdo) {
                 $video['is_locked'] = false; 
                 $data['video'] = $video;
             }
+        } elseif ($view === 'releases') {
+            $offset = ($page - 1) * $perPage;
+            $where = $search !== '' ? "WHERE r.title LIKE :search" : '';
+            $sql = "SELECT r.*, a.name as artist_name FROM `ngn_2025`.`releases` r 
+                    LEFT JOIN `ngn_2025`.`artists` a ON r.artist_id = a.id 
+                    {$where} ORDER BY r.release_date DESC LIMIT :limit OFFSET :offset";
+            $stmt = $pdo->prepare($sql);
+            if ($search !== '') $stmt->bindValue(':search', '%'.$search.'%');
+            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            $data['releases'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            
+            $sqlCount = "SELECT COUNT(*) FROM `ngn_2025`.`releases` r {$where}";
+            $stmtCount = $pdo->prepare($sqlCount);
+            if ($search !== '') $stmtCount->bindValue(':search', '%'.$search.'%');
+            $stmtCount->execute();
+            $total = (int)$stmtCount->fetchColumn();
+        } elseif ($view === 'songs') {
+            $offset = ($page - 1) * $perPage;
+            $where = $search !== '' ? "WHERE t.title LIKE :search" : '';
+            $sql = "SELECT t.*, a.name as artist_name, r.title as release_name, r.cover_url 
+                    FROM `ngn_2025`.`tracks` t 
+                    LEFT JOIN `ngn_2025`.`artists` a ON t.artist_id = a.id 
+                    LEFT JOIN `ngn_2025`.`releases` r ON t.release_id = r.id
+                    {$where} ORDER BY t.id DESC LIMIT :limit OFFSET :offset";
+            $stmt = $pdo->prepare($sql);
+            if ($search !== '') $stmt->bindValue(':search', '%'.$search.'%');
+            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            $data['songs'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            
+            $sqlCount = "SELECT COUNT(*) FROM `ngn_2025`.`tracks` t {$where}";
+            $stmtCount = $pdo->prepare($sqlCount);
+            if ($search !== '') $stmtCount->bindValue(':search', '%'.$search.'%');
+            $stmtCount->execute();
+            $total = (int)$stmtCount->fetchColumn();
         } elseif ($view === 'charts') {
             // NGN Rankings from ngn_rankings_2025 database
             $chartType = $_GET['type'] ?? 'artists';
@@ -770,36 +810,38 @@ $totalPages = $total > 0 ? ceil($total / $perPage) : 1;
 $seoTitle = 'NextGenNoise - Metal & Rock Music Platform';
 $seoDesc = 'Discover the best in metal and rock music. Charts, artists, labels, stations, venues, and more.';
 $seoImage = '/lib/images/site/og-image.jpg';
-$seoUrl = 'https://nextgennoise.com/';
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+$baseUrl = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'nextgennoise.com');
+$seoUrl = $baseUrl . '/';
 
 if ($view === 'post' && !empty($data['post'])) {
-    $seoTitle = htmlspecialchars($data['post']['Title']) . ' | NextGenNoise';
-    $seoDesc = htmlspecialchars(substr(strip_tags($data['post']['Summary'] ?? $data['post']['Body'] ?? ''), 0, 160));
-    if (!empty($data['post']['image_url'])) $seoImage = "/uploads/posts/{$data['post']['image_url']}";
-    $postSlug = $data['post']['Slug'] ?? $data['post']['Id'];
-    $seoUrl = "https://nextgennoise.com/post/{$postSlug}";
+    $seoTitle = htmlspecialchars($data['post']['title'] ?? '') . ' | NextGenNoise';
+    $seoDesc = htmlspecialchars(substr(strip_tags($data['post']['excerpt'] ?? $data['post']['content'] ?? ''), 0, 160));
+    if (!empty($data['post']['featured_image_url'])) $seoImage = $data['post']['featured_image_url'];
+    $postSlug = $data['post']['slug'] ?? $data['post']['id'];
+    $seoUrl = "{$baseUrl}/post/{$postSlug}";
 } elseif (in_array($view, ['artist', 'label', 'station', 'venue']) && $entity) {
-    $entityName = $entity['name'] ?? $entity['legacy']['Title'] ?? ucfirst($view);
+    $entityName = $entity['name'] ?? ucfirst($view);
     $seoTitle = htmlspecialchars($entityName) . ' | NextGenNoise';
-    $seoDesc = htmlspecialchars(substr(strip_tags($entity['bio'] ?? $entity['legacy']['Body'] ?? ''), 0, 160)) ?: "Discover {$entityName} on NextGenNoise.";
-    $legacySlug = $entity['legacy']['Slug'] ?? $entity['slug'] ?? '';
-    if (!empty($entity['legacy']['Image'])) $seoImage = user_image($legacySlug, $entity['legacy']['Image']);
-    $seoUrl = "https://nextgennoise.com/{$view}/{$legacySlug}";
+    $seoDesc = htmlspecialchars(substr(strip_tags($entity['bio'] ?? ''), 0, 160)) ?: "Discover {$entityName} on NextGenNoise.";
+    $entitySlug = $entity['slug'] ?? '';
+    if (!empty($entity['image_url'])) $seoImage = $entity['image_url'];
+    $seoUrl = "{$baseUrl}/{$view}/{$entitySlug}";
 } elseif ($view === 'charts') {
     $seoTitle = 'NGN Charts | NextGenNoise';
     $seoDesc = 'Top ranked metal and rock artists and labels on NextGenNoise.';
-    $seoUrl = 'https://nextgennoise.com/charts';
+    $seoUrl = "{$baseUrl}/charts";
 } elseif ($view === 'smr-charts') {
     $seoTitle = 'SMR Charts | NextGenNoise';
     $seoDesc = 'Spins Music Radio chart rankings for metal and rock.';
-    $seoUrl = 'https://nextgennoise.com/smr-charts';
+    $seoUrl = "{$baseUrl}/smr-charts";
 } elseif ($view === 'pricing') {
     $seoTitle = 'Pricing | NextGenNoise';
     $seoDesc = 'Affordable plans for artists, labels, venues, and stations. Start free or upgrade for pro features.';
-    $seoUrl = 'https://nextgennoise.com/pricing';
-} elseif (in_array($view, ['artists', 'labels', 'stations', 'venues', 'posts', 'videos'])) {
+    $seoUrl = "{$baseUrl}/pricing";
+} elseif (in_array($view, ['artists', 'labels', 'stations', 'venues', 'posts', 'videos', 'releases', 'songs'])) {
     $seoTitle = ucfirst($view) . ' | NextGenNoise';
-    $seoUrl = 'https://nextgennoise.com/' . $view;
+    $seoUrl = "{$baseUrl}/{$view}";
 }
 ?>
 <!doctype html>
@@ -979,6 +1021,14 @@ if ($view === 'post' && !empty($data['post'])) {
         <a href="/videos" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'videos' || $view === 'video' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
           <span class="flex items-center gap-3"><i class="bi-play-circle text-lg"></i> Videos</span>
           <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['videos']) ?></span>
+        </a>
+        <a href="/releases" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'releases' || $view === 'release' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
+          <span class="flex items-center gap-3"><i class="bi-vinyl text-lg"></i> Releases</span>
+          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['releases'] ?? 0) ?></span>
+        </a>
+        <a href="/songs" class="flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium <?= $view === 'songs' || $view === 'song' ? 'bg-brand/10 text-brand' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5' ?>">
+          <span class="flex items-center gap-3"><i class="bi-music-note-beamed text-lg"></i> Songs</span>
+          <span class="text-xs bg-gray-100 dark:bg-white/10 px-2 py-0.5 rounded-full"><?= number_format($counts['songs'] ?? 0) ?></span>
         </a>
 
         <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Account</div>
@@ -1618,6 +1668,97 @@ if ($view === 'post' && !empty($data['post'])) {
           // include __DIR__ . '/lib/partials/engagement-ui.php'; // Not yet adapted for videos
         ?>
         
+      <?php elseif ($view === 'releases'): ?>
+        <!-- RELEASES LISTING -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-black mb-2">New Releases</h1>
+            <p class="text-gray-500">Discover the latest music across the NGN network.</p>
+        </div>
+
+        <?php if (!empty($data['releases'])): ?>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            <?php foreach ($data['releases'] as $release): ?>
+            <?php $releaseImg = ($release['cover_url'] ?? $release['cover_image_url'] ?? '') ?: DEFAULT_AVATAR; ?>
+            <a href="/release/<?= htmlspecialchars($release['slug'] ?? '') ?>" class="group">
+                <div class="aspect-square rounded-2xl overflow-hidden mb-4 border border-white/5 group-hover:border-brand transition-colors shadow-lg">
+                    <img src="<?= htmlspecialchars($releaseImg) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                </div>
+                <div class="font-bold truncate group-hover:text-brand transition-colors"><?= htmlspecialchars($release['title']) ?></div>
+                <div class="text-xs text-white/40 truncate"><?= htmlspecialchars($release['artist_name'] ?? 'Unknown Artist') ?></div>
+                <div class="text-[10px] text-white/20 uppercase font-black mt-1"><?= !empty($release['release_date']) ? date('M j, Y', strtotime($release['release_date'])) : '' ?></div>
+            </a>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <div class="p-12 text-center text-gray-500 bg-white/5 rounded-3xl border border-white/5">
+            <i class="bi-vinyl text-4xl mb-4 block"></i>
+            No releases found.
+        </div>
+        <?php endif; ?>
+
+        <!-- Pagination -->
+        <?php if (($totalPages ?? 1) > 1): ?>
+        <div class="flex items-center justify-center gap-2 mt-12">
+          <?php if ($page > 1): ?>
+          <a href="/releases?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-6 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-brand transition-colors">Prev</a>
+          <?php endif; ?>
+          <span class="text-white/40 font-bold">Page <?= $page ?> of <?= $totalPages ?></span>
+          <?php if ($page < $totalPages): ?>
+          <a href="/releases?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-6 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-brand transition-colors">Next</a>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+      <?php elseif ($view === 'songs'): ?>
+        <!-- SONGS LISTING -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-black mb-2">Tracks</h1>
+            <p class="text-gray-500">Popular songs and new discoveries.</p>
+        </div>
+
+        <?php if (!empty($data['songs'])): ?>
+        <div class="bg-white/5 rounded-3xl border border-white/5 overflow-hidden">
+            <div class="divide-y divide-white/5">
+                <?php foreach ($data['songs'] as $song): ?>
+                <div class="flex items-center gap-4 p-4 hover:bg-white/5 transition-colors group">
+                    <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-white/10 border border-white/5">
+                        <img src="<?= htmlspecialchars(($song['cover_url'] ?? '') ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <a href="/song/<?= htmlspecialchars($song['slug']) ?>" class="font-bold truncate group-hover:text-brand block"><?= htmlspecialchars($song['title']) ?></a>
+                        <div class="text-xs text-white/40 truncate">
+                            <a href="/artist/<?= htmlspecialchars($song['artist_id'] ?? '') ?>" class="hover:text-white"><?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?></a>
+                             • 
+                            <span class="italic"><?= htmlspecialchars($song['release_name'] ?? 'Single') ?></span>
+                        </div>
+                    </div>
+                    <div class="text-sm text-white/20 font-mono hidden sm:block"><?= ($song['duration_seconds'] ?? 0) ? gmdate('i:s', $song['duration_seconds']) : '--:--' ?></div>
+                    <button class="bg-brand/10 text-brand w-10 h-10 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                        <i class="bi-play-fill text-xl"></i>
+                    </button>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php else: ?>
+        <div class="p-12 text-center text-gray-500 bg-white/5 rounded-3xl border border-white/5">
+            <i class="bi-music-note-beamed text-4xl mb-4 block"></i>
+            No songs found.
+        </div>
+        <?php endif; ?>
+
+        <!-- Pagination -->
+        <?php if (($totalPages ?? 1) > 1): ?>
+        <div class="flex items-center justify-center gap-2 mt-12">
+          <?php if ($page > 1): ?>
+          <a href="/songs?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-6 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-brand transition-colors">Prev</a>
+          <?php endif; ?>
+          <span class="text-white/40 font-bold">Page <?= $page ?> of <?= $totalPages ?></span>
+          <?php if ($page < $totalPages): ?>
+          <a href="/songs?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-6 py-2 rounded-xl bg-white/5 border border-white/5 hover:border-brand transition-colors">Next</a>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
 
       <?php elseif ($view === 'charts'): ?>
         <!-- NGN CHARTS OVERHAUL -->
