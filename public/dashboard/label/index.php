@@ -30,12 +30,11 @@ if ($entity) {
 
         // Get roster count and artists
         $stmt = $pdo->prepare("
-            SELECT a.id, a.name, a.image_url, a.slug, nri.rank, nri.score
+            SELECT a.id, a.name, a.image_url, a.slug, r.RankNum as rank, r.Score as score
             FROM `ngn_2025`.`artists` a
-            LEFT JOIN `ngn_rankings_2025`.`ranking_items` nri ON a.id = nri.entity_id AND nri.entity_type = 'artist'
-            LEFT JOIN `ngn_rankings_2025`.`ranking_windows` nrh ON nri.window_id = nrh.id AND nrh.interval = 'weekly'
+            LEFT JOIN `ngn_2025`.`rankings` r ON a.id = r.EntityId AND r.Resource = 'artists' AND r.Interval = 'weekly'
             WHERE a.label_id = ?
-            ORDER BY nri.score DESC, a.name ASC
+            ORDER BY r.Score DESC, a.name ASC
             LIMIT 5
         ");
         $stmt->execute([$entity['id']]);
@@ -52,11 +51,10 @@ if ($entity) {
 
         // Get label ranking and score
         $stmt = $pdo->prepare("
-            SELECT nri.rank, nri.score
-            FROM `ngn_rankings_2025`.`ranking_items` nri
-            JOIN `ngn_rankings_2025`.`ranking_windows` nrh ON nri.window_id = nrh.id
-            WHERE nri.entity_type = 'label' AND nri.entity_id = ? AND nrh.interval = 'weekly'
-            ORDER BY nrh.window_end DESC LIMIT 1
+            SELECT RankNum as rank, Score as score
+            FROM `ngn_2025`.`rankings`
+            WHERE Resource = 'labels' AND EntityId = ? AND `Interval` = 'weekly'
+            ORDER BY PeriodEnd DESC LIMIT 1
         ");
         $stmt->execute([$entity['id']]);
         $scoreData = $stmt->fetch(PDO::FETCH_ASSOC);

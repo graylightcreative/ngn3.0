@@ -36,11 +36,10 @@ if ($entity) {
 
         // Get ranking and score
         $stmt = $pdo->prepare("
-            SELECT nri.rank, nri.score
-            FROM `ngn_rankings_2025`.`ranking_items` nri
-            JOIN `ngn_rankings_2025`.`ranking_windows` nrh ON nri.window_id = nrh.id
-            WHERE nri.entity_type = 'venue' AND nri.entity_id = ? AND nrh.interval = 'weekly'
-            ORDER BY nrh.window_end DESC LIMIT 1
+            SELECT ranking, score
+            FROM `ngn_2025`.`entity_scores`
+            WHERE entity_type = 'venue' AND entity_id = ?
+            LIMIT 1
         ");
         $stmt->execute([$entity['id']]);
         $scoreData = $stmt->fetch(PDO::FETCH_ASSOC);

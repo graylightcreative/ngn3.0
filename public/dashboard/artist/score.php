@@ -32,11 +32,10 @@ try {
 // Get ranking data
 $rankData = ['score' => 0, 'rank' => null, 'prev_rank' => null];
 try {
-    $stmt = $pdo->prepare("SELECT ri.score, ri.rank, ri.prev_rank
-        FROM `ngn_rankings_2025`.`ranking_items` ri
-        JOIN `ngn_rankings_2025`.`ranking_windows` rw ON rw.id = ri.window_id
-        WHERE ri.entity_type = 'artist' AND ri.entity_id = ?
-        ORDER BY rw.window_start DESC LIMIT 1");
+    $stmt = $pdo->prepare("SELECT Score as score, RankNum as rank, (RankNum - Delta) as prev_rank
+        FROM `ngn_2025`.`rankings`
+        WHERE Resource = 'artists' AND EntityId = ? AND `Interval` = 'weekly'
+        ORDER BY PeriodEnd DESC LIMIT 1");
     $stmt->execute([$artistId]);
     $rankData = $stmt->fetch(PDO::FETCH_ASSOC) ?: $rankData;
 } catch (PDOException $e) {}

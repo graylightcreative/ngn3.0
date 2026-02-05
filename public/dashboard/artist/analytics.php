@@ -258,12 +258,12 @@ try {
     $pdo = dashboard_pdo();
     if ($pdo instanceof \PDO) {
         $stmt = $pdo->prepare("
-            SELECT rank, score, WEEK(created_at) as week
-            FROM ngn_rankings_2025.ranking_items
-            WHERE entity_id = :artist_id
-            AND entity_type = 'artist'
-            AND created_at >= DATE_SUB(NOW(), INTERVAL 28 DAY)
-            ORDER BY created_at DESC
+            SELECT RankNum as rank, Score as score, WEEK(PeriodEnd) as week
+            FROM `ngn_2025`.`rankings`
+            WHERE EntityId = :artist_id
+            AND Resource = 'artists'
+            AND PeriodEnd >= DATE_SUB(NOW(), INTERVAL 28 DAY)
+            ORDER BY PeriodEnd DESC
             LIMIT 4
         ");
         $stmt->execute([':artist_id' => $artistId]);
