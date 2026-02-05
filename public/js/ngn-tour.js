@@ -14,13 +14,60 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initTour() {
-    // Ensure intro.js is loaded
-    if (typeof introJs === 'undefined') {
+    // Inject Dark Mode Overrides if not already present
+    if (!document.getElementById('ngn-tour-dark-mode')) {
+        const style = document.createElement('style');
+        style.id = 'ngn-tour-dark-mode';
+        style.innerHTML = `
+            .introjs-tooltip {
+                background-color: #1a1a1a;
+                color: #ffffff;
+                border: 1px solid #333;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            }
+            .introjs-arrow.left { border-right-color: #1a1a1a; }
+            .introjs-arrow.right { border-left-color: #1a1a1a; }
+            .introjs-arrow.top { border-bottom-color: #1a1a1a; }
+            .introjs-arrow.bottom { border-top-color: #1a1a1a; }
+            .introjs-tooltiptext { color: #e1e1e1; }
+            .introjs-tooltip-title { color: #1DB954; font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+            .introjs-button {
+                background-color: #333 !important;
+                color: #fff !important;
+                text-shadow: none !important;
+                border: 1px solid #444 !important;
+                border-radius: 6px !important;
+                transition: all 0.2s !important;
+                font-family: 'Inter', sans-serif !important;
+                font-size: 12px !important;
+            }
+            .introjs-button:hover {
+                background-color: #444 !important;
+                border-color: #555 !important;
+                color: #1DB954 !important;
+            }
+            .introjs-skipbutton { color: #777 !important; }
+            .introjs-prevbutton { color: #aaa !important; }
+            .introjs-nextbutton { color: #1DB954 !important; font-weight: bold !important; border-color: #1DB954 !important; }
+            .introjs-disabled { color: #444 !important; }
+            .introjs-progress { background-color: #333; }
+            .introjs-progressbar { background-color: #1DB954; }
+            .introjs-floating { color: #fff; }
+            .introjs-tooltip-header { border-bottom: 1px solid #333; margin-bottom: 10px; padding-bottom: 5px; }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Ensure intro.js CSS is loaded
+    if (!document.querySelector('link[href*="introjs.min.css"]')) {
         const link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = 'https://cdn.jsdelivr.net/npm/intro.js@7.2.0/introjs.min.css';
         document.head.appendChild(link);
+    }
 
+    // Ensure intro.js script is loaded
+    if (typeof introJs === 'undefined') {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/intro.js@7.2.0/intro.min.js';
         script.onload = runTour;
