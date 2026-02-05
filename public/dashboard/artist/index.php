@@ -121,6 +121,79 @@ function get_artist_analytics_summary(PDO $pdo, int $artistId): array
     return $summary;
 }
 
+// Handle Mock Data Generation (Test Accounts Only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_mock_artist_data' && dashboard_is_test_account()) {
+    if (!$entity) {
+        $error = 'Artist profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+        $error = 'Invalid security token.';
+    } else {
+        try {
+            $pdo = dashboard_pdo();
+            
+            // 1. Generate Mock Releases
+            $mockReleases = [
+                ['title' => 'First Flight', 'type' => 'album'],
+                ['title' => 'Echoes of Silence', 'type' => 'ep'],
+                ['title' => 'Neon Nights', 'type' => 'single']
+            ];
+            foreach ($mockReleases as $r) {
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`releases` 
+                    (artist_id, title, slug, type, release_date, status, created_at)
+                    VALUES (?, ?, ?, ?, DATE_SUB(NOW(), INTERVAL 30 DAY), 'published', NOW())
+                    ON DUPLICATE KEY UPDATE updated_at = NOW()");
+                $stmt->execute([
+                    $entity['id'],
+                    $r['title'],
+                    strtolower(str_replace(' ', '-', $r['title'])) . '-' . uniqid(),
+                    $r['type']
+                ]);
+            }
+
+            // 2. Generate Mock Shows
+            $mockShows = [
+                ['title' => 'Live at The Underground', 'venue_id' => 1],
+                ['title' => 'Summer Festival 2026', 'venue_id' => 2]
+            ];
+            foreach ($mockShows as $s) {
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`shows` 
+                    (artist_id, title, slug, venue_id, starts_at, status, created_at)
+                    VALUES (?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL 14 DAY), 'published', NOW())
+                    ON DUPLICATE KEY UPDATE updated_at = NOW()");
+                $stmt->execute([
+                    $entity['id'],
+                    $s['title'],
+                    strtolower(str_replace(' ', '-', $s['title'])) . '-' . uniqid(),
+                    $s['venue_id']
+                ]);
+            }
+
+            // 3. Generate Mock Videos
+            $mockVideos = [
+                ['title' => 'Official Music Video', 'vid' => 'dQw4w9WgXcQ'],
+                ['title' => 'Live Performance', 'vid' => 'y6120QOlsfU']
+            ];
+            foreach ($mockVideos as $v) {
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`videos` 
+                    (entity_type, entity_id, artist_id, title, slug, platform, external_id, created_at)
+                    VALUES ('artist', ?, ?, ?, ?, 'youtube', ?, NOW())
+                    ON DUPLICATE KEY UPDATE updated_at = NOW()");
+                $stmt->execute([
+                    $entity['id'],
+                    $entity['id'],
+                    $v['title'],
+                    strtolower(str_replace(' ', '-', $v['title'])) . '-' . uniqid(),
+                    $v['vid']
+                ]);
+            }
+
+            $success = "Successfully generated mock releases, shows, and videos for testing.";
+        } catch (\Throwable $e) {
+            $error = 'Failed to generate mock data: ' . $e->getMessage();
+        }
+    }
+}
+
 include dirname(__DIR__) . '/lib/partials/head.php';
 include dirname(__DIR__) . '/lib/partials/sidebar.php';
 ?>
@@ -132,6 +205,31 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
     </header>
     
     <div class="page-content">
+        <?php if (isset($success) && $success): ?>
+        <div class="alert alert-success"><i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
+
+        <?php if (isset($error) && $error): ?>
+        <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- Test Account Controls -->
+        <?php if (dashboard_is_test_account()): ?>
+        <div class="card" style="border: 1px dashed var(--brand); background: rgba(29, 185, 84, 0.05); margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title text-brand"><i class="bi bi-bug"></i> Test Controls</h2>
+            </div>
+            <p class="text-sm text-secondary mb-4">You are logged into a test account. Use the button below to populate your profile with mock releases, shows, and videos for verification.</p>
+            <form method="post">
+                <input type="hidden" name="csrf" value="<?php echo dashboard_csrf_token(); ?>">
+                <input type="hidden" name="action" value="generate_mock_artist_data">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i> Generate Mock Artist Data
+                </button>
+            </form>
+        </div>
+        <?php endif; ?>
+
         <?php if (!$entity): ?>
         <div class="alert alert-warning">
             <i class="bi bi-exclamation-triangle"></i>

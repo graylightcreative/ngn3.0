@@ -117,6 +117,53 @@ function get_artist_analytics_summary(PDO $pdo, int $artistId): array
     return $summary;
 }
 
+// Handle Mock Data Generation (Test Accounts Only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'generate_mock_label_data' && dashboard_is_test_account()) {
+    if (!$entity) {
+        $error = 'Label profile not found.';
+    } elseif (!dashboard_validate_csrf($_POST['csrf'] ?? '')) {
+        $error = 'Invalid security token.';
+    } else {
+        try {
+            $pdo = dashboard_pdo();
+            
+            // 1. Generate Mock Artists for Roster
+            $mockArtists = [
+                ['name' => 'The Midnight Echo', 'slug' => 'midnight-echo'],
+                ['name' => 'Static Void', 'slug' => 'static-void'],
+                ['name' => 'Neon Drift', 'slug' => 'neon-drift']
+            ];
+            foreach ($mockArtists as $a) {
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`artists` 
+                    (label_id, name, slug, status, created_at)
+                    VALUES (?, ?, ?, 'active', NOW())
+                    ON DUPLICATE KEY UPDATE updated_at = NOW()");
+                $stmt->execute([
+                    $entity['id'],
+                    $a['name'],
+                    $a['slug'] . '-' . uniqid()
+                ]);
+                $artistId = $pdo->lastInsertId();
+
+                // 2. Add a release for this artist
+                $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`releases` 
+                    (artist_id, label_id, title, slug, type, release_date, status, created_at)
+                    VALUES (?, ?, ?, ?, 'album', NOW(), 'published', NOW())");
+                $stmt->execute([
+                    $artistId,
+                    $entity['id'],
+                    $a['name'] . ' - Debut',
+                    $a['slug'] . '-debut-' . uniqid()
+                ]);
+            }
+
+            $success = "Successfully generated mock roster and releases for testing.";
+        } catch (\Throwable $e) {
+            $error = 'Failed to generate mock data: ' . $e->getMessage();
+        }
+    }
+}
+
 include dirname(__DIR__) . '/lib/partials/head.php';
 include dirname(__DIR__) . '/lib/partials/sidebar.php';
 ?>
@@ -128,6 +175,31 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
     </header>
     
     <div class="page-content">
+        <?php if (isset($success) && $success): ?>
+        <div class="alert alert-success"><i class="bi bi-check-circle"></i> <?= htmlspecialchars($success) ?></div>
+        <?php endif; ?>
+
+        <?php if (isset($error) && $error): ?>
+        <div class="alert alert-error"><i class="bi bi-exclamation-circle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <!-- Test Account Controls -->
+        <?php if (dashboard_is_test_account()): ?>
+        <div class="card" style="border: 1px dashed var(--brand); background: rgba(29, 185, 84, 0.05); margin-bottom: 2rem;">
+            <div class="card-header">
+                <h2 class="card-title text-brand"><i class="bi bi-bug"></i> Test Controls</h2>
+            </div>
+            <p class="text-sm text-secondary mb-4">You are logged into a test account. Use the button below to populate your roster with mock artists and releases for verification.</p>
+            <form method="post">
+                <input type="hidden" name="csrf" value="<?php echo dashboard_csrf_token(); ?>">
+                <input type="hidden" name="action" value="generate_mock_label_data">
+                <button type="submit" class="btn btn-secondary">
+                    <i class="bi bi-magic"></i> Generate Mock Label Data
+                </button>
+            </form>
+        </div>
+        <?php endif; ?>
+
         <?php if (!$entity): ?>
         <div class="alert alert-warning">
             <i class="bi bi-exclamation-triangle"></i>
