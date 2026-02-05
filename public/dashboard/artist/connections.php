@@ -4,7 +4,7 @@
  * OAuth integration for Facebook, Instagram, TikTok, Spotify, YouTube
  * (Bible Ch. 7 - Connected platforms for profile verification and engagement)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 dashboard_require_auth();
 dashboard_require_entity_type('artist');

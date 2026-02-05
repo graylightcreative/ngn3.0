@@ -2,7 +2,7 @@
 /**
  * Label Dashboard - Shop & Merch Management
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 use NGN\Lib\Config;
 use NGN\Lib\Commerce\ProductService;

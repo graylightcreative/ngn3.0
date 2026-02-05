@@ -3,7 +3,7 @@
  * Station Dashboard - Spins Submission
  * Supports manual entry and CSV bulk upload
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 dashboard_require_auth();
 dashboard_require_entity_type('station');

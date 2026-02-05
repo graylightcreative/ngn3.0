@@ -3,7 +3,7 @@
  * Artist Dashboard - Fan Subscription Tiers Management
  * (Bible Ch. 7 - C.4 Subscriptions: Gold/Silver tiers for exclusive content)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 dashboard_require_auth();
 dashboard_require_entity_type('artist');

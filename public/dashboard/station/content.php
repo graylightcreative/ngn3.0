@@ -3,7 +3,7 @@
  * Station Dashboard - BYOS Content Management
  * Handles uploading, managing, and tracking Bring Your Own Songs content
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 use NGN\Lib\Config;
 use NGN\Lib\Stations\StationContentService;

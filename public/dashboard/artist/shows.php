@@ -3,7 +3,7 @@
  * Artist Dashboard - Shows/Events Management
  * (Bible Ch. 9 - Touring Ecosystem: Artist shows and event management)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 dashboard_require_auth();
 dashboard_require_entity_type('artist');

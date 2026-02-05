@@ -3,7 +3,7 @@
  * Artist Dashboard - Posts Management
  * (Bible Ch. 22 - Social Feed and Engagement: Content posting and community interaction)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 dashboard_require_auth();
 dashboard_require_entity_type('artist');

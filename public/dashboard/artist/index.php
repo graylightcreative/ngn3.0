@@ -3,7 +3,7 @@
  * Artist Dashboard - Home/Overview
  * (Bible Ch. 7 - A.1 Dashboard: Quick overview of spins, rankings, and key metrics)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 dashboard_require_auth();
 dashboard_require_entity_type('artist');

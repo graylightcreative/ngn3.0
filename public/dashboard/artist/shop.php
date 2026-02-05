@@ -4,7 +4,7 @@
  * (Bible Ch. 7 - A.15 Commerce: Link Printful account to sell merch directly)
  * (Bible Ch. 7.2 - Shops: Integrated via Printful API)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 use NGN\Lib\Config;
 use NGN\Lib\Commerce\ProductService;

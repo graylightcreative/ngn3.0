@@ -4,7 +4,7 @@
  * Artist Dashboard - Fan Management
  * (Bible Ch. 7 - C.4/C.6 Subscriptions & Tipping: Fan engagement and Spark tipping)
  */
-require_once dirname(__DIR__, 2) . '/lib/bootstrap.php';
+require_once dirname(__DIR__) . '/lib/bootstrap.php';
 
 use NGN\Lib\Config;
 use NGN\Lib\Env;
