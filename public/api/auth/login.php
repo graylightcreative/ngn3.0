@@ -69,10 +69,15 @@ if (!password_verify($password, $user['password_hash'])) {
 // Log in the user (inline logic from old loginUser function)
 $sessionUser = [];
 $sessionUser['id'] = $user['id'];
+$sessionUser['Id'] = $user['id'];
 $sessionUser['display_name'] = $user['display_name'];
+$sessionUser['Title'] = $user['display_name'];
 $sessionUser['email'] = $user['email'];
+$sessionUser['Email'] = $user['email'];
 $sessionUser['username'] = $user['username'];
+$sessionUser['Slug'] = $user['username'];
 $sessionUser['role_id'] = $user['role_id'];
+$sessionUser['RoleId'] = $user['role_id'];
 $sessionUser['logged_in_at'] = date('Y-m-d H:i:s');
 $_SESSION['User'] = $sessionUser;
 $_SESSION['LoggedIn'] = 1;
