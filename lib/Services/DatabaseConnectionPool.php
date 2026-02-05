@@ -14,6 +14,7 @@ namespace NGN\Lib\Services;
 
 use PDO;
 use PDOException;
+use NGN\Lib\Env;
 
 class DatabaseConnectionPool {
     /**
@@ -37,24 +38,24 @@ class DatabaseConnectionPool {
     public static function initialize(array $envConfig = []): void {
         self::$config = $envConfig ?: [
             'primary' => [
-                'host' => getenv('DB_HOST') ?: 'localhost',
-                'port' => getenv('DB_PORT') ?: '3306',
-                'user' => getenv('DB_USER') ?: 'root',
-                'pass' => getenv('DB_PASS') ?: '',
-                'database' => getenv('DB_NAME') ?: 'ngn_2025'
+                'host' => Env::get('DB_HOST', 'localhost'),
+                'port' => Env::get('DB_PORT', '3306'),
+                'user' => Env::get('DB_USER', 'root'),
+                'pass' => Env::get('DB_PASS', ''),
+                'database' => Env::get('DB_NAME', 'ngn_2025')
             ],
             'spins' => [
-                'host' => getenv('DB_HOST') ?: 'localhost',
-                'port' => getenv('DB_PORT') ?: '3306',
-                'user' => getenv('DB_USER') ?: 'root',
-                'pass' => getenv('DB_PASS') ?: '',
+                'host' => Env::get('DB_HOST', 'localhost'),
+                'port' => Env::get('DB_PORT', '3306'),
+                'user' => Env::get('DB_USER', 'root'),
+                'pass' => Env::get('DB_PASS', ''),
                 'database' => 'ngn_spins_2025'
             ],
             'rankings' => [
-                'host' => getenv('DB_HOST') ?: 'localhost',
-                'port' => getenv('DB_PORT') ?: '3306',
-                'user' => getenv('DB_USER') ?: 'root',
-                'pass' => getenv('DB_PASS') ?: '',
+                'host' => Env::get('DB_HOST', 'localhost'),
+                'port' => Env::get('DB_PORT', '3306'),
+                'user' => Env::get('DB_USER', 'root'),
+                'pass' => Env::get('DB_PASS', ''),
                 'database' => 'ngn_rankings_2025'
             ]
         ];
