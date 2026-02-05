@@ -15,6 +15,7 @@ namespace NGN\Lib\Services;
 use PDO;
 use PDOException;
 use NGN\Lib\Env;
+use NGN\Lib\Config;
 
 class DatabaseConnectionPool {
     /**
@@ -36,26 +37,34 @@ class DatabaseConnectionPool {
      * Initialize connection pool with environment config
      */
     public static function initialize(array $envConfig = []): void {
-        self::$config = $envConfig ?: [
+        if (!empty($envConfig)) {
+            self::$config = $envConfig;
+            return;
+        }
+
+        $config = new Config();
+        $db = $config->db();
+        
+        self::$config = [
             'primary' => [
-                'host' => Env::get('DB_HOST', 'localhost'),
-                'port' => Env::get('DB_PORT', '3306'),
-                'user' => Env::get('DB_USER', 'root'),
-                'pass' => Env::get('DB_PASS', ''),
-                'database' => Env::get('DB_NAME', 'ngn_2025')
+                'host' => $db['host'],
+                'port' => $db['port'],
+                'user' => $db['user'],
+                'pass' => $db['pass'],
+                'database' => $db['name']
             ],
             'spins' => [
-                'host' => Env::get('DB_HOST', 'localhost'),
-                'port' => Env::get('DB_PORT', '3306'),
-                'user' => Env::get('DB_USER', 'root'),
-                'pass' => Env::get('DB_PASS', ''),
+                'host' => $db['host'],
+                'port' => $db['port'],
+                'user' => $db['user'],
+                'pass' => $db['pass'],
                 'database' => 'ngn_spins_2025'
             ],
             'rankings' => [
-                'host' => Env::get('DB_HOST', 'localhost'),
-                'port' => Env::get('DB_PORT', '3306'),
-                'user' => Env::get('DB_USER', 'root'),
-                'pass' => Env::get('DB_PASS', ''),
+                'host' => $db['host'],
+                'port' => $db['port'],
+                'user' => $db['user'],
+                'pass' => $db['pass'],
                 'database' => 'ngn_rankings_2025'
             ]
         ];
