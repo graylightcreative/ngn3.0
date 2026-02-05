@@ -37,24 +37,24 @@ class DatabaseConnectionPool {
     public static function initialize(array $envConfig = []): void {
         self::$config = $envConfig ?: [
             'primary' => [
-                'host' => getenv('DEV_DB_HOST') ?: getenv('DB_HOST') ?: 'localhost',
-                'port' => getenv('DEV_DB_PORT') ?: getenv('DB_PORT') ?: '3306',
-                'user' => getenv('DEV_DB_USER') ?: getenv('DB_USER') ?: 'root',
-                'pass' => getenv('DEV_DB_PASS') ?: getenv('DB_PASS') ?: '',
-                'database' => 'ngn_2025'
+                'host' => getenv('DB_HOST') ?: 'localhost',
+                'port' => getenv('DB_PORT') ?: '3306',
+                'user' => getenv('DB_USER') ?: 'root',
+                'pass' => getenv('DB_PASS') ?: '',
+                'database' => getenv('DB_NAME') ?: 'ngn_2025'
             ],
             'spins' => [
-                'host' => getenv('DEV_DB_HOST') ?: getenv('DB_HOST') ?: 'localhost',
-                'port' => getenv('DEV_DB_PORT') ?: getenv('DB_PORT') ?: '3306',
-                'user' => getenv('DEV_DB_USER') ?: getenv('DB_USER') ?: 'root',
-                'pass' => getenv('DEV_DB_PASS') ?: getenv('DB_PASS') ?: '',
+                'host' => getenv('DB_HOST') ?: 'localhost',
+                'port' => getenv('DB_PORT') ?: '3306',
+                'user' => getenv('DB_USER') ?: 'root',
+                'pass' => getenv('DB_PASS') ?: '',
                 'database' => 'ngn_spins_2025'
             ],
             'rankings' => [
-                'host' => getenv('DEV_DB_HOST') ?: getenv('DB_HOST') ?: 'localhost',
-                'port' => getenv('DEV_DB_PORT') ?: getenv('DB_PORT') ?: '3306',
-                'user' => getenv('DEV_DB_USER') ?: getenv('DB_USER') ?: 'root',
-                'pass' => getenv('DEV_DB_PASS') ?: getenv('DB_PASS') ?: '',
+                'host' => getenv('DB_HOST') ?: 'localhost',
+                'port' => getenv('DB_PORT') ?: '3306',
+                'user' => getenv('DB_USER') ?: 'root',
+                'pass' => getenv('DB_PASS') ?: '',
                 'database' => 'ngn_rankings_2025'
             ]
         ];

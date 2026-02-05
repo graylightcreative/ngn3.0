@@ -58,15 +58,33 @@ foreach ($testUsers as $u) {
     $hash = password_hash($u['password'], PASSWORD_DEFAULT);
     
     try {
+        $db->beginTransaction();
         $stmt = $db->prepare("INSERT INTO `ngn_2025`.`users` (email, username, display_name, password_hash, role_id, status, created_at) 
                              VALUES (?, ?, ?, ?, ?, 'active', NOW())
                              ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role_id = VALUES(role_id)");
         $stmt->execute([$u['email'], $u['username'], $u['display_name'], $hash, $u['role_id']]);
-        echo "✓ Created/Updated: {$u['email']}
-";
+        
+        $userIdStmt = $db->prepare("SELECT id FROM `ngn_2025`.`users` WHERE email = ?");
+        $userIdStmt->execute([$u['email']]);
+        $userId = $userIdStmt->fetchColumn();
+        
+        // Link to entity if applicable
+        $slug = $u['username'];
+        if ($u['role_id'] == 3) { // Artist
+            $db->exec("UPDATE `ngn_2025`.`artists` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+        } elseif ($u['role_id'] == 4) { // Station
+            $db->exec("UPDATE `ngn_2025`.`stations` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+        } elseif ($u['role_id'] == 5) { // Venue
+            $db->exec("UPDATE `ngn_2025`.`venues` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+        } elseif ($u['role_id'] == 7) { // Label
+            $db->exec("UPDATE `ngn_2025`.`labels` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+        }
+        $db->commit();
+
+        echo "✓ Created/Updated: {$u['email']}\n";
     } catch (Exception $e) {
-        echo "✗ Error creating {$u['email']}: " . $e->getMessage() . "
-";
+        if ($db->inTransaction()) $db->rollBack();
+        echo "✗ Error creating {$u['email']}: " . $e->getMessage() . "\n";
     }
 }
 

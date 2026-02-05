@@ -25,9 +25,13 @@ $error = null;
 
 // Get current tier
 try {
-    $currentTier = $tierService->getStationTier($entity['id']);
-    if (!$currentTier) {
-        $error = 'Unable to load tier information.';
+    if ($entity && isset($entity['id'])) {
+        $currentTier = $tierService->getStationTier($entity['id']);
+        if (!$currentTier) {
+            $error = 'Unable to load tier information.';
+        }
+    } else {
+        $error = 'Station profile not found. Please set up your profile first.';
     }
 } catch (\Throwable $e) {
     $error = 'Failed to load tier: ' . $e->getMessage();
