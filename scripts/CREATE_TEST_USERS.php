@@ -70,14 +70,23 @@ foreach ($testUsers as $u) {
         
         // Link to entity if applicable
         $slug = $u['username'];
+        $name = $u['display_name'];
         if ($u['role_id'] == 3) { // Artist
-            $db->exec("UPDATE `ngn_2025`.`artists` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+            $db->exec("INSERT INTO `ngn_2025`.`artists` (slug, name, user_id, status) 
+                       VALUES ('$slug', '$name', $userId, 'active')
+                       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
         } elseif ($u['role_id'] == 4) { // Station
-            $db->exec("UPDATE `ngn_2025`.`stations` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+            $db->exec("INSERT INTO `ngn_2025`.`stations` (slug, name, user_id) 
+                       VALUES ('$slug', '$name', $userId)
+                       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
         } elseif ($u['role_id'] == 5) { // Venue
-            $db->exec("UPDATE `ngn_2025`.`venues` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+            $db->exec("INSERT INTO `ngn_2025`.`venues` (slug, name, user_id) 
+                       VALUES ('$slug', '$name', $userId)
+                       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
         } elseif ($u['role_id'] == 7) { // Label
-            $db->exec("UPDATE `ngn_2025`.`labels` SET user_id = $userId WHERE slug = '$slug' OR name = '{$u['display_name']}' LIMIT 1");
+            $db->exec("INSERT INTO `ngn_2025`.`labels` (slug, name, user_id) 
+                       VALUES ('$slug', '$name', $userId)
+                       ON DUPLICATE KEY UPDATE user_id = VALUES(user_id)");
         }
         $db->commit();
 
