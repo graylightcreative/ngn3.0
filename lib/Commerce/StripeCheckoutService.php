@@ -3,20 +3,11 @@ namespace NGN\Lib\Commerce;
 
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
+use NGN\Lib\Env;
 use PDO;
 
 /**
  * StripeCheckoutService - Handles Stripe payment processing for NGN shops
- * 
- * Features:
- * - Payment Intent creation for card payments
- * - Checkout Session creation for hosted checkout
- * - Webhook processing for payment events
- * - Multi-seller order support with platform fees
- * - Refund processing
- * - Customer management
- * 
- * Requires Stripe PHP SDK: composer require stripe/stripe-php
  */
 class StripeCheckoutService
 {
@@ -38,12 +29,12 @@ class StripeCheckoutService
         $this->read = ConnectionFactory::read($config);
         $this->write = ConnectionFactory::write($config);
         
-        // Load Stripe keys from environment
-        $this->secretKey = (string)(getenv('STRIPE_SECRET_KEY') ?: '');
-        $this->publishableKey = (string)(getenv('STRIPE_PUBLISHABLE_KEY') ?: '');
-        $this->webhookSecret = (string)(getenv('STRIPE_WEBHOOK_SECRET') ?: '');
-        $this->platformFeePercent = (float)(getenv('STRIPE_PLATFORM_FEE_PERCENT') ?: 5.0);
-        $this->currency = strtolower((string)(getenv('STRIPE_CURRENCY') ?: 'usd'));
+        // Load Stripe keys from environment via NGN Env service
+        $this->secretKey = (string)Env::get('STRIPE_SECRET_KEY', '');
+        $this->publishableKey = (string)Env::get('STRIPE_PUBLISHABLE_KEY', '');
+        $this->webhookSecret = (string)Env::get('STRIPE_WEBHOOK_SECRET', '');
+        $this->platformFeePercent = (float)Env::get('STRIPE_PLATFORM_FEE_PERCENT', '5.0');
+        $this->currency = strtolower((string)Env::get('STRIPE_CURRENCY', 'usd'));
         
         // Initialize Stripe
         if ($this->secretKey && class_exists('\Stripe\Stripe')) {

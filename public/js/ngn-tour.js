@@ -20,40 +20,55 @@ function initTour() {
         style.id = 'ngn-tour-dark-mode';
         style.innerHTML = `
             .introjs-tooltip {
-                background-color: #1a1a1a;
+                background-color: #09090b;
                 color: #ffffff;
-                border: 1px solid #333;
-                box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+                border: 1px solid #27272a;
+                box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+                border-radius: 12px;
+                padding: 15px;
             }
-            .introjs-arrow.left { border-right-color: #1a1a1a; }
-            .introjs-arrow.right { border-left-color: #1a1a1a; }
-            .introjs-arrow.top { border-bottom-color: #1a1a1a; }
-            .introjs-arrow.bottom { border-top-color: #1a1a1a; }
-            .introjs-tooltiptext { color: #e1e1e1; }
-            .introjs-tooltip-title { color: #1DB954; font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+            .introjs-arrow.left { border-right-color: #09090b; }
+            .introjs-arrow.right { border-left-color: #09090b; }
+            .introjs-arrow.top { border-bottom-color: #09090b; }
+            .introjs-arrow.bottom { border-top-color: #09090b; }
+            .introjs-tooltiptext { color: #a1a1aa; font-size: 14px; line-height: 1.6; }
+            .introjs-tooltip-title { color: #ffffff; font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 18px; margin-bottom: 8px; }
             .introjs-button {
-                background-color: #333 !important;
+                background-color: #27272a !important;
                 color: #fff !important;
                 text-shadow: none !important;
-                border: 1px solid #444 !important;
-                border-radius: 6px !important;
-                transition: all 0.2s !important;
+                border: 1px solid #3f3f46 !important;
+                border-radius: 8px !important;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
                 font-family: 'Inter', sans-serif !important;
-                font-size: 12px !important;
+                font-size: 13px !important;
+                font-weight: 600 !important;
+                padding: 8px 16px !important;
             }
             .introjs-button:hover {
-                background-color: #444 !important;
-                border-color: #555 !important;
+                background-color: #3f3f46 !important;
+                border-color: #52525b !important;
                 color: #1DB954 !important;
             }
-            .introjs-skipbutton { color: #777 !important; }
-            .introjs-prevbutton { color: #aaa !important; }
-            .introjs-nextbutton { color: #1DB954 !important; font-weight: bold !important; border-color: #1DB954 !important; }
-            .introjs-disabled { color: #444 !important; }
-            .introjs-progress { background-color: #333; }
+            .introjs-skipbutton { color: #71717a !important; }
+            .introjs-prevbutton { color: #a1a1aa !important; }
+            .introjs-nextbutton { 
+                background-color: #1DB954 !important; 
+                color: #000 !important; 
+                font-weight: 700 !important; 
+                border-color: #1DB954 !important; 
+            }
+            .introjs-nextbutton:hover {
+                background-color: #1ed760 !important;
+                color: #000 !important;
+            }
+            .introjs-disabled { color: #3f3f46 !important; background-color: #18181b !important; border-color: #27272a !important; }
+            .introjs-progress { background-color: #27272a; height: 4px; }
             .introjs-progressbar { background-color: #1DB954; }
             .introjs-floating { color: #fff; }
-            .introjs-tooltip-header { border-bottom: 1px solid #333; margin-bottom: 10px; padding-bottom: 5px; }
+            .introjs-tooltip-header { border-bottom: 1px solid #27272a; margin-bottom: 12px; padding-bottom: 8px; }
+            .introjs-bullets ul li a { background: #3f3f46; }
+            .introjs-bullets ul li a.active { background: #1DB954; }
         `;
         document.head.appendChild(style);
     }

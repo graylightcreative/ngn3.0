@@ -1647,7 +1647,7 @@ $router->post('/subscriptions/create-checkout-session', function(Request $reques
         }
 
         // Initialize Stripe
-        \Stripe\Stripe::setApiKey($_ENV['STRIPE_SECRET_KEY']);
+        \Stripe\Stripe::setApiKey(Env::get('STRIPE_SECRET_KEY'));
 
         // Create checkout session with Stripe price ID
         $checkout_session = \Stripe\Checkout\Session::create([
@@ -1657,8 +1657,8 @@ $router->post('/subscriptions/create-checkout-session', function(Request $reques
                 'quantity' => 1,
             ]],
             'mode' => 'subscription',
-            'success_url' => $_ENV['APP_URL'] . '/dashboard/station/tier.php?success=true',
-            'cancel_url' => $_ENV['APP_URL'] . '/dashboard/station/tier.php?canceled=true',
+            'success_url' => Env::get('APP_URL') . '/dashboard/station/tier.php?success=true',
+            'cancel_url' => Env::get('APP_URL') . '/dashboard/station/tier.php?canceled=true',
             'client_reference_id' => $currentUser['userId'],
             'metadata' => [
                 'tier_id' => $tierId,
@@ -1692,8 +1692,8 @@ $router->post('/qr-codes', function(Request $request) use ($pdo, $tokenSvc) {
     }
 
     try {
-        $targetUrl = $_ENV['BASEURL'] . '/' . $entityType . '/' . $entityId;
-        $apiKey = $_ENV['MEQR_API_KEY'];
+        $targetUrl = Env::get('BASEURL') . '/' . $entityType . '/' . $entityId;
+        $apiKey = Env::get('MEQR_API_KEY');
 
         $qrApiUrl = 'https://api.me-qr.com/v1/qr-code/generate';
         $postData = [

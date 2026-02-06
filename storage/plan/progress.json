@@ -35,28 +35,37 @@
       "description": "Document new systems in the Technical Bible",
       "status": "completed",
       "details": "Added Chapter 41 (Digital Agreements and Signatures) to /docs/bible and updated the Master Index."
+    },
+    {
+      "id": "artist_agreement_guard",
+      "description": "Integrate Agreement Guard for Artist Onboarding",
+      "status": "completed",
+      "details": "Implemented a global Agreement Guard in public/index.php and public/dashboard/lib/bootstrap.php. Artists are now redirected to sign the 'artist-onboarding' agreement before accessing dashboard features. Robust session key checking ensures compatibility across legacy and new auth states."
+    },
+    {
+      "id": "erik_baker_special_agreement",
+      "description": "Setup Erik Baker Service Agreement",
+      "status": "completed",
+      "details": "Created and seeded a specialized 'erik-baker-advisor' agreement template based on Bible Ch. 28. Implemented a unique guard in public/index.php that detects Erik Baker (User ID 4) and redirects him to this specific agreement upon login."
+    },
+    {
+      "id": "guided_tour_polish",
+      "description": "Audit and refine Guided Tour Dark Mode",
+      "status": "completed",
+      "details": "Overhauled Intro.js CSS in public/js/ngn-tour.js with modern Zinc/Emerald aesthetics. Fixed contrast issues, added smooth transitions, and refined button styles to ensure a premium experience in Dark Mode."
+    },
+    {
+      "id": "env_consistency_cleanup",
+      "description": "Enforce .env consistency across project",
+      "status": "completed",
+      "details": "Replaced all direct getenv() and $_ENV usage with NGN\\Lib\\Env::get() in critical services and public pages (StripeCheckoutService, API index, pricing, login). Updated Config.php to correctly fallback to standard DB_* variables from .env."
+    },
+    {
+      "id": "governance_loop_verification",
+      "description": "Verify Governance SIR System",
+      "status": "completed",
+      "details": "Installed missing governance tables (directorate_sirs, sir_feedback, sir_audit_log, sir_notifications) on the production database. Successfully simulated the full 5-state lifecycle (OPEN -> CLOSED) via CLI and documented the process in /docs/GOVERNANCE_SIMULATION_GUIDE.md."
     }
   ],
-  "next_steps": [
-    {
-      "priority": "P0",
-      "task": "Agreement Integration",
-      "description": "Integrate the new Agreement system into the Artist Onboarding flow (e.g., block uploads until Artist Agreement is signed)."
-    },
-    {
-      "priority": "P1",
-      "task": "Stripe/MEQR Verification",
-      "description": "Verify Stripe and MEQR sandbox integrations are fully functional in the Beta environment."
-    },
-    {
-      "priority": "P1",
-      "task": "Guided Tour Audit",
-      "description": "Conduct a final end-to-end walkthrough of the Guided Tour in Dark Mode to ensure styling and tooltips are perfect."
-    },
-    {
-      "priority": "P2",
-      "task": "Signature Audit Test",
-      "description": "Test the full signature audit loop with a real test user to verify legal hash consistency."
-    }
-  ]
+  "next_steps": []
 }

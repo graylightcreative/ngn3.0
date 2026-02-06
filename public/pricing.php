@@ -16,7 +16,7 @@ $cfg = new Config();
 $tiers = [];
 try {
     $ch = curl_init();
-    $apiUrl = rtrim(getenv('APP_URL') ?: 'https://nextgennoise.com', '/') . '/api/v1/subscription-tiers';
+    $apiUrl = rtrim(Env::get('APP_URL', 'https://nextgennoise.com'), '/') . '/api/v1/subscription-tiers';
     curl_setopt_array($ch, [
         CURLOPT_URL => $apiUrl,
         CURLOPT_RETURNTRANSFER => true,
@@ -242,7 +242,7 @@ $billingCycle = $_GET['billing'] ?? 'monthly';
             if (data.data?.url) {
                 window.location.href = data.data.url;
             } else if (data.data?.session_id) {
-                const stripe = Stripe('<?= htmlspecialchars(getenv('STRIPE_PUBLISHABLE_KEY') ?: '') ?>');
+                const stripe = Stripe('<?= htmlspecialchars(Env::get('STRIPE_PUBLISHABLE_KEY', '')) ?>');
                 await stripe.redirectToCheckout({ sessionId: data.data.session_id });
             } else {
                 alert(data.errors?.[0]?.message || 'Unable to start checkout. Please try again.');

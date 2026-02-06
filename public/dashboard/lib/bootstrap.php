@@ -31,7 +31,7 @@ function dashboard_get_user(): ?array {
  * Check if user is logged in
  */
 function dashboard_is_logged_in(): bool {
-    return !empty($_SESSION['User']['Id']);
+    return !empty($_SESSION['User']['Id']) || !empty($_SESSION['User']['id']) || !empty($_SESSION['user_id']);
 }
 
 /**
@@ -49,7 +49,7 @@ function dashboard_is_test_account(): bool {
  * 3 = Artist, 7 = Label, 4/15 = Station, 5/17 = Venue
  */
 function dashboard_get_entity_type(): ?string {
-    $roleId = (int)($_SESSION['User']['RoleId'] ?? 0);
+    $roleId = (int)($_SESSION['User']['RoleId'] ?? $_SESSION['User']['role_id'] ?? 0);
     return match($roleId) {
         3 => 'artist',
         7 => 'label',
@@ -67,6 +67,37 @@ function dashboard_require_auth(): void {
         $config = new Config();
         header('Location: ' . $config->baseUrl() . '/login.php');
         exit;
+    }
+
+    // Artist Agreement Check (Bible Ch. 41)
+    // Block access to artist dashboard until distribution agreement is signed
+    if (dashboard_get_entity_type() === 'artist') {
+        dashboard_require_agreement('artist-onboarding');
+    }
+}
+
+/**
+ * Require specific agreement to be signed
+ */
+function dashboard_require_agreement(string $slug): void {
+    $user = dashboard_get_user();
+    if (!$user && empty($_SESSION['user_id'])) return;
+
+    try {
+        $userId = (int)($_SESSION['user_id'] ?? $user['Id'] ?? $user['id'] ?? 0);
+        if (!$userId) return;
+
+        $config = dashboard_get_config();
+        $pdo = dashboard_pdo();
+        $service = new \NGN\Lib\Services\Legal\AgreementService($pdo);
+        
+        if (!$service->hasSigned($userId, $slug)) {
+            header('Location: ' . $config->baseUrl() . '/agreement/' . $slug);
+            exit;
+        }
+    } catch (\Throwable $e) {
+        error_log("Agreement check failed for dashboard: " . $e->getMessage());
+        // Do not block in case of DB failure to avoid lockout, but log it
     }
 }
 

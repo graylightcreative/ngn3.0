@@ -52,6 +52,37 @@ $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
 $validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
+// Agreement Guard (Bible Ch. 41)
+// Erik Baker (User ID 4) and Artists must sign their respective agreements
+if ($isLoggedIn && $view !== 'agreement' && $view !== 'logout') {
+    $userId = (int)($_SESSION['user_id'] ?? $_SESSION['User']['id'] ?? $_SESSION['User']['Id'] ?? 0);
+    $roleId = (int)($_SESSION['User']['role_id'] ?? $_SESSION['User']['RoleId'] ?? 0);
+    
+    try {
+        $legalService = new \NGN\Lib\Services\Legal\AgreementService($pdo);
+        $redirectSlug = null;
+
+        if ($userId === 4) {
+            // Erik Baker's special agreement
+            if (!$legalService->hasSigned($userId, 'erik-baker-advisor')) {
+                $redirectSlug = 'erik-baker-advisor';
+            }
+        } elseif ($roleId === 3) {
+            // Standard Artist agreement
+            if (!$legalService->hasSigned($userId, 'artist-onboarding')) {
+                $redirectSlug = 'artist-onboarding';
+            }
+        }
+
+        if ($redirectSlug) {
+            header("Location: /agreement/" . $redirectSlug);
+            exit;
+        }
+    } catch (\Throwable $e) {
+        error_log("Agreement guard error: " . $e->getMessage());
+    }
+}
+
 // Pagination
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $perPage = 24;

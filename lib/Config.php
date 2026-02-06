@@ -179,11 +179,11 @@ class Config
     public function dbLocal(): array
     {
         return [
-            'host' => Env::get('DB_LOCAL_HOST', '127.0.0.1'),
-            'port' => (int)(Env::get('DB_LOCAL_PORT', '3306') ?? '3306'),
-            'name' => Env::get('DB_LOCAL_NAME', 'ngn_2025'),
-            'user' => Env::get('DB_LOCAL_USER', 'root'),
-            'pass' => Env::get('DB_LOCAL_PASS', 'root'),
+            'host' => Env::get('DB_LOCAL_HOST', Env::get('DB_HOST', '127.0.0.1')),
+            'port' => (int)(Env::get('DB_LOCAL_PORT', Env::get('DB_PORT', '3306')) ?? '3306'),
+            'name' => Env::get('DB_LOCAL_NAME', Env::get('DB_NAME', 'ngn_2025')),
+            'user' => Env::get('DB_LOCAL_USER', Env::get('DB_USER', 'root')),
+            'pass' => Env::get('DB_LOCAL_PASS', Env::get('DB_PASS', 'root')),
         ];
     }
 

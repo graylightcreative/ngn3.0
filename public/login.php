@@ -16,6 +16,8 @@ $root = dirname(__DIR__) . '/';
 require_once $root . 'lib/bootstrap.php';
 require_once $root . 'lib/definitions/site-settings.php';
 
+use NGN\Lib\Env;
+
 // Redirect if already logged in
 if (!empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1) {
     $user = $_SESSION['User'] ?? [];
@@ -39,7 +41,7 @@ $return = isset($_GET['r']) ? urldecode($_GET['r']) : '';
 $error = isset($_GET['e']) ? urldecode($_GET['e']) : '';
 
 // Facebook OAuth URL - use env vars
-$fbAppId = $_ENV['FACEBOOK_APP_ID'] ?? $_ENV['META_APP_ID'] ?? '';
+$fbAppId = Env::get('FACEBOOK_APP_ID', Env::get('META_APP_ID', ''));
 $fbRedirectUri = $GLOBALS['baseurl'] . 'meta/fb-callback';
 $fbPermissions = ['public_profile', 'email'];
 $fbLoginUrl = $fbAppId ? 'https://www.facebook.com/v22.0/dialog/oauth?client_id=' . $fbAppId
