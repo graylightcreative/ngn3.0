@@ -313,8 +313,8 @@ if ($pdo) {
         } elseif ($view === 'video' && (isset($_GET['slug']) || isset($_GET['id']))) {
             $identifier = trim($_GET['slug'] ?? $_GET['id']);
             try {
-                $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`videos` WHERE (slug = :id OR id = :id) LIMIT 1');
-                $stmt->execute([':id' => $identifier]);
+                $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`videos` WHERE (slug = :slug OR id = :id) LIMIT 1');
+                $stmt->execute([':slug' => $identifier, ':id' => $identifier]);
                 $video = $stmt->fetch(PDO::FETCH_ASSOC);
 
                 if ($video) {
@@ -1402,7 +1402,7 @@ if ($view === 'post' && !empty($data['post'])) {
           <form method="get" action="/" class="relative group">
             <input type="hidden" name="view" value="<?= in_array($view, ['artists','labels','stations','venues']) ? htmlspecialchars($view) : 'artists' ?>">
             <i class="bi-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-white transition-colors"></i>
-            <input type="text" name="q" value="<?= htmlspecialchars($search) ?>" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
+            <input type="text" name="q" value="<?= htmlspecialchars($search ?? '') ?>" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
           </form>
         </div>
         
@@ -1443,7 +1443,7 @@ if ($view === 'post' && !empty($data['post'])) {
                             $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
                         ?>
                         <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
-                            <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title']) ?>">
+                            <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title'] ?? '') ?>">
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -1460,7 +1460,7 @@ if ($view === 'post' && !empty($data['post'])) {
                             <div class="transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'block' : 'hidden' ?>" data-carousel-content>
                                 <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></h1>
                                 <div class="flex justify-center gap-4">
-                                    <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
+                                    <a href="/post/<?= htmlspecialchars(($post['slug'] ?? $post['id']) ?? '') ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
                                     <?php
                                     // If we have any tracks, let them listen
                                     $anyTrack = $data['songs'][0] ?? null;
@@ -1946,15 +1946,15 @@ if ($view === 'post' && !empty($data['post'])) {
           <?php 
               $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
           ?>
-          <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col sp-card border border-white/5">
+          <a href="/post/<?= htmlspecialchars(($post['slug'] ?? $post['id']) ?? '') ?>" class="group flex flex-col sp-card border border-white/5">
             <div class="aspect-video rounded-xl overflow-hidden mb-6 shadow-2xl">
-              <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+              <img src="<?= htmlspecialchars($postImg ?? DEFAULT_AVATAR) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
             </div>
             <div class="flex-1">
                 <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-3">Feature Article</div>
                 <h3 class="text-xl font-black text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors mb-4"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></h3>
                 <?php if (!empty($post['excerpt'])): ?>
-                <p class="text-zinc-400 text-sm line-clamp-3 leading-relaxed mb-6 font-medium"><?= htmlspecialchars($post['excerpt']) ?></p>
+                <p class="text-zinc-400 text-sm line-clamp-3 leading-relaxed mb-6 font-medium"><?= htmlspecialchars($post['excerpt'] ?? '') ?></p>
                 <?php endif; ?>
             </div>
             <div class="flex items-center justify-between pt-6 border-t border-white/5">
