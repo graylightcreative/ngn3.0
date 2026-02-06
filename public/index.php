@@ -1025,12 +1025,12 @@ if ($view === 'post' && !empty($data['post'])) {
 
     /* Content Area Adjustment */
     .content-container {
-      padding-bottom: 90px; /* Space for bottom nav */
+      padding-bottom: 160px; /* Space for player bar (80px) + bottom nav (70px) + safety */
     }
 
     @media (min-width: 1024px) {
       .mobile-bottom-nav { display: none; }
-      .content-container { padding-bottom: 20px; }
+      .content-container { padding-bottom: 90px; } /* Space for desktop player bar */
     }
 
     /* Spotify-style Card */
@@ -1345,9 +1345,9 @@ if ($view === 'post' && !empty($data['post'])) {
     </script>
 
     <!-- Main Content Area -->
-    <main class="flex-1 lg:ml-[280px]">
+    <main class="flex-1 lg:ml-[280px] content-container">
       <!-- Mobile Top Bar -->
-      <header class="lg:hidden sticky top-0 z-20 bg-black/80 backdrop-blur-lg px-4 py-3 flex items-center justify-between border-b border-white/5">
+      <header class="lg:hidden fixed top-0 left-0 right-0 z-[110] bg-black/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between border-b border-white/5 h-[56px]">
         <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-8">
         <div class="flex items-center gap-4">
           <form method="get" action="/" class="relative">
@@ -1357,6 +1357,8 @@ if ($view === 'post' && !empty($data['post'])) {
           <a href="/dashboard/" class="text-white text-2xl"><i class="bi-person-circle"></i></a>
         </div>
       </header>
+
+      <div class="lg:hidden h-[56px]"></div> <!-- Spacer for fixed header -->
 
       <!-- Desktop Header -->
       <header class="hidden lg:flex items-center justify-between px-8 h-16 sticky top-0 z-20 bg-zinc-900/50 backdrop-blur-md">
