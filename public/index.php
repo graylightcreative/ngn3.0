@@ -631,8 +631,8 @@ if ($pdo) {
             ];
         } elseif ($view === 'post' && (isset($_GET['slug']) || isset($_GET['id']))) {
             $identifier = trim($_GET['slug'] ?? $_GET['id']);
-            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, tags, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :id OR id = :id) AND status = :status LIMIT 1');
-            $stmt->execute([':id' => $identifier, ':status' => 'published']);
+            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, tags, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :slug OR id = :id) AND status = :status LIMIT 1');
+            $stmt->execute([':slug' => $identifier, ':id' => $identifier, ':status' => 'published']);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($post && !empty($post['featured_image_url'])) {
@@ -799,8 +799,8 @@ if ($pdo) {
                     $entity['collaborators'] = []; // Placeholder
 
                     // Get artist mentions/references in posts
-                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE author_id = :authorId OR (title LIKE :namePattern OR body LIKE :namePattern OR tags LIKE :namePattern) ORDER BY published_at DESC LIMIT 20');
-                    $stmt->execute([':authorId' => $entity['id'], ':namePattern' => '%' . $entity['name'] . '%']);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE author_id = :authorId OR (title LIKE :namePattern1 OR content LIKE :namePattern2 OR tags LIKE :namePattern3) ORDER BY published_at DESC LIMIT 20');
+                    $stmt->execute([':authorId' => $entity['id'], ':namePattern1' => '%' . $entity['name'] . '%', ':namePattern2' => '%' . $entity['name'] . '%', ':namePattern3' => '%' . $entity['name'] . '%']);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get label information
@@ -851,8 +851,14 @@ if ($pdo) {
                     $entity['videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Posts mentioning this label
-                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :labelNamePattern OR content LIKE :labelNamePattern OR tags LIKE :labelNamePattern) ORDER BY published_at DESC LIMIT 20');
-                    $stmt->execute([$entity['id'], $entity['id'], ':labelNamePattern' => '%' . $entity['name'] . '%']);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = :labelId1) OR (author_id = :labelId2) OR (title LIKE :labelNamePattern1 OR content LIKE :labelNamePattern2 OR tags LIKE :labelNamePattern3) ORDER BY published_at DESC LIMIT 20');
+                    $stmt->execute([
+                        ':labelId1' => $entity['id'], 
+                        ':labelId2' => $entity['id'], 
+                        ':labelNamePattern1' => '%' . $entity['name'] . '%',
+                        ':labelNamePattern2' => '%' . $entity['name'] . '%',
+                        ':labelNamePattern3' => '%' . $entity['name'] . '%'
+                    ]);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
 
@@ -907,8 +913,14 @@ if ($pdo) {
                     }
 
                     // Posts mentioning this station
-                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :stationNamePattern OR content LIKE :stationNamePattern OR tags LIKE :stationNamePattern) ORDER BY published_at DESC LIMIT 10');
-                    $stmt->execute([$entity['id'], $entity['id'], ':stationNamePattern' => '%' . $entity['name'] . '%']);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = :stationId1) OR (author_id = :stationId2) OR (title LIKE :stationNamePattern1 OR content LIKE :stationNamePattern2 OR tags LIKE :stationNamePattern3) ORDER BY published_at DESC LIMIT 10');
+                    $stmt->execute([
+                        ':stationId1' => $entity['id'], 
+                        ':stationId2' => $entity['id'], 
+                        ':stationNamePattern1' => '%' . $entity['name'] . '%',
+                        ':stationNamePattern2' => '%' . $entity['name'] . '%',
+                        ':stationNamePattern3' => '%' . $entity['name'] . '%'
+                    ]);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
 
@@ -2399,13 +2411,15 @@ if ($view === 'post' && !empty($data['post'])) {
         <!-- SINGLE ENTITY VIEW -->
         <?php include __DIR__ . "/../lib/partials/profiles/{$view}.php"; ?>
 
-      <?php elseif ($view === '404'): ?>
-        <!-- 404 PAGE (Immersive) -->
+      <?php elseif ($view === '404' || (in_array($view, ['post', 'video', 'release', 'song', 'agreement']) && empty($data[$view === 'song' ? 'track' : ($view === 'agreement' ? 'agreement_template' : $view)]))): ?>
+        <!-- NOT FOUND PAGE -->
         <?php http_response_code(404); ?>
         <div class="text-center py-32 sp-card border border-white/5 max-w-2xl mx-auto mt-12">
           <div class="text-9xl mb-8 animate-bounce">🎸</div>
-          <h1 class="text-5xl font-black tracking-tighter mb-4">Void Reached.</h1>
-          <p class="text-zinc-500 font-bold uppercase tracking-widest text-sm mb-12">The content you seek has returned to the underground.</p>
+          <h1 class="text-5xl font-black tracking-tighter mb-4"><?= !empty($data['error']) ? 'System Note' : 'Void Reached.' ?></h1>
+          <p class="text-zinc-500 font-bold uppercase tracking-widest text-sm mb-12">
+            <?= !empty($data['error']) ? htmlspecialchars($data['error']) : 'The content you seek has returned to the underground.' ?>
+          </p>
           <a href="/" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Return Home</a>
         </div>
       <?php endif; ?>
