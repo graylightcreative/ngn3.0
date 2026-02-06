@@ -102,7 +102,15 @@ function get_ngn_posts(PDO $pdo, string $search = '', int $page = 1, int $perPag
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    foreach ($posts as &$post) {
+        if (!empty($post['featured_image_url'])) {
+            if (!str_starts_with($post['featured_image_url'], 'http') && !str_starts_with($post['featured_image_url'], '/')) {
+                $post['featured_image_url'] = "/uploads/{$post['featured_image_url']}";
+            }
+        }
+    }
+    return $posts;
 }
 
 function get_ngn_posts_count(PDO $pdo, string $search = ''): int {
@@ -534,7 +542,7 @@ if ($pdo) {
             
             if ($post && !empty($post['featured_image_url'])) {
                 if (!str_starts_with($post['featured_image_url'], 'http') && !str_starts_with($post['featured_image_url'], '/')) {
-                    $post['featured_image_url'] = "/uploads/posts/{$post['featured_image_url']}";
+                    $post['featured_image_url'] = "/uploads/{$post['featured_image_url']}";
                 }
             }
 
@@ -1454,6 +1462,7 @@ if ($view === 'post' && !empty($data['post'])) {
             <a href="/posts" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <?php foreach ($data['posts'] as $post): ?>
             <?php 
                 $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
             ?>
