@@ -429,26 +429,26 @@ if ($pdo) {
 
             try {
                 // Get most recent spin date
-                $stmt = $pdo->query('SELECT MAX(PlayedAt) as latest FROM `ngn_2025`.`station_spins`');
+                $stmt = $pdo->query('SELECT MAX(played_at) as latest FROM `ngn_2025`.`station_spins`');
                 $latest = $stmt->fetch(PDO::FETCH_ASSOC);
                 $latestDate = $latest['latest'] ?? null;
 
                 if ($latestDate) {
                     $data['smr_date'] = date('F j, Y', strtotime($latestDate));
 
-                    // Aggregate spins by Artist/Song to create a "Chart"
+                    // Aggregate spins by artist_name/song_title to create a "Chart"
                     $stmt = $pdo->prepare('
                         SELECT 
-                            ArtistName as Artists, 
-                            TrackTitle as Song, 
-                            COUNT(*) as TWS,
-                            MAX(PlayedAt) as LastPlayed,
+                            ss.artist_name as Artists, 
+                            ss.song_title as Song, 
+                            SUM(ss.spins_count) as TWS,
+                            MAX(ss.played_at) as LastPlayed,
                             a.slug as artist_slug,
                             a.image_url as artist_image_url,
                             a.id as artist_id
                         FROM `ngn_2025`.`station_spins` ss
-                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(ss.ArtistName) = LOWER(a.name)
-                        GROUP BY ArtistName, TrackTitle
+                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(ss.artist_name) = LOWER(a.name)
+                        GROUP BY ss.artist_name, ss.song_title
                         ORDER BY TWS DESC
                         LIMIT 200
                     ');
