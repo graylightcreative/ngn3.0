@@ -40,7 +40,7 @@ if ($artistId > 0) {
             // Assuming 'spins' refers to a table like ngn_2025.spins or similar.
             // If it's a different table or requires joining with artists, this needs adjustment.
             // For now, querying a hypothetical 'spins' table associated with the artist.
-            $stmtSpins = $pdo->prepare("SELECT SUM(spins) FROM `ngn_2025`.`spins` WHERE artist_id = :artist_id");
+            $stmtSpins = $pdo->prepare("SELECT SUM(spins_count) FROM `ngn_2025`.`station_spins` WHERE artist_id = :artist_id");
             $stmtSpins->execute([':artist_id' => $artistId]);
             $totalSpins = (int)$stmtSpins->fetchColumn();
 
@@ -138,7 +138,7 @@ try {
         // Try to fetch real spins data from the last 30 days
         $stmt = $pdo->prepare("
             SELECT DATE(created_at) as date, COUNT(*) as daily_spins
-            FROM `ngn_2025`.`spins`
+            FROM `ngn_2025`.`station_spins`
             WHERE artist_id = :artist_id
             AND created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
             GROUP BY DATE(created_at)
@@ -194,7 +194,7 @@ try {
         // Fetch monthly spins
         $stmt = $pdo->prepare("
             SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as spins
-            FROM `ngn_2025`.`spins`
+            FROM `ngn_2025`.`station_spins`
             WHERE artist_id = :artist_id
             AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
             GROUP BY DATE_FORMAT(created_at, '%Y-%m')

@@ -236,6 +236,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
             $success = "Successfully generated $inserted mock spins for testing.";
             
+            // 2. Generate Mock Score
+            $pdo = dashboard_pdo();
+            $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`entity_scores` 
+                (entity_type, entity_id, score, ranking, breakdown)
+                VALUES ('station', ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE score = VALUES(score), ranking = VALUES(ranking), breakdown = VALUES(breakdown)");
+            $stmt->execute([
+                $entity['id'],
+                rand(500, 5000),
+                rand(1, 50),
+                json_encode([
+                    'radio' => rand(100, 1000),
+                    'unique_artists' => rand(50, 500),
+                    'profile' => 100,
+                    'activity' => rand(50, 100),
+                    'engagement' => rand(10, 50)
+                ])
+            ]);
+
             // Refresh list
             $stmt = $spinsPdo->prepare("SELECT * FROM station_spins WHERE station_id = ? ORDER BY played_at DESC LIMIT 50");
             $stmt->execute([$entity['id']]);

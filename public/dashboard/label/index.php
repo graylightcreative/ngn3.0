@@ -51,10 +51,10 @@ if ($entity) {
 
         // Get label ranking and score
         $stmt = $pdo->prepare("
-            SELECT RankNum as rank, Score as score
-            FROM `ngn_2025`.`rankings`
-            WHERE Resource = 'labels' AND EntityId = ? AND `Interval` = 'weekly'
-            ORDER BY PeriodEnd DESC LIMIT 1
+            SELECT ranking as rank, score as score
+            FROM `ngn_2025`.`entity_scores`
+            WHERE entity_type = 'label' AND entity_id = ?
+            LIMIT 1
         ");
         $stmt->execute([$entity['id']]);
         $scoreData = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -156,6 +156,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
 
             $success = "Successfully generated mock roster and releases for testing.";
+
+            // 3. Generate Mock Score
+            $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`entity_scores` 
+                (entity_type, entity_id, score, ranking, breakdown)
+                VALUES ('label', ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE score = VALUES(score), ranking = VALUES(ranking), breakdown = VALUES(breakdown)");
+            $stmt->execute([
+                $entity['id'],
+                rand(5000, 50000),
+                rand(1, 100),
+                json_encode([
+                    'profile' => 100,
+                    'roster' => rand(50, 250),
+                    'releases' => rand(50, 200),
+                    'social' => rand(50, 150),
+                    'content' => rand(20, 100)
+                ])
+            ]);
         } catch (\Throwable $e) {
             $error = 'Failed to generate mock data: ' . $e->getMessage();
         }

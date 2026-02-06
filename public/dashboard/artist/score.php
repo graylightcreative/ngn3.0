@@ -30,14 +30,18 @@ try {
 } catch (PDOException $e) {}
 
 // Get ranking data
-$rankData = ['score' => 0, 'rank' => null, 'prev_rank' => null];
+$rankData = ['score' => 0, 'rank' => null, 'prev_rank' => null, 'breakdown' => []];
 try {
-    $stmt = $pdo->prepare("SELECT Score as score, RankNum as rank, (RankNum - Delta) as prev_rank
-        FROM `ngn_2025`.`rankings`
-        WHERE Resource = 'artists' AND EntityId = ? AND `Interval` = 'weekly'
-        ORDER BY PeriodEnd DESC LIMIT 1");
+    $stmt = $pdo->prepare("SELECT score, ranking as rank, (ranking + 1) as prev_rank, breakdown
+        FROM `ngn_2025`.`entity_scores`
+        WHERE entity_type = 'artist' AND entity_id = ?
+        LIMIT 1");
     $stmt->execute([$artistId]);
-    $rankData = $stmt->fetch(PDO::FETCH_ASSOC) ?: $rankData;
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row) {
+        $rankData = $row;
+        $rankData['breakdown'] = json_decode($row['breakdown'] ?? '{}', true) ?: [];
+    }
 } catch (PDOException $e) {}
 
 // Get content counts
@@ -79,7 +83,7 @@ $scoreBreakdown = [
         'color' => '#1DB954',
         'weight' => 0.30,
         'items' => [
-            ['name' => 'NGN Station Spins', 'value' => 0, 'max' => 100, 'points' => 0],
+            ['name' => 'NGN Station Spins', 'value' => $rankData['breakdown']['radio'] ?? 0, 'max' => 100, 'points' => $rankData['breakdown']['radio'] ?? 0],
             ['name' => 'SMR Chart Spins', 'value' => 0, 'max' => 100, 'points' => 0],
         ]
     ],
@@ -102,7 +106,7 @@ $scoreBreakdown = [
         'weight' => 0.25,
         'items' => [
             ['name' => 'Spotify Connected', 'value' => $hasSpotify ? 100 : 0, 'max' => 100, 'points' => $hasSpotify ? 100 : 0],
-            ['name' => 'Spotify Monthly Listeners', 'value' => 0, 'max' => 100, 'points' => 0],
+            ['name' => 'Spotify Monthly Listeners', 'value' => $rankData['breakdown']['streaming'] ?? 0, 'max' => 100, 'points' => $rankData['breakdown']['streaming'] ?? 0],
             ['name' => 'Spotify Followers', 'value' => 0, 'max' => 100, 'points' => 0],
         ]
     ],
@@ -124,7 +128,7 @@ $scoreBreakdown = [
         'color' => '#ef4444',
         'weight' => 0.05,
         'items' => [
-            ['name' => 'Profile Views', 'value' => 0, 'max' => 100, 'points' => 0],
+            ['name' => 'Profile Views', 'value' => $rankData['breakdown']['engagement'] ?? 0, 'max' => 100, 'points' => $rankData['breakdown']['engagement'] ?? 0],
             ['name' => 'Mentions in Posts', 'value' => 0, 'max' => 50, 'points' => 0],
             ['name' => 'Claimed Profile', 'value' => !empty($entity['claimed']) ? 100 : 0, 'max' => 100, 'points' => !empty($entity['claimed']) ? 1000 : 0],
         ]

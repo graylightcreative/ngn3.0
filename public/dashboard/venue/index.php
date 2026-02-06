@@ -129,6 +129,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             }
 
             $success = "Successfully generated mock shows and videos for testing.";
+
+            // 3. Generate Mock Score
+            $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`entity_scores` 
+                (entity_type, entity_id, score, ranking, breakdown)
+                VALUES ('venue', ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE score = VALUES(score), ranking = VALUES(ranking), breakdown = VALUES(breakdown)");
+            $stmt->execute([
+                $entity['id'],
+                rand(500, 2500),
+                rand(1, 50),
+                json_encode([
+                    'profile' => 100,
+                    'shows' => rand(50, 200),
+                    'social' => rand(50, 150),
+                    'content' => rand(20, 100),
+                    'engagement' => rand(10, 150)
+                ])
+            ]);
         } catch (\Throwable $e) {
             $error = 'Failed to generate mock data: ' . $e->getMessage();
         }

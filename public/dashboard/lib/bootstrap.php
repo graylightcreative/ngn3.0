@@ -137,7 +137,7 @@ function dashboard_pdo(): PDO {
 }
 
 /**
- * Get PDO connection to ngn_spins_2025 (spins database)
+ * Get PDO connection to spins (consolidated ngn_2025)
  * Uses centralized connection pool
  */
 function dashboard_pdo_spins(): PDO {
@@ -145,7 +145,7 @@ function dashboard_pdo_spins(): PDO {
 }
 
 /**
- * Get PDO connection to ngn_rankings_2025 (rankings database)
+ * Get PDO connection to rankings (consolidated ngn_2025)
  * Uses centralized connection pool
  */
 function dashboard_pdo_rankings(): PDO {
