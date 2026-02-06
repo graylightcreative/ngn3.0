@@ -22,7 +22,7 @@ $tiers = [];
 
 if ($entity) {
     try {
-        $stmt = $pdo->prepare("SELECT id, slug, title, body as content, status, published_at, required_tier_id FROM `ngn_2025`.`posts` WHERE author_id = ? ORDER BY COALESCE(published_at, created_at) DESC");
+        $stmt = $pdo->prepare("SELECT id, slug, title, body as content, featured_image_url, status, published_at, required_tier_id FROM `ngn_2025`.`posts` WHERE author_id = ? ORDER BY COALESCE(published_at, created_at) DESC");
         $stmt->execute([$entity['id']]);
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -31,7 +31,7 @@ if ($entity) {
         $tiers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($postId && $action === 'edit') {
-            $stmt = $pdo->prepare("SELECT id, slug, title, body as content, status, published_at, required_tier_id FROM `ngn_2025`.`posts` WHERE id = ? AND author_id = ?");
+            $stmt = $pdo->prepare("SELECT id, slug, title, body as content, featured_image_url, status, published_at, required_tier_id FROM `ngn_2025`.`posts` WHERE id = ? AND author_id = ?");
             $stmt->execute([$postId, $entity['id']]);
             $editPost = $stmt->fetch(PDO::FETCH_ASSOC);
         }
@@ -68,9 +68,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity) {
             }
         } else {
             $title = trim($_POST['title'] ?? '');
-            $body = trim($_POST['body'] ?? '');
+            $content = trim($_POST['content'] ?? '');
             $status = $_POST['status'] ?? 'draft';
             $required_tier_id = !empty($_POST['required_tier_id']) ? (int)$_POST['required_tier_id'] : null;
+            $featuredImageUrl = $_POST['current_image'] ?? '';
+
+            // Handle Image Upload
+            if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
+                $uploadDir = dirname(__DIR__, 2) . '/storage/uploads/posts/';
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0775, true);
+                }
+
+                $fileTmpPath = $_FILES['featured_image']['tmp_name'];
+                $fileName = $_FILES['featured_image']['name'];
+                $fileSize = $_FILES['featured_image']['size'];
+                $fileType = $_FILES['featured_image']['type'];
+                $fileNameCmps = explode(".", $fileName);
+                $fileExtension = strtolower(end($fileNameCmps));
+
+                $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
+                $dest_path = $uploadDir . $newFileName;
+
+                if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                    $featuredImageUrl = $newFileName;
+                }
+            }
 
             if (empty($title)) {
                 $error = 'Post title is required.';
@@ -80,13 +103,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity) {
                     $publishedAt = $status === 'published' ? date('Y-m-d H:i:s') : null;
 
                     if ($action === 'edit' && $postId) {
-                        $stmt = $pdo->prepare("UPDATE `ngn_2025`.`posts` SET title = ?, body = ?, status = ?, published_at = ?, required_tier_id = ? WHERE id = ? AND author_id = ?");
-                        $stmt->execute([$title, $content, $status, $publishedAt, $required_tier_id, $postId, $entity['id']]);
+                        $stmt = $pdo->prepare("UPDATE `ngn_2025`.`posts` SET title = ?, body = ?, featured_image_url = ?, status = ?, published_at = ?, required_tier_id = ? WHERE id = ? AND author_id = ?");
+                        $stmt->execute([$title, $content, $featuredImageUrl, $status, $publishedAt, $required_tier_id, $postId, $entity['id']]);
                         $success = 'Post updated!';
                     } else {
                         $slug = dashboard_generate_slug($title, 'post', $entity['id']);
-                        $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`posts` (author_id, slug, title, body, status, published_at, required_tier_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
-                        $stmt->execute([$entity['id'], $slug, $title, $content, $status, $publishedAt, $required_tier_id]);
+                        $stmt = $pdo->prepare("INSERT INTO `ngn_2025`.`posts` (author_id, slug, title, body, featured_image_url, status, published_at, required_tier_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmt->execute([$entity['id'], $slug, $title, $content, $featuredImageUrl, $status, $publishedAt, $required_tier_id]);
                         $success = 'Post created!';
                     }
                     $action = 'list';
@@ -97,7 +120,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity) {
         }
 
         // Refresh list
-        $stmt = $pdo->prepare("SELECT id, slug, title, body as content, status, published_at, required_tier_id FROM `ngn_2025`.`posts` WHERE author_id = ? ORDER BY COALESCE(published_at, created_at) DESC");
+        $stmt = $pdo->prepare("SELECT id, slug, title, body as content, featured_image_url, status, published_at, required_tier_id FROM `ngn_2025`.`posts` WHERE author_id = ? ORDER BY COALESCE(published_at, created_at) DESC");
         $stmt->execute([$entity['id']]);
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -122,11 +145,21 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         
         <div class="card">
             <div class="card-header"><h2 class="card-title"><?= $action === 'edit' ? 'Edit Post' : 'Create New Post' ?></h2></div>
-            <form method="POST">
+            <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="csrf" value="<?= htmlspecialchars($csrf) ?>">
+                <input type="hidden" name="current_image" value="<?= htmlspecialchars($editPost['featured_image_url'] ?? '') ?>">
                 <div class="form-group">
                     <label class="form-label">Title *</label>
                     <input type="text" name="title" class="form-input" required value="<?= htmlspecialchars($editPost['title'] ?? '') ?>">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Featured Image</label>
+                    <?php if (!empty($editPost['featured_image_url'])): ?>
+                        <div style="margin-bottom: 10px;">
+                            <img src="/uploads/posts/<?= htmlspecialchars($editPost['featured_image_url']) ?>" alt="Current Image" style="max-width: 200px; border-radius: 8px;">
+                        </div>
+                    <?php endif; ?>
+                    <input type="file" name="featured_image" class="form-input" accept="image/*">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Content</label>
@@ -174,6 +207,13 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
             <div style="display: grid; gap: 12px;">
                 <?php foreach ($posts as $post): ?>
                 <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                    <div style="width: 80px; height: 60px; border-radius: 4px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                        <?php if (!empty($post['featured_image_url'])): ?>
+                        <img src="/uploads/posts/<?= htmlspecialchars($post['featured_image_url']) ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        <?php else: ?>
+                        <i class="bi bi-newspaper" style="font-size: 20px; color: var(--text-muted);"></i>
+                        <?php endif; ?>
+                    </div>
                     <div style="flex: 1;">
                         <div style="font-weight: 600;"><?= htmlspecialchars($post['title']) ?></div>
                         <div style="font-size: 13px; color: var(--text-muted);">

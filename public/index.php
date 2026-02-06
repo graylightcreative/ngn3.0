@@ -532,6 +532,12 @@ if ($pdo) {
             $stmt->execute([':id' => $identifier, ':status' => 'published']);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
+            if ($post && !empty($post['featured_image_url'])) {
+                if (!str_starts_with($post['featured_image_url'], 'http') && !str_starts_with($post['featured_image_url'], '/')) {
+                    $post['featured_image_url'] = "/uploads/posts/{$post['featured_image_url']}";
+                }
+            }
+
             if ($post) {
                 $isLocked = false;
                 if (!empty($post['required_tier_id']) && $currentUser) {
@@ -828,9 +834,7 @@ $seoUrl = $baseUrl . '/';
 if ($view === 'post' && !empty($data['post'])) {
     $seoTitle = htmlspecialchars($data['post']['title'] ?? '') . ' | NextGenNoise';
     $seoDesc = htmlspecialchars(substr(strip_tags($data['post']['excerpt'] ?? $data['post']['content'] ?? ''), 0, 160));
-    $postImg = $data['post']['featured_image_url'] ?? '';
-    if ($postImg && !str_starts_with($postImg, '/')) $postImg = "/uploads/posts/{$postImg}";
-    $seoImage = $postImg ?: $seoImage;
+    $seoImage = $data['post']['featured_image_url'] ?? $seoImage;
     $postSlug = $data['post']['slug'] ?? $data['post']['id'];
     $seoUrl = "{$baseUrl}/post/{$postSlug}";
 } elseif (in_array($view, ['artist', 'label', 'station', 'venue']) && $entity) {
@@ -1271,7 +1275,9 @@ if ($view === 'post' && !empty($data['post'])) {
                     <div class="flex-1">
                         <div class="relative h-[300px] md:h-[450px]">
                             <?php foreach ($featuredPosts as $index => $post): ?>
-                                <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
+                                <?php 
+                                    $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
+                                ?>
                                 <div class="absolute inset-0 transition-opacity duration-700 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
                                     <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title']) ?>">
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-center p-12">
@@ -1448,8 +1454,9 @@ if ($view === 'post' && !empty($data['post'])) {
             <a href="/posts" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <?php foreach ($data['posts'] as $post): ?>
-            <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
+            <?php 
+                $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
+            ?>
             <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col">
               <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
                 <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
@@ -1762,7 +1769,9 @@ if ($view === 'post' && !empty($data['post'])) {
         <?php if (!empty($items)): ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <?php foreach ($items as $post): ?>
-          <?php $postImg = !empty($post['featured_image_url']) ? "/uploads/posts/{$post['featured_image_url']}" : DEFAULT_AVATAR; ?>
+          <?php 
+              $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
+          ?>
           <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col sp-card border border-white/5">
             <div class="aspect-video rounded-xl overflow-hidden mb-6 shadow-2xl">
               <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
@@ -1943,9 +1952,12 @@ if ($view === 'post' && !empty($data['post'])) {
                     <span class="text-zinc-600">5 min read</span>
                 </div>
 
-                <?php if (!empty($post['featured_image_url'])): ?>
+                <?php 
+                    $postImg = $post['featured_image_url'] ?? '';
+                ?>
+                <?php if (!empty($postImg)): ?>
                 <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/5 aspect-[21/9]">
-                    <img src="<?= htmlspecialchars($post['featured_image_url']) ?>" class="w-full h-full object-cover" alt="">
+                    <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover" alt="">
                 </div>
                 <?php endif; ?>
             </header>
