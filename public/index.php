@@ -49,7 +49,7 @@ if (!empty($_SESSION['User']['role_id'])) {
 
 // Router
 $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
-$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', '404'];
+$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
 // Pagination
@@ -410,6 +410,17 @@ if ($pdo) {
                 $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
             } catch (\Throwable $e) {
                 error_log("Error fetching label rankings: " . $e->getMessage());
+            }
+        } elseif ($view === 'agreement' && isset($_GET['slug'])) {
+            $templateSlug = trim($_GET['slug']);
+            try {
+                $service = new \NGN\Lib\Services\Legal\AgreementService($pdo);
+                $data['agreement_template'] = $service->getTemplate($templateSlug);
+                if ($isLoggedIn) {
+                    $data['agreement_signed'] = $service->hasSigned((int)$_SESSION['user_id'], $templateSlug);
+                }
+            } catch (\Throwable $e) {
+                error_log("Error fetching agreement: " . $e->getMessage());
             }
         } elseif ($view === 'smr-charts') {
             // SMR Charts from legacy database
@@ -2163,6 +2174,21 @@ if ($view === 'post' && !empty($data['post'])) {
                 </div>
             </div>
         </article>
+
+      <?php elseif ($view === 'agreement' && !empty($data['agreement_template'])): ?>
+        <!-- AGREEMENT VIEW -->
+        <div class="max-w-4xl mx-auto py-12 px-6">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-black text-white mb-4">Legal Verification</h1>
+                <p class="text-zinc-500 max-w-2xl mx-auto">Please review and sign the agreement below to continue.</p>
+            </div>
+
+            <?php 
+                $template = $data['agreement_template'];
+                $isSigned = $data['agreement_signed'] ?? false;
+                include __DIR__ . '/../lib/partials/legal/agreement-viewer.php';
+            ?>
+        </div>
 
       <?php elseif ($view === 'post' && !empty($data['post'])): ?>
         <!-- SINGLE POST VIEW (Modern Editorial) -->
