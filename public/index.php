@@ -412,14 +412,14 @@ if ($pdo) {
                 error_log("Error fetching label rankings: " . $e->getMessage());
             }
         } elseif ($view === 'smr-charts') {
-            // SMR Charts from ngn_2025 database
+            // SMR Charts from legacy database
             $data['smr_charts'] = [];
             $data['smr_date'] = null;
 
             try {
                 $smrPdo = $pdo; 
                 // Get most recent chart date
-                $stmt = $smrPdo->query('SELECT MAX(window_date) as latest FROM `ngn_2025`.`smr_chart`');
+                $stmt = $smrPdo->query('SELECT MAX(Timestamp) as latest FROM `nextgennoise`.`smr_chart`');
                 $latest = $stmt->fetch(PDO::FETCH_ASSOC);
                 $latestDate = $latest['latest'] ?? null;
 
@@ -428,25 +428,25 @@ if ($pdo) {
 
                     // Get top 200 songs from latest chart date
                     $stmt = $smrPdo->prepare('SELECT sc.*, a.name AS artist_name, a.slug AS artist_slug, a.image_url AS artist_image_url
-                                             FROM `ngn_2025`.`smr_chart` sc
-                                             LEFT JOIN `ngn_2025`.`artists` a ON sc.artist_id = a.id
-                                             WHERE DATE(sc.window_date) = DATE(?) ORDER BY sc.rank ASC LIMIT 200');
+                                             FROM `nextgennoise`.`smr_chart` sc
+                                             LEFT JOIN `ngn_2025`.`artists` a ON LOWER(sc.Artists) = LOWER(a.name)
+                                             WHERE DATE(sc.Timestamp) = DATE(?) ORDER BY sc.TWP ASC LIMIT 200');
                     $stmt->execute([$latestDate]);
                     $smrData = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Transform to expected output
                     foreach ($smrData as $row) {
-                        $row['TWP'] = $row['rank']; // Map 'rank' to 'TWP'
-                        $row['LWP'] = $row['prev_rank'] ?? '-'; // Map 'prev_rank' to 'LWP'
-                        $row['Artists'] = $row['artist_name'] ?? $row['artist']; // Use artist_name from join, fallback to raw artist
-                        $row['Song'] = $row['track'];
-                        $row['Label'] = $row['label'];
-                        $row['WOC'] = $row['woc'] ?? '-';
+                        $row['TWP'] = $row['TWP'];
+                        $row['LWP'] = $row['LWP'] ?? '-';
+                        $row['Artists'] = $row['Artists'];
+                        $row['Song'] = $row['Song'];
+                        $row['Label'] = $row['Label'];
+                        $row['WOC'] = $row['WOC'] ?? '-';
                         $row['artist'] = [
-                            'id' => $row['artist_id'],
-                            'name' => $row['artist_name'],
-                            'slug' => $row['artist_slug'],
-                            'image_url' => $row['artist_image_url']
+                            'id' => $row['artist_id'] ?? null,
+                            'name' => $row['artist_name'] ?? $row['Artists'],
+                            'slug' => $row['artist_slug'] ?? null,
+                            'image_url' => $row['artist_image_url'] ?? null
                         ];
                         $data['smr_charts'][] = $row;
                     }
@@ -587,7 +587,7 @@ if ($pdo) {
                     
                     if (!$isSubscribed) {
                         $isLocked = true;
-                        $post['content'] = 'This content is exclusive to subscribers.';
+                        $post['body'] = 'This content is exclusive to subscribers.';
                     }
                 }
                 $post['is_locked'] = $isLocked;
@@ -1260,15 +1260,89 @@ if ($view === 'post' && !empty($data['post'])) {
         <i class="bi-broadcast"></i>
         <span>Radio</span>
       </a>
-      <a href="/artists" class="nav-item <?= in_array($view, ['artists','labels','stations','venues']) && $view !== 'stations' ? 'active' : '' ?>">
-        <i class="bi-search"></i>
-        <span>Browse</span>
-      </a>
+      <button id="mobile-menu-trigger" class="nav-item">
+        <i class="bi-grid-3x3-gap"></i>
+        <span>Library</span>
+      </button>
       <a href="<?= $isLoggedIn ? '/dashboard/' : '/login.php' ?>" class="nav-item">
         <i class="bi-person-circle"></i>
-        <span><?= $isLoggedIn ? 'Account' : 'Login' ?></span>
+        <span>Account</span>
       </a>
     </nav>
+
+    <!-- Mobile Full Menu Overlay -->
+    <div id="mobile-full-menu" class="fixed inset-0 z-[100] bg-black hidden animate-in fade-in duration-300 overflow-y-auto">
+        <div class="p-8 h-full flex flex-col">
+            <div class="flex items-center justify-between mb-12">
+                <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-10">
+                <button id="mobile-menu-close" class="text-white text-3xl"><i class="bi-x-lg"></i></button>
+            </div>
+            
+            <nav class="grid grid-cols-2 gap-4 pb-12">
+                <a href="/artists" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-music-note-beamed text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Artists</span>
+                </a>
+                <a href="/labels" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-building text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Labels</span>
+                </a>
+                <a href="/stations" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-broadcast text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Radio</span>
+                </a>
+                <a href="/venues" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-geo-alt text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Venues</span>
+                </a>
+                <a href="/videos" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-play-circle text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Videos</span>
+                </a>
+                <a href="/releases" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-vinyl text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Releases</span>
+                </a>
+                <a href="/posts" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-newspaper text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">News</span>
+                </a>
+                <a href="/charts" class="p-6 bg-zinc-900 rounded-2xl flex flex-col gap-3">
+                    <i class="bi bi-bar-chart text-2xl text-brand"></i>
+                    <span class="font-black text-sm uppercase tracking-widest">Charts</span>
+                </a>
+            </nav>
+
+            <div class="mt-auto space-y-4 pt-8">
+                <?php if ($isLoggedIn): ?>
+                    <a href="/logout.php" class="block w-full py-4 text-center font-black text-red-500 uppercase tracking-widest border border-red-500/20 rounded-2xl">Log Out</a>
+                <?php else: ?>
+                    <a href="/login.php" class="block w-full py-4 bg-white text-black rounded-full text-center font-black uppercase tracking-widest">Log In</a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const trigger = document.getElementById('mobile-menu-trigger');
+            const close = document.getElementById('mobile-menu-close');
+            const menu = document.getElementById('mobile-full-menu');
+
+            if (trigger && menu) {
+                trigger.onclick = (e) => {
+                    e.preventDefault();
+                    menu.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                };
+                close.onclick = (e) => {
+                    e.preventDefault();
+                    menu.classList.add('hidden');
+                    document.body.style.overflow = '';
+                };
+            }
+        });
+    </script>
 
     <!-- Main Content Area -->
     <main class="flex-1 lg:ml-[280px]">
