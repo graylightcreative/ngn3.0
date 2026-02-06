@@ -1276,47 +1276,56 @@ if ($view === 'post' && !empty($data['post'])) {
         $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
         ?>
         <!-- HERO -->
-        <div class="relative bg-cover bg-center rounded-3xl overflow-hidden mb-12 group">
-            <div class="absolute inset-0 bg-black/60"></div>
-            <div class="relative p-12 lg:p-24 text-center text-white">
-                <?php if (!empty($featuredPosts)): ?>
-                    <div class="flex-1">
-                        <div class="relative h-[300px] md:h-[450px]">
-                            <?php foreach ($featuredPosts as $index => $post): ?>
-                                <?php 
-                                    $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
-                                ?>
-                                <div class="absolute inset-0 transition-opacity duration-700 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
-                                    <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover rounded-2xl shadow-2xl group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title']) ?>">
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end justify-center p-12">
-                                        <div class="text-center max-w-2xl">
-                                            <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title']) ?></h1>
-                                            <div class="flex justify-center gap-4">
-                                                <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
-                                                <?php
-                                                // If we have any tracks, let them listen
-                                                $anyTrack = $data['songs'][0] ?? null;
-                                                if ($anyTrack):
-                                                ?>
-                                                <button class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-sm"
-                                                        data-play-track
-                                                        data-track-url="<?= htmlspecialchars($anyTrack['mp3_url']) ?>"
-                                                        data-track-title="<?= htmlspecialchars($anyTrack['title']) ?>"
-                                                        data-track-artist="<?= htmlspecialchars($anyTrack['artist_name']) ?>"
-                                                        data-track-art="<?= htmlspecialchars($anyTrack['cover_url']) ?>">
-                                                    <i class="bi-play-fill mr-2"></i> Listen Now
-                                                </button>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
+        <div class="relative rounded-3xl overflow-hidden mb-12 group">
+            <?php if (!empty($featuredPosts)): ?>
+                <!-- Carousel Background -->
+                <div class="absolute inset-0">
+                    <?php foreach ($featuredPosts as $index => $post): ?>
+                        <?php 
+                            $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
+                        ?>
+                        <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
+                            <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title']) ?>">
                         </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-black/60"></div>
+
+            <!-- Content -->
+            <div class="relative p-12 lg:p-24 text-center text-white min-h-[400px] flex items-center justify-center">
+                <?php if (!empty($featuredPosts)): ?>
+                    <div class="max-w-4xl mx-auto">
+                        <?php foreach ($featuredPosts as $index => $post): ?>
+                            <div class="transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'block' : 'hidden' ?>" data-carousel-content>
+                                <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title']) ?></h1>
+                                <div class="flex justify-center gap-4">
+                                    <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
+                                    <?php
+                                    // If we have any tracks, let them listen
+                                    $anyTrack = $data['songs'][0] ?? null;
+                                    if ($anyTrack):
+                                    ?>
+                                    <button class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-sm"
+                                            data-play-track
+                                            data-track-url="<?= htmlspecialchars($anyTrack['mp3_url']) ?>"
+                                            data-track-title="<?= htmlspecialchars($anyTrack['title']) ?>"
+                                            data-track-artist="<?= htmlspecialchars($anyTrack['artist_name']) ?>"
+                                            data-track-art="<?= htmlspecialchars($anyTrack['cover_url']) ?>">
+                                        <i class="bi-play-fill mr-2"></i> Listen Now
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <h1 class="text-4xl lg:text-6xl font-black mb-4">Welcome to NGN 2.0</h1>
-                    <p class="text-lg lg:text-xl mb-8 font-bold text-zinc-400 uppercase tracking-widest">The command center for indie rock & metal</p>
+                    <div>
+                        <h1 class="text-4xl lg:text-6xl font-black mb-4">Welcome to NGN 2.0</h1>
+                        <p class="text-lg lg:text-xl mb-8 font-bold text-zinc-400 uppercase tracking-widest">The command center for indie rock & metal</p>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>
@@ -1324,12 +1333,17 @@ if ($view === 'post' && !empty($data['post'])) {
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const carouselItems = document.querySelectorAll('[data-carousel-item]');
+                const carouselContents = document.querySelectorAll('[data-carousel-content]');
                 let currentIndex = 0;
 
                 function showItem(index) {
                     carouselItems.forEach((item, i) => {
                         item.classList.toggle('opacity-100', i === index);
                         item.classList.toggle('opacity-0', i !== index);
+                    });
+                    carouselContents.forEach((content, i) => {
+                        content.classList.toggle('block', i === index);
+                        content.classList.toggle('hidden', i !== index);
                     });
                 }
 
