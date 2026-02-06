@@ -98,7 +98,7 @@ function get_ngn_posts(PDO $pdo, string $search = '', int $page = 1, int $perPag
     $where .= " AND NOT ( (p.entity_type = 'artist' AND p.entity_id = 1286) OR (p.entity_type = 'label' AND p.entity_id = 31) OR p.author_id IN (1286, 31) )";
 
     if ($search !== '') $where .= " AND p.title LIKE :search";
-    $sql = "SELECT p.id, p.slug, p.title, p.excerpt, p.featured_image_url, p.published_at, p.created_at, p.updated_at, a.name as author_name
+    $sql = "SELECT p.id, p.slug, p.title, p.excerpt, COALESCE(p.content, p.excerpt) as body, p.featured_image_url, p.published_at, p.created_at, p.updated_at, a.name as author_name
             FROM `ngn_2025`.`posts` p
             LEFT JOIN `ngn_2025`.`artists` a ON p.author_id = a.id
             {$where} ORDER BY p.published_at DESC LIMIT :limit OFFSET :offset";
@@ -568,7 +568,7 @@ if ($pdo) {
             ];
         } elseif ($view === 'post' && (isset($_GET['slug']) || isset($_GET['id']))) {
             $identifier = trim($_GET['slug'] ?? $_GET['id']);
-            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, content as body, tags, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :id OR id = :id) AND status = :status LIMIT 1');
+            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, tags, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :id OR id = :id) AND status = :status LIMIT 1');
             $stmt->execute([':id' => $identifier, ':status' => 'published']);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -709,7 +709,7 @@ if ($pdo) {
                     $entity['all_videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get posts for this artist
-                    $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, content as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "artist" AND entity_id = ?) OR (author_id = ?) AND status = "published" ORDER BY published_at DESC LIMIT 10');
+                    $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "artist" AND entity_id = ?) OR (author_id = ?) AND status = "published" ORDER BY published_at DESC LIMIT 10');
                     $stmt->execute([$entity['id'], $entity['id']]);
                     $posts = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                     
@@ -788,7 +788,7 @@ if ($pdo) {
                     $entity['videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Posts mentioning this label
-                    $stmt = $pdo->prepare('SELECT id, slug, title, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :labelNamePattern OR content LIKE :labelNamePattern OR tags LIKE :labelNamePattern) ORDER BY published_at DESC LIMIT 20');
+                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :labelNamePattern OR content LIKE :labelNamePattern OR tags LIKE :labelNamePattern) ORDER BY published_at DESC LIMIT 20');
                     $stmt->execute([$entity['id'], $entity['id'], ':labelNamePattern' => '%' . $entity['name'] . '%']);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
@@ -844,7 +844,7 @@ if ($pdo) {
                     }
 
                     // Posts mentioning this station
-                    $stmt = $pdo->prepare('SELECT id, slug, title, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :stationNamePattern OR content LIKE :stationNamePattern OR tags LIKE :stationNamePattern) ORDER BY published_at DESC LIMIT 10');
+                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :stationNamePattern OR content LIKE :stationNamePattern OR tags LIKE :stationNamePattern) ORDER BY published_at DESC LIMIT 10');
                     $stmt->execute([$entity['id'], $entity['id'], ':stationNamePattern' => '%' . $entity['name'] . '%']);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
@@ -854,7 +854,7 @@ if ($pdo) {
                     try {
                         $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                         $stmt = $rankingsPdo->prepare('
-                            SELECT ri.rank AS RankNum, ri.score AS Score, rw.period_end AS PeriodEnd, rw.interval AS Interval
+                            SELECT ri.rank AS RankNum, ri.score AS Score, rw.period_end AS PeriodEnd, rw.interval AS `Interval`
                             FROM `ngn_rankings_2025`.`ranking_items` ri
                             JOIN `ngn_rankings_2025`.`ranking_windows` rw ON ri.window_id = rw.id
                             WHERE ri.entity_type = :entityType AND ri.entity_id = :entityId
@@ -1424,7 +1424,7 @@ if ($view === 'post' && !empty($data['post'])) {
                     <div class="max-w-4xl mx-auto">
                         <?php foreach ($featuredPosts as $index => $post): ?>
                             <div class="transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'block' : 'hidden' ?>" data-carousel-content>
-                                <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title']) ?></h1>
+                                <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></h1>
                                 <div class="flex justify-center gap-4">
                                     <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
                                     <?php
@@ -1608,8 +1608,8 @@ if ($view === 'post' && !empty($data['post'])) {
               <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
                 <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
               </div>
-              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors"><?= htmlspecialchars($post['title']) ?></div>
-              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2"><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
+              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></div>
+              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2"><?= ($post['published_at'] ?? null) ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
             </a>
             <?php endforeach; ?>
           </div>
@@ -1918,7 +1918,7 @@ if ($view === 'post' && !empty($data['post'])) {
             </div>
             <div class="flex-1">
                 <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-3">Feature Article</div>
-                <h3 class="text-xl font-black text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors mb-4"><?= htmlspecialchars($post['title']) ?></h3>
+                <h3 class="text-xl font-black text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors mb-4"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></h3>
                 <?php if (!empty($post['excerpt'])): ?>
                 <p class="text-zinc-400 text-sm line-clamp-3 leading-relaxed mb-6 font-medium"><?= htmlspecialchars($post['excerpt']) ?></p>
                 <?php endif; ?>
@@ -1928,7 +1928,7 @@ if ($view === 'post' && !empty($data['post'])) {
                 <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-black text-brand">NGN</div>
                 <div class="text-[10px] font-black text-zinc-500 uppercase"><?= htmlspecialchars($post['author_name'] ?? 'Staff') ?></div>
               </div>
-              <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"><?= $post['published_at'] ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
+              <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"><?= ($post['published_at'] ?? null) ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>
             </div>
           </a>
           <?php endforeach; ?>
@@ -2133,7 +2133,7 @@ if ($view === 'post' && !empty($data['post'])) {
                 <div class="p-8 lg:p-12">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
                         <div>
-                            <h1 class="text-3xl lg:text-5xl font-black tracking-tighter mb-4 leading-tight"><?= htmlspecialchars($video['title'] ?? 'Untitled') ?></h1>
+                            <h1 class="text-3xl lg:text-5xl font-black tracking-tighter mb-4 leading-tight"><?= htmlspecialchars($video['title'] ?? 'Untitled Video') ?></h1>
                             <div class="flex items-center gap-6 text-sm font-black uppercase tracking-widest text-zinc-500">
                                 <?php if (!empty($video['author_entity'])): ?>
                                     <a href="/artist/<?= htmlspecialchars($video['author_entity']['slug'] ?? '') ?>" class="flex items-center gap-3 text-brand hover:text-white transition-colors">
@@ -2144,7 +2144,7 @@ if ($view === 'post' && !empty($data['post'])) {
                                     </a>
                                 <?php endif; ?>
                                 <span class="hidden md:inline">•</span>
-                                <span><i class="bi-calendar3 mr-2"></i> <?= date('F j, Y', strtotime($video['created_at'])) ?></span>
+                                <span><i class="bi-calendar3 mr-2"></i> <?= date('F j, Y', strtotime($video['published_at'] ?? $video['created_at'] ?? 'now')) ?></span>
                             </div>
                         </div>
                         <div class="flex gap-3">
@@ -2172,7 +2172,7 @@ if ($view === 'post' && !empty($data['post'])) {
 
             <header class="mb-12">
                 <div class="text-xs font-black text-brand uppercase tracking-[0.3em] mb-4">NGN Intelligence Report</div>
-                <h1 class="text-4xl lg:text-7xl font-black tracking-tighter mb-8 leading-[0.9]"><?= htmlspecialchars($post['title']) ?></h1>
+                <h1 class="text-4xl lg:text-7xl font-black tracking-tighter mb-8 leading-[0.9]"><?= htmlspecialchars($post['title'] ?? '') ?></h1>
                 
                 <div class="flex flex-wrap items-center gap-6 text-sm font-black uppercase tracking-widest text-zinc-500 mb-12 border-y border-white/5 py-6">
                     <?php if (!empty($post['author_entity'])): ?>
@@ -2182,7 +2182,7 @@ if ($view === 'post' && !empty($data['post'])) {
                         </a>
                     <?php endif; ?>
                     <span class="w-1 h-1 bg-zinc-800 rounded-full"></span>
-                    <span><?= date('F j, Y', strtotime($post['published_at'])) ?></span>
+                    <span><?= date('F j, Y', strtotime($post['published_at'] ?? 'now')) ?></span>
                     <span class="w-1 h-1 bg-zinc-800 rounded-full"></span>
                     <span class="text-zinc-600">5 min read</span>
                 </div>
@@ -2207,7 +2207,7 @@ if ($view === 'post' && !empty($data['post'])) {
                     </div>
                 <?php else: ?>
                     <div class="text-zinc-300 font-medium leading-[1.8]">
-                        <?= $post['body'] ?>
+                        <?= $post['body'] ?? 'No content available.' ?>
                     </div>
                 <?php endif; ?>
             </article>
@@ -2238,7 +2238,7 @@ if ($view === 'post' && !empty($data['post'])) {
                 </div>
                 <div class="flex-1">
                     <span class="text-xs font-black uppercase tracking-[0.3em] text-brand mb-4 block"><?= ucfirst($release['type'] ?? 'Album') ?></span>
-                    <h1 class="text-5xl lg:text-8xl font-black mb-6 tracking-tighter leading-none"><?= htmlspecialchars($release['title']) ?></h1>
+                    <h1 class="text-5xl lg:text-8xl font-black mb-6 tracking-tighter leading-none"><?= htmlspecialchars($release['title'] ?? 'Untitled Release') ?></h1>
                     <div class="flex items-center gap-4 text-sm font-black text-zinc-400">
                         <a href="/artist/<?= htmlspecialchars($release['artist']['slug'] ?? '') ?>" class="text-white hover:text-brand transition-colors"><?= htmlspecialchars($release['artist']['name'] ?? 'Unknown Artist') ?></a>
                         <span class="w-1 h-1 bg-zinc-800 rounded-full"></span>
@@ -2302,8 +2302,8 @@ if ($view === 'post' && !empty($data['post'])) {
                 </button>
             </div>
             
-            <h1 class="text-5xl lg:text-7xl font-black mb-4 tracking-tighter leading-none"><?= htmlspecialchars($track['title']) ?></h1>
-            <p class="text-zinc-500 mb-12 font-black uppercase tracking-[0.3em] text-xs">High Fidelity Stream</p>
+            <h1 class="text-5xl lg:text-7xl font-black mb-4 tracking-tighter leading-none"><?= htmlspecialchars($track['title'] ?? 'Untitled Song') ?></h1>
+            <p class="text-zinc-500 mb-12 font-black uppercase tracking-[0.3em] text-xs"><?= htmlspecialchars($track['artist_name'] ?? 'High Fidelity Stream') ?></p>
             
             <div class="flex flex-wrap justify-center gap-6">
                 <button class="px-12 py-4 bg-brand text-black font-black rounded-full hover:scale-105 transition-all shadow-2xl shadow-brand/20 uppercase tracking-widest text-sm">
