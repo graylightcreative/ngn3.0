@@ -423,32 +423,32 @@ if ($pdo) {
                 error_log("Error fetching agreement: " . $e->getMessage());
             }
         } elseif ($view === 'smr-charts') {
-            // SMR Charts - Using station_spins data as a proxy for rankings
+            // SMR Charts - Using legacy radiospins data as source
             $data['smr_charts'] = [];
             $data['smr_date'] = null;
 
             try {
-                // Get most recent spin date
-                $stmt = $pdo->query('SELECT MAX(played_at) as latest FROM `ngn_2025`.`station_spins`');
+                // Get most recent spin date from legacy table
+                $stmt = $pdo->query('SELECT MAX(Timestamp) as latest FROM `nextgennoise`.`radiospins`');
                 $latest = $stmt->fetch(PDO::FETCH_ASSOC);
                 $latestDate = $latest['latest'] ?? null;
 
                 if ($latestDate) {
                     $data['smr_date'] = date('F j, Y', strtotime($latestDate));
 
-                    // Aggregate spins by artist_name/song_title to create a "Chart"
+                    // Aggregate spins by Artist/Song to create a "Chart"
                     $stmt = $pdo->prepare('
                         SELECT 
-                            ss.artist_name as Artists, 
-                            ss.song_title as Song, 
-                            SUM(ss.spins_count) as TWS,
-                            MAX(ss.played_at) as LastPlayed,
+                            Artist as Artists, 
+                            Song, 
+                            SUM(TWS) as TWS,
+                            MAX(Timestamp) as LastPlayed,
                             a.slug as artist_slug,
                             a.image_url as artist_image_url,
                             a.id as artist_id
-                        FROM `ngn_2025`.`station_spins` ss
-                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(ss.artist_name) = LOWER(a.name)
-                        GROUP BY ss.artist_name, ss.song_title
+                        FROM `nextgennoise`.`radiospins` rs
+                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(rs.Artist) = LOWER(a.name)
+                        GROUP BY Artist, Song
                         ORDER BY TWS DESC
                         LIMIT 200
                     ');
