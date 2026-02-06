@@ -317,6 +317,7 @@ if ($pdo) {
             $video = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($video) {
+                error_log("Video found: " . json_encode($video));
                 // Get artist info (author)
                 $author_id = $video['entity_id'] ?? null;
                 if ($author_id) {
@@ -327,7 +328,8 @@ if ($pdo) {
                         if ($user) {
                             $video['author_entity'] = [
                                 'name' => $user['name'],
-                                'slug' => $user['slug']
+                                'slug' => $user['slug'],
+                                'image_url' => $user['image_url']
                             ];
                         }
                     } catch (\Throwable $e) {
@@ -338,6 +340,8 @@ if ($pdo) {
                 // Transform to match template expectations
                 $video['is_locked'] = false; 
                 $data['video'] = $video;
+            } else {
+                error_log("Video NOT found for identifier: " . $identifier);
             }
         } elseif ($view === 'releases') {
             $offset = ($page - 1) * $perPage;
@@ -423,45 +427,46 @@ if ($pdo) {
                 error_log("Error fetching agreement: " . $e->getMessage());
             }
         } elseif ($view === 'smr-charts') {
-            // SMR Charts - Using legacy radiospins data as source
+            // SMR Charts - Using dedicated ngn_smr_2025 database
             $data['smr_charts'] = [];
             $data['smr_date'] = null;
 
             try {
-                // Get most recent spin date from legacy table
-                $stmt = $pdo->query('SELECT MAX(Timestamp) as latest FROM `nextgennoise`.`radiospins`');
+                $smrPdo = \NGN\Lib\DB\ConnectionFactory::named($config, 'smr2025');
+                
+                // Get most recent chart date
+                $stmt = $smrPdo->query('SELECT MAX(window_date) as latest FROM `smr_chart`');
                 $latest = $stmt->fetch(PDO::FETCH_ASSOC);
                 $latestDate = $latest['latest'] ?? null;
 
                 if ($latestDate) {
                     $data['smr_date'] = date('F j, Y', strtotime($latestDate));
 
-                    // Aggregate spins by Artist/Song to create a "Chart"
-                    $stmt = $pdo->prepare('
+                    // Get top 200 songs from latest chart date
+                    $stmt = $smrPdo->prepare('
                         SELECT 
-                            Artist as Artists, 
-                            Song, 
-                            SUM(TWS) as TWS,
-                            MAX(Timestamp) as LastPlayed,
+                            sc.artist as Artists, 
+                            sc.track as Song, 
+                            sc.label as Label,
+                            sc.tws as TWS,
+                            sc.lws as LWS,
+                            sc.woc as WOC,
+                            sc.rank as TWP,
                             a.slug as artist_slug,
                             a.image_url as artist_image_url,
                             a.id as artist_id
-                        FROM `nextgennoise`.`radiospins` rs
-                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(rs.Artist) = LOWER(a.name)
-                        GROUP BY Artist, Song
-                        ORDER BY TWS DESC
+                        FROM `smr_chart` sc
+                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(sc.artist) = LOWER(a.name)
+                        WHERE sc.window_date = ? 
+                        ORDER BY sc.rank ASC 
                         LIMIT 200
                     ');
-                    $stmt->execute();
+                    $stmt->execute([$latestDate]);
                     $smrData = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Transform to expected output format
-                    $rank = 1;
                     foreach ($smrData as $row) {
-                        $row['TWP'] = $rank++;
-                        $row['LWP'] = '-';
-                        $row['Label'] = 'NGN Independent';
-                        $row['WOC'] = '-';
+                        $row['LWP'] = $row['LWS'] ?: '-';
                         $row['artist'] = [
                             'id' => $row['artist_id'],
                             'name' => $row['Artists'],
