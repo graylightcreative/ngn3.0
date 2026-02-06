@@ -423,41 +423,50 @@ if ($pdo) {
                 error_log("Error fetching agreement: " . $e->getMessage());
             }
         } elseif ($view === 'smr-charts') {
-            // SMR Charts from legacy database
+            // SMR Charts - Using station_spins data as a proxy for rankings
             $data['smr_charts'] = [];
             $data['smr_date'] = null;
 
             try {
-                $smrPdo = $pdo; 
-                // Get most recent chart date
-                $stmt = $smrPdo->query('SELECT MAX(Timestamp) as latest FROM `nextgennoise`.`smr_chart`');
+                // Get most recent spin date
+                $stmt = $pdo->query('SELECT MAX(PlayedAt) as latest FROM `ngn_2025`.`station_spins`');
                 $latest = $stmt->fetch(PDO::FETCH_ASSOC);
                 $latestDate = $latest['latest'] ?? null;
 
                 if ($latestDate) {
                     $data['smr_date'] = date('F j, Y', strtotime($latestDate));
 
-                    // Get top 200 songs from latest chart date
-                    $stmt = $smrPdo->prepare('SELECT sc.*, a.name AS artist_name, a.slug AS artist_slug, a.image_url AS artist_image_url
-                                             FROM `nextgennoise`.`smr_chart` sc
-                                             LEFT JOIN `ngn_2025`.`artists` a ON LOWER(sc.Artists) = LOWER(a.name)
-                                             WHERE DATE(sc.Timestamp) = DATE(?) ORDER BY sc.TWP ASC LIMIT 200');
-                    $stmt->execute([$latestDate]);
+                    // Aggregate spins by Artist/Song to create a "Chart"
+                    $stmt = $pdo->prepare('
+                        SELECT 
+                            ArtistName as Artists, 
+                            TrackTitle as Song, 
+                            COUNT(*) as TWS,
+                            MAX(PlayedAt) as LastPlayed,
+                            a.slug as artist_slug,
+                            a.image_url as artist_image_url,
+                            a.id as artist_id
+                        FROM `ngn_2025`.`station_spins` ss
+                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(ss.ArtistName) = LOWER(a.name)
+                        GROUP BY ArtistName, TrackTitle
+                        ORDER BY TWS DESC
+                        LIMIT 200
+                    ');
+                    $stmt->execute();
                     $smrData = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-                    // Transform to expected output
+                    // Transform to expected output format
+                    $rank = 1;
                     foreach ($smrData as $row) {
-                        $row['TWP'] = $row['TWP'];
-                        $row['LWP'] = $row['LWP'] ?? '-';
-                        $row['Artists'] = $row['Artists'];
-                        $row['Song'] = $row['Song'];
-                        $row['Label'] = $row['Label'];
-                        $row['WOC'] = $row['WOC'] ?? '-';
+                        $row['TWP'] = $rank++;
+                        $row['LWP'] = '-';
+                        $row['Label'] = 'NGN Independent';
+                        $row['WOC'] = '-';
                         $row['artist'] = [
-                            'id' => $row['artist_id'] ?? null,
-                            'name' => $row['artist_name'] ?? $row['Artists'],
-                            'slug' => $row['artist_slug'] ?? null,
-                            'image_url' => $row['artist_image_url'] ?? null
+                            'id' => $row['artist_id'],
+                            'name' => $row['Artists'],
+                            'slug' => $row['artist_slug'],
+                            'image_url' => $row['artist_image_url']
                         ];
                         $data['smr_charts'][] = $row;
                     }
