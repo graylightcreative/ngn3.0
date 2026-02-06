@@ -1185,6 +1185,12 @@ if ($view === 'post' && !empty($data['post'])) {
           <a href="/labels" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'labels' ? 'text-white' : 'text-zinc-400' ?>">
             <i class="bi-building"></i> Labels
           </a>
+          <a href="/stations" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'stations' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-broadcast"></i> Stations
+          </a>
+          <a href="/venues" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'venues' ? 'text-white' : 'text-zinc-400' ?>">
+            <i class="bi-geo-alt"></i> Venues
+          </a>
           <a href="/videos" class="flex items-center gap-3 p-2 rounded-md hover:bg-white/5 transition-colors text-sm font-bold <?= $view === 'videos' ? 'text-white' : 'text-zinc-400' ?>">
             <i class="bi-play-circle"></i> Videos
           </a>
@@ -1242,11 +1248,11 @@ if ($view === 'post' && !empty($data['post'])) {
         <i class="bi-bar-chart<?= $view === 'charts' ? '-fill' : '' ?>"></i>
         <span>Charts</span>
       </a>
-      <a href="/smr-charts" class="nav-item <?= $view === 'smr-charts' ? 'active' : '' ?>">
-        <i class="bi-graph-up"></i>
+      <a href="/stations" class="nav-item <?= $view === 'stations' ? 'active' : '' ?>">
+        <i class="bi-broadcast"></i>
         <span>Radio</span>
       </a>
-      <a href="/artists" class="nav-item <?= in_array($view, ['artists','labels','stations','venues']) ? 'active' : '' ?>">
+      <a href="/artists" class="nav-item <?= in_array($view, ['artists','labels','stations','venues']) && $view !== 'stations' ? 'active' : '' ?>">
         <i class="bi-search"></i>
         <span>Browse</span>
       </a>
@@ -1776,14 +1782,7 @@ if ($view === 'post' && !empty($data['post'])) {
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           <?php foreach ($items as $item): ?>
           <?php
-            $imgUrl = DEFAULT_AVATAR;
-            if (!empty($item['image_url'])) {
-              if (str_starts_with($item['image_url'], '/')) {
-                $imgUrl = $item['image_url'];
-              } else {
-                $imgUrl = "/uploads/{$view}/{$item['image_url']}";
-              }
-            }
+            $imgUrl = user_image($item['slug'] ?? '', $item['image_url'] ?? null);
           ?>
           <a href="/<?= rtrim($view, 's') ?>/<?= htmlspecialchars($item['slug'] ?? $item['id']) ?>" class="group sp-card border border-white/5">
             <div class="aspect-square mb-4 shadow-2xl relative">
