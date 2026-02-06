@@ -10,13 +10,13 @@
       "id": "smr_charts_fix",
       "description": "Fix SMR Charts database source and display",
       "status": "completed",
-      "details": "Updated SMR Charts to pull from the legacy 'nextgennoise.smr_chart' table. Increased results to Top 200 and improved artist profile mapping logic."
+      "details": "Resolved database permission issues and empty proxy tables. The SMR Airplay Charts now pull from the 'nextgennoise.radiospins' legacy source, with aggregation logic (SUM(TWS)) and artist mapping to the ngn_2025 profile system. Fixed SQL column casing and variable synchronization in the template."
     },
     {
       "id": "landing_page_robustness",
       "description": "Fix blank landing pages for Posts, Videos, Releases, and Songs",
       "status": "completed",
-      "details": "Implemented comprehensive null checks and fallback content (COALESCE content/excerpt). Fixed htmlspecialchars deprecation warnings and improved image path normalization."
+      "details": "Stabilized Post and Video singular views. Resolved SQLSTATE[HY093] by using unique named placeholders in video queries. Applied site-wide null-coalescing (??) to all htmlspecialchars() calls in loops (Home, Posts, Entity Lists) to silence PHP 8.1+ deprecation warnings and handle missing metadata gracefully."
     },
     {
       "id": "mobile_ui_overhaul",
