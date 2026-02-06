@@ -72,6 +72,16 @@ try {
     $videos = [];
 }
 
+// Get recent posts
+$posts = [];
+try {
+    $stmt = $pdo->prepare("SELECT id, slug, title, excerpt, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = 'artist' AND entity_id = :artist_id) OR (author_id = :artist_id) AND status = 'published' ORDER BY published_at DESC LIMIT 6");
+    $stmt->execute([':artist_id' => (int)$artist['id']]);
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (\Exception $e) {
+    $posts = [];
+}
+
 // Products table doesn't exist - skip this section
 $products = [];
 
@@ -795,6 +805,35 @@ $pageImage = (!empty($artist['image_url']) && !str_starts_with($artist['image_ur
                     <?php endif; ?>
                     <h3 class="card-title"><?= htmlspecialchars($video['title']) ?></h3>
                 </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; ?>
+
+    <!-- Posts -->
+    <?php if ($posts): ?>
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Latest Posts</h2>
+            </div>
+            <div class="grid grid-3">
+                <?php foreach ($posts as $post): ?>
+                <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="card" style="text-decoration: none; color: inherit;">
+                    <?php 
+                        $postImg = $post['featured_image_url'] ?? '';
+                        if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
+                            $postImg = "/uploads/{$postImg}";
+                        }
+                        if (empty($postImg)) $postImg = DEFAULT_AVATAR;
+                    ?>
+                    <?= ngn_image($postImg, $post['title'], 'card-image') ?>
+                    <div class="card-content">
+                        <h3 class="card-title"><?= htmlspecialchars($post['title']) ?></h3>
+                        <p class="card-subtitle"><?= $post['published_at'] ? date('M d, Y', strtotime($post['published_at'])) : '' ?></p>
+                    </div>
+                </a>
                 <?php endforeach; ?>
             </div>
         </div>

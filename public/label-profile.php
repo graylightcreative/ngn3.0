@@ -73,6 +73,16 @@ try {
     $releases = [];
 }
 
+// Get recent posts
+$posts = [];
+try {
+    $stmt = $pdo->prepare("SELECT id, slug, title, excerpt, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = 'label' AND entity_id = :label_id) OR (author_id = :label_id) AND status = 'published' ORDER BY published_at DESC LIMIT 6");
+    $stmt->execute([':label_id' => (int)$label['id']]);
+    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (\Exception $e) {
+    $posts = [];
+}
+
 // Page metadata
 $pageTitle = htmlspecialchars($label['name']) . ' | Labels | Next Gen Noise';
 $pageDescription = 'Visit ' . htmlspecialchars($label['name']) . ' on Next Gen Noise';
@@ -402,6 +412,33 @@ $entity_name = $label['name'];
                             </div>
                         </div>
                     </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Latest Posts -->
+        <?php if (!empty($posts)): ?>
+        <div class="section">
+            <h2>Latest Posts</h2>
+            <div class="grid">
+                <?php foreach ($posts as $post): ?>
+                    <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="card" style="text-decoration: none; color: inherit;">
+                        <?php 
+                            $postImg = $post['featured_image_url'] ?? '';
+                            if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
+                                $postImg = "/uploads/{$postImg}";
+                            }
+                            if (empty($postImg)) $postImg = DEFAULT_AVATAR;
+                        ?>
+                        <?= ngn_image($postImg, $post['title'], 'card-image') ?>
+                        <div class="card-content">
+                            <div class="card-title"><?= htmlspecialchars($post['title']) ?></div>
+                            <div class="card-meta">
+                                <?= $post['published_at'] ? date('M d, Y', strtotime($post['published_at'])) : '' ?>
+                            </div>
+                        </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>

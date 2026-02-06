@@ -92,6 +92,11 @@ function ngn_get(PDO $pdo, string $table, $id): ?array {
 function get_ngn_posts(PDO $pdo, string $search = '', int $page = 1, int $perPage = 24): array {
     $offset = ($page - 1) * $perPage;
     $where = "WHERE p.status = 'published'";
+    
+    // Exclude specific "user" entities from main intelligence feed
+    // 1286 = Heroes and Villains, 31 = Wake Up! Music Rocks
+    $where .= " AND NOT ( (p.entity_type = 'artist' AND p.entity_id = 1286) OR (p.entity_type = 'label' AND p.entity_id = 31) OR p.author_id IN (1286, 31) )";
+
     if ($search !== '') $where .= " AND p.title LIKE :search";
     $sql = "SELECT p.id, p.slug, p.title, p.excerpt, p.featured_image_url, p.published_at, p.created_at, p.updated_at, a.name as author_name
             FROM `ngn_2025`.`posts` p
@@ -115,6 +120,10 @@ function get_ngn_posts(PDO $pdo, string $search = '', int $page = 1, int $perPag
 
 function get_ngn_posts_count(PDO $pdo, string $search = ''): int {
     $where = "WHERE status = 'published'";
+    
+    // Exclude specific "user" entities from main intelligence feed
+    $where .= " AND NOT ( (entity_type = 'artist' AND entity_id = 1286) OR (entity_type = 'label' AND entity_id = 31) OR author_id IN (1286, 31) )";
+
     if ($search !== '') $where .= " AND title LIKE :search";
     $sql = "SELECT COUNT(*) FROM `ngn_2025`.`posts` {$where}";
     $stmt = $pdo->prepare($sql);
