@@ -1,19 +1,17 @@
 <?php
 /**
- * Organize post images by author into separate directories
+ * Organize post images by entity into separate directories
  * System posts stay in /storage/uploads/posts/
- * User posts go into /storage/uploads/posts/{username}/
- * Updates database image_url to include author path
+ * User posts go into /storage/uploads/{entity_type}s/{slug}/posts/
+ * Updates database featured_image_url to include full relative path
  *
  * Run with: php scripts/organize-posts-by-author.php [local|remote]
- * Defaults to local if no argument provided
  */
 
 // Determine environment
 $env = isset($argv[1]) ? $argv[1] : 'local';
 
 if ($env === 'remote') {
-    // Remote database connection
     $baseDir = '/www/wwwroot/beta.nextgennoise.com';
     $pdo = new PDO(
         'mysql:host=server.starrship1.com;dbname=ngn_2025',
@@ -22,34 +20,35 @@ if ($env === 'remote') {
         [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
     );
 } else {
-    // Local environment
     require __DIR__ . '/../lib/bootstrap.php';
-
     $config = new \NGN\Lib\Config();
     $pdo = \NGN\Lib\DB\ConnectionFactory::write($config);
     $baseDir = dirname(__DIR__);
 }
 
-$postsDir = $baseDir . '/storage/uploads/posts';
+$uploadsDir = $baseDir . '/storage/uploads';
 
 echo "========================================\n";
-echo "Organize Posts by Author\n";
+echo "Organize Posts by Entity (Hierarchical)\n";
 echo "Environment: " . strtoupper($env) . "\n";
 echo "Base directory: $baseDir\n";
 echo "========================================\n\n";
 
-// Get all posts with images and their authors
+// Get all posts with images and their entity info
 $stmt = $pdo->query("
     SELECT
         p.id,
-        p.slug,
-        p.image_url,
-        p.author_id,
-        u.username
+        p.slug as post_slug,
+        p.featured_image_url,
+        p.entity_type,
+        p.entity_id,
+        COALESCE(a.slug, l.slug, s.slug, v.slug) as entity_slug
     FROM ngn_2025.posts p
-    LEFT JOIN ngn_2025.users u ON p.author_id = u.id
-    WHERE p.image_url IS NOT NULL AND p.image_url != ''
-    ORDER BY p.author_id
+    LEFT JOIN ngn_2025.artists a ON p.entity_type = 'artist' AND p.entity_id = a.id
+    LEFT JOIN ngn_2025.labels l ON p.entity_type = 'label' AND p.entity_id = l.id
+    LEFT JOIN ngn_2025.stations s ON p.entity_type = 'station' AND p.entity_id = s.id
+    LEFT JOIN ngn_2025.venues v ON p.entity_type = 'venue' AND p.entity_id = v.id
+    WHERE p.featured_image_url IS NOT NULL AND p.featured_image_url != ''
 ");
 
 $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -58,94 +57,57 @@ echo "Found " . count($posts) . " posts with images\n\n";
 
 $moved = 0;
 $failed = 0;
-$currentAuthor = null;
-$currentDir = null;
 
 foreach ($posts as $post) {
-    $isSystemPost = empty($post['author_id']) || $post['author_id'] === null;
-    $authorName = $isSystemPost ? 'SYSTEM' : $post['username'];
-
-    // Show progress for new author
-    if ($currentAuthor !== $authorName) {
-        echo "Processing posts by: $authorName\n";
-        $currentAuthor = $authorName;
+    $currentRelPath = $post['featured_image_url'];
+    $oldPath = $uploadsDir . '/' . $currentRelPath;
+    
+    // If it's already in a subdirectory (contains /), skip unless it's in the old 'posts/' flat dir
+    $filename = basename($currentRelPath);
+    
+    // Determine target path
+    if ($post['entity_slug']) {
+        $typePlural = $post['entity_type'] . 's';
+        $targetRelDir = "{$typePlural}/{$post['entity_slug']}/posts";
+        $newRelPath = "{$targetRelDir}/{$filename}";
+    } else {
+        // System posts stay in posts/
+        $targetRelDir = "posts";
+        $newRelPath = "posts/{$filename}";
     }
 
-    $oldPath = $postsDir . '/' . $post['image_url'];
+    $targetFullDir = $uploadsDir . '/' . $targetRelDir;
+    $newPath = $uploadsDir . '/' . $newRelPath;
 
-    // Determine new path
-    if ($isSystemPost) {
-        // System posts stay flat
-        $newPath = $oldPath;
-        $newImageUrl = $post['image_url'];
-    } else {
-        // User posts go in author directory
-        $authorDir = $postsDir . '/' . $post['username'];
-        if (!is_dir($authorDir)) {
-            mkdir($authorDir, 0755, true);
+    if ($oldPath === $newPath) continue;
+
+    if (file_exists($oldPath)) {
+        if (!is_dir($targetFullDir)) {
+            mkdir($targetFullDir, 0775, true);
         }
 
-        $filename = basename($post['image_url']);
-        $newPath = $authorDir . '/' . $filename;
-        $newImageUrl = $post['username'] . '/' . $filename;
-    }
-
-    // Move file if needed
-    if ($oldPath !== $newPath) {
-        if (file_exists($oldPath)) {
-            if (!file_exists($newPath)) {
-                if (rename($oldPath, $newPath)) {
-                    echo "  ✓ Moved to {$authorName}/\n";
-                    $moved++;
-
-                    // Update database
-                    $updateStmt = $pdo->prepare("UPDATE ngn_2025.posts SET image_url = ? WHERE id = ?");
-                    $updateStmt->execute([$newImageUrl, $post['id']]);
-                } else {
-                    echo "  ✗ Failed to move: {$post['image_url']}\n";
-                    $failed++;
-                }
-            } else {
-                echo "  ⚠️  File already at destination: {$newImageUrl}\n";
-                // Still update database if not already updated
-                if ($post['image_url'] !== $newImageUrl) {
-                    $updateStmt = $pdo->prepare("UPDATE ngn_2025.posts SET image_url = ? WHERE id = ?");
-                    $updateStmt->execute([$newImageUrl, $post['id']]);
-                }
+        if (rename($oldPath, $newPath)) {
+            echo "  ✓ Moved: {$currentRelPath} → {$newRelPath}\n";
+            $moved++;
+            $updateStmt = $pdo->prepare("UPDATE ngn_2025.posts SET featured_image_url = ? WHERE id = ?");
+            $updateStmt->execute([$newRelPath, $post['id']]);
+        } else {
+            echo "  ✗ Failed to move: {$currentRelPath}\n";
+            $failed++;
+        }
+    } else {
+        // Source doesn't exist, check if already at destination
+        if (file_exists($newPath)) {
+            if ($currentRelPath !== $newRelPath) {
+                echo "  ✓ Updating DB (already moved): {$newRelPath}\n";
+                $updateStmt = $pdo->prepare("UPDATE ngn_2025.posts SET featured_image_url = ? WHERE id = ?");
+                $updateStmt->execute([$newRelPath, $post['id']]);
             }
         } else {
-            echo "  ⚠️  Source file not found: {$post['image_url']}\n";
-            // Still update database reference
-            if ($post['image_url'] !== $newImageUrl) {
-                $updateStmt = $pdo->prepare("UPDATE ngn_2025.posts SET image_url = ? WHERE id = ?");
-                $updateStmt->execute([$newImageUrl, $post['id']]);
-            }
+            echo "  ⚠️  File not found anywhere: {$filename}\n";
         }
     }
 }
 
-echo "\n========================================\n";
-echo "Summary\n";
-echo "========================================\n";
-echo "Files moved: $moved\n";
-echo "Failed: $failed\n";
-
-// Verify final structure
-echo "\nFinal directory structure:\n";
-$items = array_diff(scandir($postsDir), ['.', '..']);
-$systemFiles = 0;
-$authorDirs = [];
-
-foreach ($items as $item) {
-    $path = $postsDir . '/' . $item;
-    if (is_dir($path)) {
-        $files = count(array_diff(scandir($path), ['.', '..']));
-        $authorDirs[$item] = $files;
-        echo "  📁 $item/ ($files files)\n";
-    } else {
-        $systemFiles++;
-    }
-}
-
-echo "  📁 System posts (flat): $systemFiles files\n";
-echo "\n✓ Organization complete!\n";
+echo "\nSummary: Moved $moved, Failed $failed\n";
+echo "Done!\n";
