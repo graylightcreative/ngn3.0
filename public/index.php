@@ -49,7 +49,6 @@ if (!empty($_SESSION['User']['role_id'])) {
 
 // Router
 $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
-error_log("Routing - view: {$view}, slug: " . ($_GET['slug'] ?? 'null') . ", id: " . ($_GET['id'] ?? 'null'));
 $validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
@@ -313,36 +312,31 @@ if ($pdo) {
             $total = legacy_videos_count($pdo, $search);
         } elseif ($view === 'video' && (isset($_GET['slug']) || isset($_GET['id']))) {
             $identifier = trim($_GET['slug'] ?? $_GET['id']);
-            $stmt = $pdo->prepare('SELECT id, slug, title, description, video_type as platform, video_id as external_id, published_at, created_at, entity_id FROM `ngn_2025`.`videos` WHERE (slug = :id OR id = :id) LIMIT 1');
-            $stmt->execute([':id' => $identifier]);
-            $video = $stmt->fetch(PDO::FETCH_ASSOC);
+            try {
+                $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`videos` WHERE (slug = :id OR id = :id) LIMIT 1');
+                $stmt->execute([':id' => $identifier]);
+                $video = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($video) {
-                error_log("Video found: " . json_encode($video));
-                // Get artist info (author)
-                $author_id = $video['entity_id'] ?? null;
-                if ($author_id) {
-                    try {
+                if ($video) {
+                    // Map database columns to template expected keys
+                    $video['platform'] = $video['video_type'] ?? 'youtube';
+                    $video['external_id'] = $video['video_id'] ?? '';
+                    $video['is_locked'] = false; 
+
+                    // Get artist info (author)
+                    $author_id = $video['entity_id'] ?? null;
+                    if ($author_id) {
                         $userStmt = $pdo->prepare('SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE id = ? LIMIT 1');
                         $userStmt->execute([$author_id]);
                         $user = $userStmt->fetch(PDO::FETCH_ASSOC);
                         if ($user) {
-                            $video['author_entity'] = [
-                                'name' => $user['name'],
-                                'slug' => $user['slug'],
-                                'image_url' => $user['image_url']
-                            ];
+                            $video['author_entity'] = $user;
                         }
-                    } catch (\Throwable $e) {
-                        error_log("Error fetching video author: " . $e->getMessage());
                     }
+                    $data['video'] = $video;
                 }
-
-                // Transform to match template expectations
-                $video['is_locked'] = false; 
-                $data['video'] = $video;
-            } else {
-                error_log("Video NOT found for identifier: " . $identifier);
+            } catch (\Throwable $e) {
+                error_log("Error fetching video: " . $e->getMessage());
             }
         } elseif ($view === 'releases') {
             $offset = ($page - 1) * $perPage;
@@ -452,12 +446,8 @@ if ($pdo) {
                             sc.tws as TWS,
                             sc.lws as LWS,
                             sc.woc as WOC,
-                            sc.rank as TWP,
-                            a.slug as artist_slug,
-                            a.image_url as artist_image_url,
-                            a.id as artist_id
+                            sc.rank as TWP
                         FROM `smr_chart` sc
-                        LEFT JOIN `ngn_2025`.`artists` a ON LOWER(sc.artist) = LOWER(a.name)
                         WHERE sc.window_date = ? 
                         ORDER BY sc.rank ASC 
                         LIMIT 200
@@ -465,17 +455,33 @@ if ($pdo) {
                     $stmt->execute([$latestDate]);
                     $smrData = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-                    // Transform to expected output format
-                    foreach ($smrData as $row) {
-                        $row['LWP'] = $row['LWS'] ?: '-';
-                        $row['artist'] = [
-                            'id' => $row['artist_id'],
-                            'name' => $row['Artists'],
-                            'slug' => $row['artist_slug'],
-                            'image_url' => $row['artist_image_url']
-                        ];
-                        $data['smr_charts'][] = $row;
+                    // Fetch NGN artist details separately to avoid cross-db permission issues
+                    $artistNames = array_unique(array_column($smrData, 'Artists'));
+                    
+                    $ngnArtists = [];
+                    if (!empty($artistNames)) {
+                        $placeholders = implode(',', array_fill(0, count($artistNames), '?'));
+                        $aStmt = $pdo->prepare("SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE name IN ($placeholders)");
+                        $aStmt->execute(array_values($artistNames));
+                        while ($row = $aStmt->fetch(PDO::FETCH_ASSOC)) {
+                            $ngnArtists[strtolower($row['name'])] = $row;
+                        }
                     }
+
+                    // Transform to expected output format
+                    foreach ($smrData as &$row) {
+                        $row['LWP'] = $row['LWS'] ?: '-';
+                        $artistKey = strtolower($row['Artists']);
+                        $artistData = $ngnArtists[$artistKey] ?? null;
+                        
+                        $row['artist'] = [
+                            'id' => $artistData['id'] ?? null,
+                            'name' => $row['Artists'],
+                            'slug' => $artistData['slug'] ?? null,
+                            'image_url' => $artistData['image_url'] ?? null
+                        ];
+                    }
+                    $data['smr_charts'] = $smrData;
                 }
             } catch (\Throwable $e) {
                 error_log("Error fetching SMR charts: " . $e->getMessage());
