@@ -1849,7 +1849,7 @@ if ($view === 'post' && !empty($data['post'])) {
                       </div>
                       
                       <div class="col-span-2 text-center">
-                        <div class="font-black text-lg"><?= number_format($item['spins'] ?? 0) ?></div>
+                        <div class="font-black text-lg"><?= number_format($item['TWS'] ?? 0) ?></div>
                         <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total Spins</div>
                       </div>
                       
