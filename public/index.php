@@ -342,7 +342,7 @@ if ($pdo) {
         } elseif ($view === 'releases') {
             $offset = ($page - 1) * $perPage;
             $where = $search !== '' ? "WHERE r.title LIKE :search" : '';
-            $sql = "SELECT r.*, a.name as artist_name FROM `ngn_2025`.`releases` r 
+            $sql = "SELECT r.*, r.cover_url as cover_image_url, a.name as artist_name FROM `ngn_2025`.`releases` r 
                     LEFT JOIN `ngn_2025`.`artists` a ON r.artist_id = a.id 
                     {$where} ORDER BY r.release_date DESC LIMIT :limit OFFSET :offset";
             $stmt = $pdo->prepare($sql);
@@ -412,25 +412,25 @@ if ($pdo) {
                 error_log("Error fetching label rankings: " . $e->getMessage());
             }
         } elseif ($view === 'smr-charts') {
-            // SMR Charts from ngn_smr_2025 database
+            // SMR Charts from ngn_2025 database
             $data['smr_charts'] = [];
             $data['smr_date'] = null;
 
             try {
-                $smrPdo = ConnectionFactory::named($config, 'smr2025'); // Get the smr2025 connection
+                $smrPdo = $pdo; 
                 // Get most recent chart date
-                $stmt = $smrPdo->query('SELECT MAX(window_date) as latest FROM `ngn_smr_2025`.`smr_chart`');
+                $stmt = $smrPdo->query('SELECT MAX(window_date) as latest FROM `ngn_2025`.`smr_chart`');
                 $latest = $stmt->fetch(PDO::FETCH_ASSOC);
                 $latestDate = $latest['latest'] ?? null;
 
                 if ($latestDate) {
                     $data['smr_date'] = date('F j, Y', strtotime($latestDate));
 
-                    // Get top 100 songs from latest chart date
+                    // Get top 200 songs from latest chart date
                     $stmt = $smrPdo->prepare('SELECT sc.*, a.name AS artist_name, a.slug AS artist_slug, a.image_url AS artist_image_url
-                                             FROM `ngn_smr_2025`.`smr_chart` sc
+                                             FROM `ngn_2025`.`smr_chart` sc
                                              LEFT JOIN `ngn_2025`.`artists` a ON sc.artist_id = a.id
-                                             WHERE DATE(sc.window_date) = DATE(?) ORDER BY sc.rank ASC LIMIT 100');
+                                             WHERE DATE(sc.window_date) = DATE(?) ORDER BY sc.rank ASC LIMIT 200');
                     $stmt->execute([$latestDate]);
                     $smrData = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
@@ -441,8 +441,8 @@ if ($pdo) {
                         $row['Artists'] = $row['artist_name'] ?? $row['artist']; // Use artist_name from join, fallback to raw artist
                         $row['Song'] = $row['track'];
                         $row['Label'] = $row['label'];
-                        $row['WOC'] = $row['woc'] ?? '-'; // Assuming 'woc' exists or needs calculation
-                        $row['artist'] = [ // Structure for template
+                        $row['WOC'] = $row['woc'] ?? '-';
+                        $row['artist'] = [
                             'id' => $row['artist_id'],
                             'name' => $row['artist_name'],
                             'slug' => $row['artist_slug'],
@@ -456,7 +456,7 @@ if ($pdo) {
                 $data['smr_charts'] = [];
             }
         } elseif ($view === 'release' && isset($_GET['slug'])) {
-            $stmt = $pdo->prepare('SELECT * FROM `ngn_2025`.`releases` WHERE slug = ? LIMIT 1');
+            $stmt = $pdo->prepare('SELECT *, cover_url as cover_image_url FROM `ngn_2025`.`releases` WHERE slug = ? LIMIT 1');
             $stmt->execute([trim($_GET['slug'])]);
             $release = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($release) {
@@ -672,7 +672,7 @@ if ($pdo) {
 
                 // Get releases for artists (with tracks)
                 if ($view === 'artist') {
-                    $stmt = $pdo->prepare('SELECT r.id, r.title, r.slug, r.cover_image_url, r.release_date, t.id AS track_id, t.title AS track_title, t.duration_seconds FROM `ngn_2025`.`releases` r LEFT JOIN `ngn_2025`.`tracks` t ON r.id = t.release_id WHERE r.artist_id = ? ORDER BY r.release_date DESC LIMIT 24');
+                    $stmt = $pdo->prepare('SELECT r.id, r.title, r.slug, r.cover_url as cover_image_url, r.release_date, t.id AS track_id, t.title AS track_title, t.duration_seconds FROM `ngn_2025`.`releases` r LEFT JOIN `ngn_2025`.`tracks` t ON r.id = t.release_id WHERE r.artist_id = ? ORDER BY r.release_date DESC LIMIT 24');
                     $stmt->execute([$entity['id']]);
                     $releases_raw = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                     $releases = [];
@@ -709,9 +709,17 @@ if ($pdo) {
                     $entity['all_videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get posts for this artist
-                    $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "artist" AND entity_id = ?) OR (author_id = ?) AND status = "published" ORDER BY published_at DESC LIMIT 10');
+                    $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, content as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "artist" AND entity_id = ?) OR (author_id = ?) AND status = "published" ORDER BY published_at DESC LIMIT 10');
                     $stmt->execute([$entity['id'], $entity['id']]);
-                    $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                    $posts = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                    
+                    // Normalize paths
+                    foreach ($posts as &$p) {
+                        if (!empty($p['featured_image_url']) && !str_starts_with($p['featured_image_url'], 'http') && !str_starts_with($p['featured_image_url'], '/')) {
+                            $p['featured_image_url'] = "/uploads/{$p['featured_image_url']}";
+                        }
+                    }
+                    $entity['posts'] = $posts;
 
                     // Get upcoming and past shows
                     $stmt = $pdo->prepare('SELECT s.id, s.title, s.starts_at, s.venue_id, v.name as venue_name FROM `ngn_2025`.`shows` s LEFT JOIN `ngn_2025`.`venues` v ON s.venue_id = v.id WHERE s.artist_id = ? ORDER BY s.starts_at DESC LIMIT 30');
@@ -1866,6 +1874,101 @@ if ($view === 'post' && !empty($data['post'])) {
           <a href="/posts?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-zinc-800 text-white font-black hover:bg-zinc-700 transition-all">Previous</a>
           <?php endif; ?>
           <a href="/posts?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all">Next</a>
+        </div>
+        <?php endif; ?>
+
+      <?php elseif ($view === 'releases'): ?>
+        <!-- RELEASES LIST VIEW -->
+        <div class="mb-12">
+            <h1 class="text-4xl font-black tracking-tighter mb-2 text-white">Latest Releases</h1>
+            <p class="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]">New albums, EPs, and singles from the NGN network</p>
+        </div>
+
+        <?php $items = $data['releases'] ?? []; ?>
+        <?php if (!empty($items)): ?>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          <?php foreach ($items as $release): ?>
+          <?php 
+              $releaseImg = ($release['cover_url'] ?? $release['cover_image_url'] ?? '') ?: DEFAULT_AVATAR; 
+              if ($releaseImg && !str_starts_with($releaseImg, 'http') && !str_starts_with($releaseImg, '/')) {
+                  $releaseImg = "/uploads/releases/{$releaseImg}";
+              }
+          ?>
+          <a href="/release/<?= htmlspecialchars($release['slug'] ?? $release['id']) ?>" class="group flex flex-col sp-card border border-white/5">
+            <div class="aspect-square rounded-xl overflow-hidden mb-4 relative shadow-2xl">
+              <img src="<?= htmlspecialchars($releaseImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+              <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <i class="bi-play-fill text-5xl text-white"></i>
+              </div>
+            </div>
+            <div class="font-black text-white truncate"><?= htmlspecialchars($release['title']) ?></div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($release['artist_name'] ?? 'Unknown Artist') ?></div>
+          </a>
+          <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <div class="text-center py-24 sp-card border border-dashed border-white/10">
+            <i class="bi-vinyl text-4xl text-zinc-700 mb-4 block"></i>
+            <h2 class="text-xl font-black">No releases found</h2>
+            <p class="text-zinc-500">New music is being cataloged. Check back soon.</p>
+        </div>
+        <?php endif; ?>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <div class="flex items-center justify-center gap-4 mt-16">
+          <?php if ($page > 1): ?>
+          <a href="/releases?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-zinc-800 text-white font-black hover:bg-zinc-700 transition-all">Previous</a>
+          <?php endif; ?>
+          <a href="/releases?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all">Next</a>
+        </div>
+        <?php endif; ?>
+
+      <?php elseif ($view === 'songs'): ?>
+        <!-- SONGS LIST VIEW -->
+        <div class="mb-12">
+            <h1 class="text-4xl font-black tracking-tighter mb-2 text-white">All Tracks</h1>
+            <p class="text-zinc-500 font-bold uppercase tracking-[0.2em] text-[10px]">Individual tracks and singles from across the platform</p>
+        </div>
+
+        <?php $items = $data['songs'] ?? []; ?>
+        <?php if (!empty($items)): ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <?php foreach ($items as $song): ?>
+          <div class="group sp-card border border-white/5 flex items-center gap-6 p-4 hover:bg-white/5 transition-all cursor-pointer"
+               data-play-track
+               data-track-url="<?= htmlspecialchars($song['mp3_url'] ?? '') ?>"
+               data-track-title="<?= htmlspecialchars($song['title']) ?>"
+               data-track-artist="<?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?>"
+               data-track-art="<?= htmlspecialchars(($song['cover_url'] ?? '') ?: DEFAULT_AVATAR) ?>">
+            <div class="relative w-16 h-16 flex-shrink-0 shadow-xl">
+                <img src="<?= htmlspecialchars(($song['cover_url'] ?? '') ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover rounded-lg" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                    <i class="bi-play-fill text-2xl text-white"></i>
+                </div>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="font-black text-white truncate"><?= htmlspecialchars($song['title']) ?></div>
+                <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1"><?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?></div>
+            </div>
+          </div>
+          <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <div class="text-center py-24 sp-card border border-dashed border-white/10">
+            <i class="bi-music-note-beamed text-4xl text-zinc-700 mb-4 block"></i>
+            <h2 class="text-xl font-black">No songs available</h2>
+            <p class="text-zinc-500">The library is currently being synchronized.</p>
+        </div>
+        <?php endif; ?>
+
+        <!-- Pagination -->
+        <?php if ($totalPages > 1): ?>
+        <div class="flex items-center justify-center gap-4 mt-16">
+          <?php if ($page > 1): ?>
+          <a href="/songs?page=<?= $page-1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-zinc-800 text-white font-black hover:bg-zinc-700 transition-all">Previous</a>
+          <?php endif; ?>
+          <a href="/songs?page=<?= $page + 1 ?><?= $search ? '&q='.urlencode($search) : '' ?>" class="px-8 py-3 rounded-full bg-white text-black font-black hover:scale-105 transition-all">Next</a>
         </div>
         <?php endif; ?>
 
