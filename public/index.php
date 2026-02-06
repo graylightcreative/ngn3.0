@@ -198,8 +198,31 @@ function is_subscribed(PDO $pdo, int $userId, int $artistId, int $tierId): bool
 // Get user image path
 function user_image(string $slug, ?string $image): string {
     if (empty($image)) return DEFAULT_AVATAR;
-    if (str_starts_with($image, '/')) return $image;
+    if (str_starts_with($image, 'http') || str_starts_with($image, '/')) return $image;
     return "/uploads/users/{$slug}/{$image}";
+}
+
+/**
+ * Render a placeholder with an upsell message for empty profile sections
+ */
+function render_profile_upsell(string $title, string $description, bool $isClaimed, string $slug) {
+    ?>
+    <div class="bg-zinc-900/30 rounded-3xl border-2 border-dashed border-white/5 p-12 text-center group/upsell hover:border-brand/20 transition-all">
+        <div class="w-16 h-16 rounded-2xl bg-zinc-800 flex items-center justify-center mx-auto mb-6 group-hover/upsell:scale-110 transition-transform">
+            <i class="bi bi-rocket-takeoff text-2xl text-zinc-600 group-hover/upsell:text-brand"></i>
+        </div>
+        <h3 class="text-xl font-black mb-2 tracking-tight"><?= htmlspecialchars($title) ?></h3>
+        <p class="text-zinc-500 text-sm max-w-sm mx-auto mb-8"><?= htmlspecialchars($description) ?></p>
+        
+        <?php if (!$isClaimed): ?>
+            <a href="/claim-profile.php?slug=<?= urlencode($slug) ?>" class="inline-flex items-center gap-2 px-8 py-3 bg-brand text-black font-black rounded-full hover:scale-105 transition-all uppercase tracking-widest text-xs">
+                Claim Profile to Unlock
+            </a>
+        <?php else: ?>
+            <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Awaiting First Upload</div>
+        <?php endif; ?>
+    </div>
+    <?php
 }
 
 // Fetch data based on view
@@ -676,14 +699,19 @@ if ($pdo) {
                     $entity['releases'] = array_values($releases);
                     
                     // Get all songs by this artist (for "top tracks" section)
-                    $stmt = $pdo->prepare('SELECT t.id, t.title, t.duration_seconds, r.title as ReleaseName, r.release_date FROM `ngn_2025`.`tracks` t JOIN `ngn_2025`.`releases` r ON t.release_id = r.id WHERE r.artist_id = ? ORDER BY t.id DESC LIMIT 50');
+                    $stmt = $pdo->prepare('SELECT t.id, t.title, t.duration_seconds, r.title as ReleaseName, r.release_date FROM `ngn_2025`.`tracks` t LEFT JOIN `ngn_2025`.`releases` r ON t.release_id = r.id WHERE t.artist_id = ? ORDER BY t.id DESC LIMIT 50');
                     $stmt->execute([$entity['id']]);
                     $entity['all_songs'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get all videos (unlimited)
-                    $stmt = $pdo->prepare('SELECT id, slug, title, platform, external_id, published_at FROM `ngn_2025`.`videos` WHERE artist_id = ? ORDER BY published_at DESC');
-                    $stmt->execute([$entity['id']]);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, platform, external_id, published_at FROM `ngn_2025`.`videos` WHERE artist_id = ? OR (entity_type = "artist" AND entity_id = ?) ORDER BY published_at DESC');
+                    $stmt->execute([$entity['id'], $entity['id']]);
                     $entity['all_videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+
+                    // Get posts for this artist
+                    $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "artist" AND entity_id = ?) OR (author_id = ?) AND status = "published" ORDER BY published_at DESC LIMIT 10');
+                    $stmt->execute([$entity['id'], $entity['id']]);
+                    $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get upcoming and past shows
                     $stmt = $pdo->prepare('SELECT s.id, s.title, s.starts_at, s.venue_id, v.name as venue_name FROM `ngn_2025`.`shows` s LEFT JOIN `ngn_2025`.`venues` v ON s.venue_id = v.id WHERE s.artist_id = ? ORDER BY s.starts_at DESC LIMIT 30');
@@ -752,8 +780,8 @@ if ($pdo) {
                     $entity['videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Posts mentioning this label
-                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE (title LIKE :labelNamePattern OR body LIKE :labelNamePattern OR tags LIKE :labelNamePattern) ORDER BY published_at DESC LIMIT 20');
-                    $stmt->execute([':labelNamePattern' => '%' . $entity['name'] . '%']);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :labelNamePattern OR content LIKE :labelNamePattern OR tags LIKE :labelNamePattern) ORDER BY published_at DESC LIMIT 20');
+                    $stmt->execute([$entity['id'], $entity['id'], ':labelNamePattern' => '%' . $entity['name'] . '%']);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
 
@@ -778,8 +806,8 @@ if ($pdo) {
                     $entity['videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Posts about this venue
-                    $stmt = $pdo->prepare('SELECT p.* FROM `ngn_2025`.`posts` p WHERE p.entity_type = ? AND p.entity_id = ? AND p.status = ? ORDER BY p.published_at DESC LIMIT 10');
-                    $stmt->execute(['venue', $entity['id'], 'published']);
+                    $stmt = $pdo->prepare('SELECT p.* FROM `ngn_2025`.`posts` p WHERE (p.entity_type = "venue" AND p.entity_id = ?) OR (p.author_id = ?) AND p.status = "published" ORDER BY p.published_at DESC LIMIT 10');
+                    $stmt->execute([$entity['id'], $entity['id']]);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Engagement metrics for venue
@@ -793,24 +821,23 @@ if ($pdo) {
 
                 // Get data for stations
                 if ($view === 'station') {
-                    // Fetch recent spins from SMR
+                    // Fetch recent spins from NGN 2.0 native spins table
                     try {
-                        $smrPdo = ConnectionFactory::named($config, 'smr2025');
-                        $stmt = $smrPdo->prepare('
-                            SELECT sc.track AS Song, sc.artist AS Artist, sc.window_date AS chart_date
-                            FROM `ngn_smr_2025`.`smr_chart` sc
-                            WHERE sc.station_id = :stationId
-                            ORDER BY sc.window_date DESC LIMIT 20
+                        $stmt = $pdo->prepare('
+                            SELECT artist_name AS Artist, song_title AS Song, played_at AS chart_date
+                            FROM `ngn_2025`.`station_spins`
+                            WHERE station_id = ?
+                            ORDER BY played_at DESC LIMIT 20
                         ');
-                        $stmt->execute([':stationId' => $entity['id']]);
+                        $stmt->execute([$entity['id']]);
                         $entity['smr_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                     } catch (\Throwable $e) {
                         error_log("Error fetching station spins: " . $e->getMessage());
                     }
 
                     // Posts mentioning this station
-                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE (title LIKE :stationNamePattern OR body LIKE :stationNamePattern OR tags LIKE :stationNamePattern) ORDER BY published_at DESC LIMIT 10');
-                    $stmt->execute([':stationNamePattern' => '%' . $entity['name'] . '%']);
+                    $stmt = $pdo->prepare('SELECT id, slug, title, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = ?) OR (author_id = ?) OR (title LIKE :stationNamePattern OR content LIKE :stationNamePattern OR tags LIKE :stationNamePattern) ORDER BY published_at DESC LIMIT 10');
+                    $stmt->execute([$entity['id'], $entity['id'], ':stationNamePattern' => '%' . $entity['name'] . '%']);
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
 

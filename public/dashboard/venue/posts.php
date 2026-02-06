@@ -39,26 +39,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity) {
                     $status = $_POST['status'] ?? 'draft';
                     $isPinned = isset($_POST['is_pinned']) ? 1 : 0;
         
-                    // Handle Image Upload
-                    if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
-                        $uploadDir = dirname(__DIR__, 2) . '/storage/uploads/posts/';
-                        if (!is_dir($uploadDir)) {
-                            @mkdir($uploadDir, 0775, true);
-                        }
-        
-                        $fileTmpPath = $_FILES['featured_image']['tmp_name'];
-                        $fileName = $_FILES['featured_image']['name'];
-                        $fileNameCmps = explode(".", $fileName);
-                        $fileExtension = strtolower(end($fileNameCmps));
-        
-                        $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
-                        $dest_path = $uploadDir . $newFileName;
-        
-                        if (move_uploaded_file($fileTmpPath, $dest_path)) {
-                            $featuredImageUrl = $newFileName;
-                        }
-                    }
+                                // Handle Image Upload
+                                if (isset($_FILES['featured_image']) && $_FILES['featured_image']['error'] === UPLOAD_ERR_OK) {
+                                    $entitySlug = $entity['slug'] ?? 'unknown';
+                                    $uploadPath = "venues/{$entitySlug}/posts/";
+                                    $uploadDir = dirname(__DIR__, 2) . '/storage/uploads/' . $uploadPath;
+                                    
+                                    if (!is_dir($uploadDir)) {
+                                        @mkdir($uploadDir, 0775, true);
+                                    }
                     
+                                    $fileTmpPath = $_FILES['featured_image']['tmp_name'];
+                                    $fileName = $_FILES['featured_image']['name'];
+                                    $fileNameCmps = explode(".", $fileName);
+                                    $fileExtension = strtolower(end($fileNameCmps));
+                    
+                                    $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
+                                    $dest_path = $uploadDir . $newFileName;
+                    
+                                    if (move_uploaded_file($fileTmpPath, $dest_path)) {
+                                        $featuredImageUrl = $uploadPath . $newFileName;
+                                    }
+                                }                    
                     if (empty($title)) {            $error = 'Post title is required.';
         } else {
             try {
@@ -142,7 +144,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
                     <label class="form-label">Featured Image</label>
                     <?php if (!empty($editPost['featured_image_url'])): ?>
                         <div style="margin-bottom: 10px;">
-                            <img src="/uploads/posts/<?= htmlspecialchars($editPost['featured_image_url']) ?>" alt="Current Image" style="max-width: 200px; border-radius: 8px;">
+                            <img src="/uploads/<?= htmlspecialchars($editPost['featured_image_url']) ?>" alt="Current Image" style="max-width: 200px; border-radius: 8px;">
                         </div>
                     <?php endif; ?>
                     <input type="file" name="featured_image" class="form-input" accept="image/*">
@@ -195,6 +197,13 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
             <div style="display: grid; gap: 12px;">
                 <?php foreach ($posts as $post): ?>
                 <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--bg-primary); border-radius: 8px;">
+                    <div style="width: 80px; height: 60px; border-radius: 4px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                        <?php if (!empty($post['featured_image_url'])): ?>
+                        <img src="/uploads/<?= htmlspecialchars($post['featured_image_url']) ?>" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                        <?php else: ?>
+                        <i class="bi bi-newspaper" style="font-size: 20px; color: var(--text-muted);"></i>
+                        <?php endif; ?>
+                    </div>
                     <div style="flex: 1;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
                             <span style="font-weight: 600;"><?= htmlspecialchars($post['title']) ?></span>
