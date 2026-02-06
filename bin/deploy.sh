@@ -11,17 +11,20 @@
 # - 'sshpass' installed for automated password entry (optional, but recommended)
 # ==============================================================================
 
-# Load environment variables
+# Load environment variables safely
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    # Use a more robust way to load .env that handles spaces
+    set -a
+    source .env
+    set +a
 else
     echo "Error: .env file not found."
     exit 1
 fi
 
 # Configuration
-SSH_USER=$(echo $SSH_CONNECTION_STRING | cut -d'@' -f1)
-SSH_HOST=$(echo $SSH_CONNECTION_STRING | cut -d'@' -f2)
+# Remove 'sh ' prefix if it exists in the connection string from .env
+CLEAN_SSH_CONN=$(echo $SSH_CONNECTION_STRING | sed 's/^sh //')
 REMOTE_PROJECT_ROOT="/www/wwwroot/beta.nextgennoise.com"
 
 # --- Functions ---
@@ -31,9 +34,9 @@ remote_exec() {
     local cmd=$1
     echo "Executing remote command: $cmd"
     if command -v sshpass >/dev/null 2>&1 && [ ! -z "$SSH_PASSWORD" ]; then
-        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no "$SSH_CONNECTION_STRING" "$cmd"
+        sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $CLEAN_SSH_CONN "$cmd"
     else
-        ssh -o StrictHostKeyChecking=no "$SSH_CONNECTION_STRING" "$cmd"
+        ssh -o StrictHostKeyChecking=no $CLEAN_SSH_CONN "$cmd"
     fi
 }
 
