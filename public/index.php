@@ -987,6 +987,12 @@ if ($view === 'post' && !empty($data['post'])) {
     $seoTitle = ucfirst($view) . ' | NextGenNoise';
     $seoUrl = "{$baseUrl}/{$view}";
 }
+
+// Final 404 check before HTML output (Bible Ch. 12 - P95 Robustness)
+$isNotFound = ($view === '404' || (in_array($view, ['post', 'video', 'release', 'song', 'agreement']) && empty($data[$view === 'song' ? 'track' : ($view === 'agreement' ? 'agreement_template' : $view)])));
+if ($isNotFound) {
+    http_response_code(404);
+}
 ?>
 <!doctype html>
 <html lang="en" class="h-full">
@@ -2482,7 +2488,6 @@ if ($view === 'post' && !empty($data['post'])) {
 
       <?php elseif ($view === '404' || (in_array($view, ['post', 'video', 'release', 'song', 'agreement']) && empty($data[$view === 'song' ? 'track' : ($view === 'agreement' ? 'agreement_template' : $view)]))): ?>
         <!-- NOT FOUND PAGE -->
-        <?php http_response_code(404); ?>
         <div class="text-center py-32 sp-card border border-white/5 max-w-2xl mx-auto mt-12">
           <div class="text-9xl mb-8 animate-bounce">🎸</div>
           <h1 class="text-5xl font-black tracking-tighter mb-4"><?= !empty($data['error']) ? 'System Note' : 'Void Reached.' ?></h1>
