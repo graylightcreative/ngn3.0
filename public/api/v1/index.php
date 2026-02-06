@@ -485,7 +485,8 @@ $router->post('/services/order', function (Request $request) use ($serviceOrderM
 
 // GET /api/v1/search/suggest - Global search suggestions for autocomplete
 $router->get('/search/suggest', function (Request $request) use ($config) {
-    $search = trim($request->query('q', ''));
+    $queryParams = $request->query();
+    $search = trim($queryParams['q'] ?? '');
     if (empty($search) || strlen($search) < 2) {
         return new JsonResponse(['success' => true, 'data' => []], 200);
     }
