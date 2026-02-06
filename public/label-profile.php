@@ -1,7 +1,7 @@
 <?php
 /**
  * Public Label Profile Page
- * Displays label information with full engagement features
+ * Displays label information with roster and releases
  */
 
 require_once dirname(__DIR__) . '/lib/bootstrap.php';
@@ -49,7 +49,7 @@ try {
 // Get roster artists
 $artists = [];
 try {
-    $stmt = $pdo->prepare("SELECT id, name, slug FROM `ngn_2025`.`artists` WHERE label_id = :label_id ORDER BY name ASC LIMIT 12");
+    $stmt = $pdo->prepare("SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE label_id = :label_id ORDER BY name ASC LIMIT 12");
     $stmt->execute([':label_id' => $label['id']]);
     $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (\Exception $e) {
@@ -85,15 +85,30 @@ try {
 
 // Page metadata
 $pageTitle = htmlspecialchars($label['name']) . ' | Labels | Next Gen Noise';
-$pageDescription = 'Visit ' . htmlspecialchars($label['name']) . ' on Next Gen Noise';
+$pageDescription = $label['bio'] ? substr(strip_tags($label['bio']), 0, 160) : 'Visit ' . htmlspecialchars($label['name']) . ' on Next Gen Noise';
 $pageImage = (!empty($label['image_url']) && !str_starts_with($label['image_url'], '/'))
     ? "/uploads/labels/{$label['image_url']}"
     : ($label['image_url'] ?? '/assets/images/default-label.jpg');
 
-// Variables for engagement partial
-$entity_type = 'label';
-$entity_id = (int)$label['id'];
-$entity_name = $label['name'];
+// Function to render placeholder/upsell
+function render_upsell_placeholder($title, $description, $claimed) {
+    ?>
+    <div class="upsell-placeholder">
+        <div class="upsell-content">
+            <i class="bi bi-rocket-takeoff upsell-icon"></i>
+            <h3><?= htmlspecialchars($title) ?></h3>
+            <p><?= htmlspecialchars($description) ?></p>
+            <?php if (!$claimed): ?>
+                <a href="/claim-profile.php?slug=<?= urlencode($GLOBALS['slug']) ?>" class="btn-claim">
+                    Claim This Profile & Unleash Your Roster
+                </a>
+            <?php else: ?>
+                <p class="text-muted">Upload your content to populate this section!</p>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,81 +117,9 @@ $entity_name = $label['name'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?></title>
     <meta name="description" content="<?= htmlspecialchars($pageDescription) ?>">
-
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="profile">
-    <meta property="og:url" content="https://nextgennoise.com/label/<?= htmlspecialchars($slug) ?>">
-    <meta property="og:title" content="<?= htmlspecialchars($label['name']) ?>">
-    <meta property="og:description" content="<?= htmlspecialchars($pageDescription) ?>">
-    <meta property="og:image" content="<?= htmlspecialchars($pageImage) ?>">
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-
-    <!-- Schema.org Structured Data: Organization (Label) -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "<?= htmlspecialchars($label['name'], ENT_QUOTES) ?>",
-        "url": "https://nextgennoise.com/label/<?= htmlspecialchars($slug, ENT_QUOTES) ?>",
-        "image": "<?= htmlspecialchars($pageImage, ENT_QUOTES) ?>",
-        "description": "<?= htmlspecialchars($pageDescription, ENT_QUOTES) ?>"
-        <?php
-            $sameAs = [];
-            if ($label['website']) $sameAs[] = '"' . htmlspecialchars($label['website'], ENT_QUOTES) . '"';
-            if ($label['facebook_url']) $sameAs[] = '"' . htmlspecialchars($label['facebook_url'], ENT_QUOTES) . '"';
-            if ($label['instagram_url']) $sameAs[] = '"' . htmlspecialchars($label['instagram_url'], ENT_QUOTES) . '"';
-            if (!empty($sameAs)):
-        ?>,
-        "sameAs": [<?= implode(',', $sameAs) ?>]
-        <?php endif; ?>
-        <?php if (!empty($artists)): ?>,
-        "team": [
-            <?php $artistData = array_map(function($a) {
-                return '{
-                    "@type": "MusicGroup",
-                    "name": "' . htmlspecialchars($a['name'], ENT_QUOTES) . '",
-                    "image": "' . htmlspecialchars($a['image_url'] ?? '/assets/images/default-artist.jpg', ENT_QUOTES) . '"
-                }';
-            }, array_slice($artists, 0, 5)); ?>
-            <?= implode(',', $artistData) ?>
-        ]
-        <?php endif; ?>
-        <?php if ($label['city'] || $label['state'] || $label['country']): ?>,
-        "address": {
-            "@type": "PostalAddress"
-            <?php if ($label['city']): ?>,
-            "addressLocality": "<?= htmlspecialchars($label['city'], ENT_QUOTES) ?>"
-            <?php endif; ?>
-            <?php if ($label['state']): ?>,
-            "addressRegion": "<?= htmlspecialchars($label['state'], ENT_QUOTES) ?>"
-            <?php endif; ?>
-            <?php if ($label['country']): ?>,
-            "addressCountry": "<?= htmlspecialchars($label['country'], ENT_QUOTES) ?>"
-            <?php endif; ?>
-        }
-        <?php endif; ?>
-    }
-    </script>
-
-    <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/lib/images/site/site.webmanifest">
-    <meta name="theme-color" content="#0b1020">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="NGN">
-    <meta name="mobile-web-app-capable" content="yes">
-
-    <!-- Favicons -->
-    <link rel="icon" type="image/x-icon" href="/lib/images/site/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/lib/images/site/favicon-16x16.png">
-    <link rel="apple-touch-icon" href="/lib/images/site/apple-touch-icon.png">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         :root {
             --bg-primary: #0b1020;
             --bg-secondary: #141b2e;
@@ -186,263 +129,112 @@ $entity_name = $label['name'];
             --border: rgba(148, 163, 184, 0.12);
             --accent: #1DB954;
         }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-primary); color: var(--text-primary); line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        
+        .profile-header { display: flex; gap: 32px; margin-bottom: 40px; background: var(--bg-secondary); padding: 32px; border-radius: 16px; border: 1px solid var(--border); align-items: center; }
+        .profile-image { width: 200px; height: 200px; border-radius: 12px; object-fit: cover; }
+        .profile-info { flex: 1; }
+        .profile-info h1 { font-size: 48px; margin-bottom: 16px; }
+        .profile-bio { color: var(--text-secondary); margin-bottom: 24px; max-width: 800px; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-        }
+        .section { margin-bottom: 64px; }
+        .section h2 { font-size: 32px; margin-bottom: 32px; font-weight: 800; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 32px; }
+        .card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: all 0.3s; }
+        .card:hover { transform: translateY(-8px); border-color: var(--accent); }
+        .card-image { width: 100%; aspect-ratio: 1; object-fit: cover; }
+        .card-content { padding: 20px; }
 
-        .profile-header {
-            display: flex;
-            gap: 32px;
-            margin-bottom: 40px;
-            background: var(--bg-secondary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border);
-        }
+        .upsell-placeholder { background: rgba(20, 27, 46, 0.5); border: 2px dashed var(--border); border-radius: 24px; padding: 64px 32px; text-align: center; grid-column: 1 / -1; }
+        .upsell-icon { font-size: 48px; color: var(--accent); margin-bottom: 24px; display: block; }
+        .btn-claim { display: inline-block; background: var(--accent); color: #000; padding: 16px 32px; border-radius: 12px; font-weight: 800; text-decoration: none; text-transform: uppercase; font-size: 14px; margin-top: 20px; }
 
-        .profile-image {
-            width: 200px;
-            height: 200px;
-            border-radius: 12px;
-            object-fit: cover;
-        }
-
-        .profile-info {
-            flex: 1;
-        }
-
-        .profile-info h1 {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .profile-meta {
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .profile-bio {
-            color: var(--text-secondary);
-            line-height: 1.8;
-            margin-bottom: 24px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 12px;
-        }
-
-        .social-link {
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            color: var(--text-primary);
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .social-link:hover {
-            background: var(--accent);
-            color: #000;
-        }
-
-        .section {
-            margin-bottom: 48px;
-        }
-
-        .section h2 {
-            font-size: 28px;
-            margin-bottom: 24px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 24px;
-        }
-
-        .card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.2s;
-        }
-
-        .card:hover {
-            transform: translateY(-4px);
-            border-color: var(--accent);
-        }
-
-        .card-image {
-            width: 100%;
-            aspect-ratio: 1;
-            object-fit: cover;
-        }
-
-        .card-content {
-            padding: 16px;
-        }
-
-        .card-title {
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .card-meta {
-            color: var(--text-secondary);
-            font-size: 14px;
-        }
-
-        a {
-            color: var(--accent);
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
+        @media (max-width: 768px) { .profile-header { flex-direction: column; text-align: center; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Profile Header -->
         <div class="profile-header">
-            <?= ngn_image(
-                (!empty($label['image_url']) && !str_starts_with($label['image_url'], '/'))
-                    ? "/uploads/labels/{$label['image_url']}"
-                    : ($label['image_url'] ?? '/assets/images/default-label.jpg'),
-                $label['name'],
-                'profile-image',
-                true,
-                'eager'  // Hero image should load eagerly
-            ) ?>
-
+            <img src="<?= htmlspecialchars($pageImage) ?>" class="profile-image" alt="<?= htmlspecialchars($label['name']) ?>">
             <div class="profile-info">
                 <h1><?= htmlspecialchars($label['name']) ?></h1>
-
-                <div class="profile-meta">
-                    <?php if ($label['city'] && $label['state']): ?>
-                        <span><?= htmlspecialchars($label['city']) ?>, <?= htmlspecialchars($label['state']) ?></span>
-                    <?php endif; ?>
-                    <?php if ($label['claimed']): ?>
-                        <span style="color: var(--accent); margin-left: 12px;">✓ Verified</span>
-                    <?php endif; ?>
+                <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+                    <?php if ($label['city']): ?><span class="badge"><?= htmlspecialchars($label['city']) ?></span><?php endif; ?>
+                    <?php if ($label['claimed']): ?><span style="color: var(--accent); font-weight: 700;">✓ VERIFIED LABEL</span><?php endif; ?>
                 </div>
-
-                <?php if ($label['bio']): ?>
-                    <div class="profile-bio">
-                        <?= nl2br(htmlspecialchars($label['bio'])) ?>
-                    </div>
-                <?php endif; ?>
-
-                <div class="social-links">
-                    <?php if ($label['website']): ?>
-                        <a href="<?= htmlspecialchars($label['website']) ?>" target="_blank" class="social-link">
-                            <i class="bi bi-globe"></i> Website
-                        </a>
-                    <?php endif; ?>
-
-                    <?php if ($label['facebook_url']): ?>
-                        <a href="<?= htmlspecialchars($label['facebook_url']) ?>" target="_blank" class="social-link">
-                            <i class="bi bi-facebook"></i> Facebook
-                        </a>
-                    <?php endif; ?>
-
-                    <?php if ($label['instagram_url']): ?>
-                        <a href="<?= htmlspecialchars($label['instagram_url']) ?>" target="_blank" class="social-link">
-                            <i class="bi bi-instagram"></i> Instagram
-                        </a>
-                    <?php endif; ?>
-                </div>
+                <p class="profile-bio"><?= nl2br(htmlspecialchars($label['bio'] ?: "A dedicated home for music talent. Discover the artists and releases driving this label's unique sound.")) ?></p>
             </div>
         </div>
 
-        <!-- Engagement UI -->
         <?php include __DIR__ . '/lib/partials/engagement-ui.php'; ?>
 
         <!-- Roster Artists -->
-        <?php if (!empty($artists)): ?>
         <div class="section">
-            <h2>Roster Artists</h2>
+            <h2>Unified Roster</h2>
             <div class="grid">
-                <?php foreach ($artists as $artist): ?>
-                    <a href="/artist/<?= urlencode($artist['slug']) ?>" class="card">
-                        <?= ngn_image(
-                            $artist['image_url'] ?? '/assets/images/default-artist.jpg',
-                            $artist['name'],
-                            'card-image'
-                        ) ?>
-                        <div class="card-content">
-                            <div class="card-title"><?= htmlspecialchars($artist['name']) ?></div>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+                <?php if (!empty($artists)): ?>
+                    <?php foreach ($artists as $artist): ?>
+                        <a href="/artist/<?= urlencode($artist['slug']) ?>" class="card">
+                            <img src="<?= $artist['image_url'] ? "/uploads/artists/{$artist['image_url']}" : '/assets/images/default-artist.jpg' ?>" class="card-image" alt="<?= htmlspecialchars($artist['name']) ?>">
+                            <div class="card-content">
+                                <div style="font-weight: 700;"><?= htmlspecialchars($artist['name']) ?></div>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <?php render_upsell_placeholder("Artist Roster", "Unify your roster on NGN 2.0. Aggregate your artists' scores, monitor collective reach, and optimize your label's growth.", $label['claimed']); ?>
+                <?php endif; ?>
             </div>
         </div>
-        <?php endif; ?>
 
         <!-- Recent Releases -->
-        <?php if (!empty($releases)): ?>
         <div class="section">
-            <h2>Recent Releases</h2>
+            <h2>Label Releases</h2>
             <div class="grid">
-                <?php foreach ($releases as $release): ?>
-                    <div class="card">
-                        <?= ngn_image(
-                            $release['cover_url'] ?? '/assets/images/default-release.jpg',
-                            $release['title'],
-                            'card-image'
-                        ) ?>
-                        <div class="card-content">
-                            <div class="card-title"><?= htmlspecialchars($release['title']) ?></div>
-                            <div class="card-meta">
-                                <?= htmlspecialchars($release['artist_name']) ?><br>
-                                <?= $release['release_date'] ? date('M d, Y', strtotime($release['release_date'])) : 'TBA' ?>
+                <?php if (!empty($releases)): ?>
+                    <?php foreach ($releases as $release): ?>
+                        <div class="card">
+                            <img src="<?= $release['cover_url'] ? "/uploads/releases/{$release['cover_url']}" : '/assets/images/default-release.jpg' ?>" class="card-image" alt="<?= htmlspecialchars($release['title']) ?>">
+                            <div class="card-content">
+                                <div style="font-weight: 700;"><?= htmlspecialchars($release['title']) ?></div>
+                                <div style="color: var(--text-secondary); font-size: 14px;"><?= htmlspecialchars($release['artist_name']) ?></div>
                             </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <?php render_upsell_placeholder("New Releases", "Showcase your entire catalog. Link merchandise, track royalties, and use our AI Coach to find the perfect release timing.", $label['claimed']); ?>
+                <?php endif; ?>
             </div>
         </div>
-        <?php endif; ?>
 
         <!-- Latest Posts -->
-        <?php if (!empty($posts)): ?>
         <div class="section">
-            <h2>Latest Posts</h2>
+            <h2>Label News</h2>
             <div class="grid">
-                <?php foreach ($posts as $post): ?>
-                    <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="card" style="text-decoration: none; color: inherit;">
-                        <?php 
-                            $postImg = $post['featured_image_url'] ?? '';
-                            if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
-                                $postImg = "/uploads/{$postImg}";
-                            }
-                            if (empty($postImg)) $postImg = DEFAULT_AVATAR;
-                        ?>
-                        <?= ngn_image($postImg, $post['title'], 'card-image') ?>
-                        <div class="card-content">
-                            <div class="card-title"><?= htmlspecialchars($post['title']) ?></div>
-                            <div class="card-meta">
-                                <?= $post['published_at'] ? date('M d, Y', strtotime($post['published_at'])) : '' ?>
+                <?php if (!empty($posts)): ?>
+                    <?php foreach ($posts as $post): ?>
+                        <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="card" style="text-decoration: none; color: inherit;">
+                            <?php 
+                                $postImg = $post['featured_image_url'] ?? '';
+                                if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
+                                    $postImg = "/uploads/{$postImg}";
+                                }
+                                if (empty($postImg)) $postImg = DEFAULT_AVATAR;
+                            ?>
+                            <img src="<?= htmlspecialchars($postImg) ?>" class="card-image" alt="<?= htmlspecialchars($post['title']) ?>">
+                            <div class="card-content">
+                                <div style="font-weight: 700;"><?= htmlspecialchars($post['title']) ?></div>
+                                <div style="color: var(--text-secondary); font-size: 14px;"><?= $post['published_at'] ? date('M d, Y', strtotime($post['published_at'])) : '' ?></div>
                             </div>
-                        </div>
-                    </a>
-                <?php endforeach; ?>
+                        </a>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <?php render_upsell_placeholder("Press & News", "Publish label updates, signing announcements, and tour press releases directly to your followers.", $label['claimed']); ?>
+                <?php endif; ?>
             </div>
         </div>
-        <?php endif; ?>
     </div>
 </body>
 </html>
