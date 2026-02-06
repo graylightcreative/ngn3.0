@@ -48,10 +48,6 @@ if (class_exists('NGN\\Lib\\Env')) {
         error_log("Bootstrap - Env::load failed: " . $e->getMessage());
     }
 }
-// Add logging here to check APP_ENV immediately after Env::load() is called
-if (class_exists('NGN\\Lib\\Env')) {
-    error_log("Bootstrap - APP_ENV after Env::load(): " . (NGN\Lib\Env::get('APP_ENV') === null ? 'null' : NGN\Lib\Env::get('APP_ENV')));
-}
 
 // 2c) Set Stripe API Key based on environment
 if (class_exists('Stripe\\Stripe') && class_exists('NGN\\Lib\\Env')) {
