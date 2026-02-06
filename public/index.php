@@ -1468,10 +1468,10 @@ if ($view === 'post' && !empty($data['post'])) {
                                     ?>
                                     <button class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-sm"
                                             data-play-track
-                                            data-track-url="<?= htmlspecialchars($anyTrack['mp3_url']) ?>"
-                                            data-track-title="<?= htmlspecialchars($anyTrack['title']) ?>"
-                                            data-track-artist="<?= htmlspecialchars($anyTrack['artist_name']) ?>"
-                                            data-track-art="<?= htmlspecialchars($anyTrack['cover_url']) ?>">
+                                            data-track-url="<?= htmlspecialchars($anyTrack['mp3_url'] ?? '') ?>"
+                                            data-track-title="<?= htmlspecialchars($anyTrack['title'] ?? 'Unknown Track') ?>"
+                                            data-track-artist="<?= htmlspecialchars($anyTrack['artist_name'] ?? 'NGN Artist') ?>"
+                                            data-track-art="<?= htmlspecialchars($anyTrack['cover_url'] ?? DEFAULT_AVATAR) ?>">
                                         <i class="bi-play-fill mr-2"></i> Listen Now
                                     </button>
                                     <?php endif; ?>
@@ -1563,19 +1563,19 @@ if ($view === 'post' && !empty($data['post'])) {
             <?php foreach (array_slice($data['songs'], 0, 2) as $song): ?>
             <div class="group sp-card border border-white/5 flex items-center gap-6 cursor-pointer"
                  data-play-track
-                 data-track-url="<?= htmlspecialchars($song['mp3_url']) ?>"
-                 data-track-title="<?= htmlspecialchars($song['title']) ?>"
-                 data-track-artist="<?= htmlspecialchars($song['artist_name']) ?>"
-                 data-track-art="<?= htmlspecialchars($song['cover_url']) ?>">
+                 data-track-url="<?= htmlspecialchars($song['mp3_url'] ?? '') ?>"
+                 data-track-title="<?= htmlspecialchars($song['title'] ?? 'Unknown Track') ?>"
+                 data-track-artist="<?= htmlspecialchars($song['artist_name'] ?? 'NGN Artist') ?>"
+                 data-track-art="<?= htmlspecialchars($song['cover_url'] ?? DEFAULT_AVATAR) ?>">
                 <div class="relative w-20 h-20 flex-shrink-0 shadow-2xl">
-                    <img src="<?= htmlspecialchars($song['cover_url'] ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover rounded-lg">
+                    <img src="<?= htmlspecialchars(($song['cover_url'] ?? null) ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover rounded-lg">
                     <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
                         <i class="bi-play-fill text-3xl text-white"></i>
                     </div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <div class="font-black text-white text-lg truncate"><?= htmlspecialchars($song['title']) ?></div>
-                    <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1"><?= htmlspecialchars($song['artist_name']) ?></div>
+                    <div class="font-black text-white text-lg truncate"><?= htmlspecialchars($song['title'] ?? 'Untitled') ?></div>
+                    <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1"><?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?></div>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -1598,8 +1598,8 @@ if ($view === 'post' && !empty($data['post'])) {
                     <i class="bi-play-fill text-2xl"></i>
                 </button>
               </div>
-              <div class="font-black truncate text-white"><?= htmlspecialchars($artist['name']) ?></div>
-              <div class="text-xs font-bold text-zinc-500 uppercase tracking-tighter mt-1"><?= htmlspecialchars($artist['engagement_count']) ?> signals</div>
+              <div class="font-black truncate text-white"><?= htmlspecialchars($artist['name'] ?? 'Unknown Artist') ?></div>
+              <div class="text-xs font-bold text-zinc-500 uppercase tracking-tighter mt-1"><?= htmlspecialchars($artist['engagement_count'] ?? '0') ?> signals</div>
             </a>
             <?php endforeach; ?>
           </div>
@@ -1619,7 +1619,7 @@ if ($view === 'post' && !empty($data['post'])) {
               <div class="relative w-full aspect-square mb-3">
                 <img src="<?= htmlspecialchars(($label['image_url'] ?? null) ?: DEFAULT_AVATAR) ?>" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
               </div>
-              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($label['name']) ?></div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($label['name'] ?? 'Unknown Label') ?></div>
             </a>
             <?php endforeach; ?>
           </div>
