@@ -483,6 +483,59 @@ $router->post('/services/order', function (Request $request) use ($serviceOrderM
     }
 });
 
+// GET /api/v1/search/suggest - Global search suggestions for autocomplete
+$router->get('/search/suggest', function (Request $request) use ($config) {
+    $search = trim($request->query('q', ''));
+    if (empty($search) || strlen($search) < 2) {
+        return new JsonResponse(['success' => true, 'data' => []], 200);
+    }
+
+    try {
+        $pdo = ConnectionFactory::write($config);
+        $results = [];
+
+        // 1. Artists
+        $stmt = $pdo->prepare("SELECT id, name, slug, image_url, 'artist' as type FROM `ngn_2025`.`artists` WHERE name LIKE ? ORDER BY name ASC LIMIT 3");
+        $stmt->execute(['%'.$search.'%']);
+        $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($artists as $a) {
+            if (!empty($a['image_url']) && !str_starts_with($a['image_url'], 'http') && !str_starts_with($a['image_url'], '/')) {
+                $a['image_url'] = "/uploads/artists/{$a['image_url']}";
+            }
+            $results[] = $a;
+        }
+
+        // 2. Labels
+        $stmt = $pdo->prepare("SELECT id, name, slug, image_url, 'label' as type FROM `ngn_2025`.`labels` WHERE name LIKE ? ORDER BY name ASC LIMIT 3");
+        $stmt->execute(['%'.$search.'%']);
+        $labels = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($labels as $l) {
+            if (!empty($l['image_url']) && !str_starts_with($l['image_url'], 'http') && !str_starts_with($l['image_url'], '/')) {
+                $l['image_url'] = "/uploads/labels/{$l['image_url']}";
+            }
+            $results[] = $l;
+        }
+
+        // 3. Tracks
+        $stmt = $pdo->prepare("
+            SELECT t.id, t.title as name, t.slug, a.name as subtext, 'song' as type 
+            FROM `ngn_2025`.`tracks` t 
+            JOIN `ngn_2025`.`artists` a ON t.artist_id = a.id 
+            WHERE t.title LIKE ? 
+            LIMIT 3
+        ");
+        $stmt->execute(['%'.$search.'%']);
+        $tracks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($tracks as $t) {
+            $results[] = $t;
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $results]);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+});
+
 // GET /api/v1/tracks/search - Search for tracks
 $router->get('/tracks/search', function (Request $request) use ($config) {
     $queryParams = $request->query();

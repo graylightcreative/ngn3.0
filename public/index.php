@@ -1442,12 +1442,81 @@ if ($view === 'post' && !empty($data['post'])) {
             <button onclick="history.back()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-left"></i></button>
             <button onclick="history.forward()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-right"></i></button>
           </div>
-          <form method="get" action="/" class="relative group">
+          <form method="get" action="/" class="relative group" id="global-search-form">
             <input type="hidden" name="view" value="<?= in_array($view, ['artists','labels','stations','venues']) ? htmlspecialchars($view) : 'artists' ?>">
             <i class="bi-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-white transition-colors"></i>
-            <input type="text" name="q" value="<?= htmlspecialchars($search ?? '') ?>" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
+            <input type="text" name="q" id="global-search-input" autocomplete="off" value="<?= htmlspecialchars($search ?? '') ?>" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
+            
+            <!-- Autocomplete Dropdown -->
+            <div id="search-autocomplete" class="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl hidden z-[200] overflow-hidden">
+                <div id="autocomplete-results" class="max-h-[400px] overflow-y-auto py-2">
+                    <!-- Results injected here -->
+                </div>
+            </div>
           </form>
         </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('global-search-input');
+            const autocomplete = document.getElementById('search-autocomplete');
+            const resultsBox = document.getElementById('autocomplete-results');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    autocomplete.classList.add('hidden');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/api/v1/search/suggest?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && data.data.length > 0) {
+                                renderResults(data.data);
+                                autocomplete.classList.remove('hidden');
+                            } else {
+                                autocomplete.classList.add('hidden');
+                            }
+                        })
+                        .catch(() => autocomplete.classList.add('hidden'));
+                }, 300);
+            });
+
+            function renderResults(items) {
+                resultsBox.innerHTML = items.map(item => {
+                    const icon = item.type === 'artist' ? 'bi-person-circle' : (item.type === 'label' ? 'bi-record-circle' : 'bi-music-note-beamed');
+                    const url = `/${item.type}/${item.slug || item.id}`;
+                    const img = item.image_url || '/lib/images/user-default-avatar.jpg';
+                    const subtext = item.subtext || (item.type.charAt(0).toUpperCase() + item.type.slice(1));
+
+                    return `
+                        <a href="${url}" class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors group">
+                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">
+                                <img src="${img}" class="w-full h-full object-cover" onerror="this.src='/lib/images/user-default-avatar.jpg'">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-white truncate group-hover:text-brand transition-colors">${item.name}</div>
+                                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate">${subtext}</div>
+                            </div>
+                            <i class="bi ${icon} text-zinc-600 group-hover:text-brand transition-colors"></i>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            // Close on click outside
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('global-search-form').contains(e.target)) {
+                    autocomplete.classList.add('hidden');
+                }
+            });
+        });
+        </script>
         
         <div class="flex items-center gap-6">
           <a href="/pricing" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Premium</a>
