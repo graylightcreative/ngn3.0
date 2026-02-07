@@ -52,8 +52,8 @@ if (!headers_sent()) {
         // Pass admin token to React app
         window.NGN_ADMIN_TOKEN = <?= json_encode($adminToken) ?>;
     </script>
-    <script type="module" crossorigin src="/admin/assets/index-eTQlndin.js"></script>
-    <link rel="stylesheet" crossorigin href="/admin/assets/index-C4FZWdHt.css">
+    <script type="module" crossorigin src="/admin/assets/index-BDuyy5wJ.js"></script>
+    <link rel="stylesheet" crossorigin href="/admin/assets/index-DJbN_w5d.css">
 </head>
 <body>
     <div id="root"></div>
