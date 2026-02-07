@@ -54,14 +54,14 @@ class EntityService
         // Get total count for pagination
         $countSql = "SELECT COUNT(*) FROM $table";
         if ($search) {
-            $countSql .= " WHERE $searchField LIKE ?";
-            $countParams = ["%$search%"];
-        } else {
-            $countParams = [];
+            $countSql .= " WHERE $searchField LIKE :search";
         }
         
         $countStmt = $this->pdo->prepare($countSql);
-        $countStmt->execute($countParams);
+        if ($search) {
+            $countStmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+        }
+        $countStmt->execute();
         $total = (int)$countStmt->fetchColumn();
 
         return [
