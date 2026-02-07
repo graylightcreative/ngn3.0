@@ -264,4 +264,13 @@ class Config
 
     // Global API auth requirement (defaults to true — lock down API)
     public function requireAuthForApi(): bool { return Env::bool('REQUIRE_AUTH_FOR_API', true); }
+
+    /**
+     * Get a PDO database connection.
+     * This is used extensively by the Admin v2 API and setup scripts.
+     */
+    public function getDatabase(): \PDO
+    {
+        return DB\ConnectionFactory::write($this);
+    }
 }
