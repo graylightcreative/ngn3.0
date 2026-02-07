@@ -105,7 +105,7 @@ $router->post('/admin/smr/upload', function (Request $request) use ($config) {
         if (!move_uploaded_file($file['tmp_name'], $filePath)) {
             return new JsonResponse(['error' => 'Failed to store file'], 500);
         }
-        $userId = 1; 
+        $userId = $request->header('X-User-Id', '1'); 
         $ingestionId = $smrService->storeUpload($file['name'], $filePath, $fileHash, $file['size'], (int)$userId);
         $records = $smrService->parseFile($filePath);
         $smrService->storeRecords($ingestionId, $records);
@@ -173,10 +173,12 @@ $router->post('/admin/smr/:id/finalize', function (Request $request) use ($confi
 // ===== RIGHTS LEDGER ROUTES =====
 $router->get('/admin/rights-ledger', function (Request $request) use ($config) {
     try {
-        $status = $request->query('status');
-        $limit = (int)($request->query('limit') ?? 50);
-        $offset = (int)($request->query('offset') ?? 0);
+        $queryParams = $request->query();
+        $status = $queryParams['status'] ?? null;
+        $limit = (int)($queryParams['limit'] ?? 50);
+        $offset = (int)($queryParams['offset'] ?? 0);
         $pdo = $config->getDatabase();
+
         $service = new \NGN\Lib\Services\RightsLedgerService($pdo);
         $registry = $service->getRegistry($status, $limit, $offset);
         $summary = $service->getSummary();
@@ -317,9 +319,10 @@ $router->get('/admin/royalties/balance/:id', function (Request $request) use ($c
 
 $router->get('/admin/royalties/transactions', function (Request $request) use ($config) {
     try {
-        $userId = $request->query('user_id');
-        $limit = (int)($request->query('limit') ?? 50);
-        $offset = (int)($request->query('offset') ?? 0);
+        $queryParams = $request->query();
+        $userId = $queryParams['user_id'] ?? null;
+        $limit = (int)($queryParams['limit'] ?? 50);
+        $offset = (int)($queryParams['offset'] ?? 0);
         if (!$userId) return new JsonResponse(['error' => 'user_id is required'], 400);
         $pdo = $config->getDatabase();
         $service = new \NGN\Lib\Services\RoyaltyService($pdo);
@@ -347,8 +350,9 @@ $router->post('/admin/royalties/create-payout', function (Request $request) use 
 
 $router->get('/admin/royalties/eqs-calculate', function (Request $request) use ($config) {
     try {
-        $periodStart = $request->query('start_date') ?? date('Y-m-01');
-        $periodEnd = $request->query('end_date') ?? date('Y-m-t');
+        $queryParams = $request->query();
+        $periodStart = $queryParams['start_date'] ?? date('Y-m-01');
+        $periodEnd = $queryParams['end_date'] ?? date('Y-m-t');
         $pdo = $config->getDatabase();
         $service = new \NGN\Lib\Services\RoyaltyService($pdo);
         $result = $service->calculateEQS($periodStart, $periodEnd);
@@ -361,7 +365,8 @@ $router->get('/admin/royalties/eqs-calculate', function (Request $request) use (
 // ===== CHART QA ROUTES =====
 $router->get('/admin/charts/qa-status', function (Request $request) use ($config) {
     try {
-        $ingestionId = $request->query('ingestion_id');
+        $queryParams = $request->query();
+        $ingestionId = $queryParams['ingestion_id'] ?? null;
         $pdo = $config->getDatabase();
         $service = new \NGN\Lib\Services\ChartQAService($pdo);
         $status = $service->getQAStatus($ingestionId ? (int)$ingestionId : null);
@@ -373,7 +378,8 @@ $router->get('/admin/charts/qa-status', function (Request $request) use ($config
 
 $router->get('/admin/charts/corrections', function (Request $request) use ($config) {
     try {
-        $limit = (int)($request->query('limit') ?? 50);
+        $queryParams = $request->query();
+        $limit = (int)($queryParams['limit'] ?? 50);
         $pdo = $config->getDatabase();
         $service = new \NGN\Lib\Services\ChartQAService($pdo);
         $corrections = $service->getCorrections($limit);
@@ -397,7 +403,8 @@ $router->post('/admin/charts/corrections', function (Request $request) use ($con
 
 $router->get('/admin/charts/disputes', function (Request $request) use ($config) {
     try {
-        $status = $request->query('status');
+        $queryParams = $request->query();
+        $status = $queryParams['status'] ?? null;
         $pdo = $config->getDatabase();
         $service = new \NGN\Lib\Services\ChartQAService($pdo);
         $disputes = $service->getDisputes($status);
@@ -424,19 +431,20 @@ $router->post('/admin/charts/disputes/:id/resolve', function (Request $request) 
 $router->get('/admin/entities/:type', function (Request $request) use ($config) {
     try {
         $type = $request->param('type');
-                $limit = (int)($request->query('limit') ?? 50);
-                $offset = (int)($request->query('offset') ?? 0);
-                $search = $request->query('search');
-                
-                // Ensure search is a string or null, not an array
-                if (is_array($search)) {
-                    $search = !empty($search) ? (string)reset($search) : null;
-                }
+        $queryParams = $request->query();
+        $limit = (int)($queryParams['limit'] ?? 50);
+        $offset = (int)($queryParams['offset'] ?? 0);
+        $search = $queryParams['search'] ?? null;
         
-                $pdo = $config->getDatabase();
-                $service = new \NGN\Lib\Services\EntityService($pdo);
-        
-                $result = $service->getList($type, $limit, $offset, $search);
+        // Ensure search is a string or null
+        if (is_array($search)) {
+            $search = !empty($search) ? (string)reset($search) : null;
+        }
+
+        $pdo = $config->getDatabase();
+        $service = new \NGN\Lib\Services\EntityService($pdo);
+
+        $result = $service->getList($type, $limit, $offset, $search);
         
         return new JsonResponse(['success' => true, 'data' => $result]);
     } catch (Exception $e) {
@@ -484,23 +492,45 @@ $router->get('/admin/system/health', function (Request $request) use ($config) {
 });
 
 // ===== ANALYTICS ROUTES =====
+
 $router->get('/admin/analytics/summary', function (Request $request) use ($config) {
+
     try {
+
         $pdo = $config->getDatabase();
+
         $service = new \NGN\Lib\Services\AnalyticsService($pdo);
+
         return new JsonResponse(['success' => true, 'data' => $service->getSummary()]);
+
     } catch (Exception $e) {
+
         return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+
     }
+
 });
 
+
+
 $router->get('/admin/analytics/trends', function (Request $request) use ($config) {
+
     try {
-        $days = (int)($request->query('days') ?? 30);
+
+        $queryParams = $request->query();
+
+        $days = (int)($queryParams['days'] ?? 30);
+
         $pdo = $config->getDatabase();
+
         $service = new \NGN\Lib\Services\AnalyticsService($pdo);
+
         return new JsonResponse(['success' => true, 'data' => ['revenue' => $service->getRevenueTrends($days), 'engagement' => $service->getEngagementTrends($days)]]);
+
     } catch (Exception $e) {
+
         return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+
     }
+
 });
