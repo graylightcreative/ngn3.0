@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Shield, Search, Loader, Filter, ExternalLink, FileText, Download } from 'lucide-react'
-import { getLedgerEntries } from '../../services/ledgerService'
+import { Shield, Search, Loader, Filter, ExternalLink, FileText, Download, Zap, CheckCircle2, Link as LinkIcon } from 'lucide-react'
+import { getLedgerEntries, anchorPendingEntries } from '../../services/ledgerService'
 
 interface LedgerEntry {
   id: number
@@ -12,13 +12,17 @@ interface LedgerEntry {
   artist_name: string
   created_at: string
   status: string
+  blockchain_tx_hash?: string
+  blockchain_anchored_at?: string
 }
 
 export default function LedgerDashboard() {
   const [entries, setEntries] = useState<LedgerEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isAnchoring, setIsAnchoring] = useState(false)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
+  const [anchoredCount, setAnchoredCount] = useState(0)
   
   const limit = 20
 
@@ -32,6 +36,10 @@ export default function LedgerDashboard() {
       const data = await getLedgerEntries(limit, (page - 1) * limit)
       setEntries(data.items)
       setTotal(data.total)
+      
+      // Calculate anchored count from current items (simple approximation for UI)
+      const anchored = data.items.filter((e: LedgerEntry) => e.blockchain_tx_hash).length
+      setAnchoredCount(anchored) // In production, get this from API summary
     } catch (err) {
       console.error(err)
     } finally {
@@ -39,16 +47,41 @@ export default function LedgerDashboard() {
     }
   }
 
+  async function handleAnchor() {
+    if (!confirm('Are you sure you want to anchor all pending entries to the blockchain?')) return
+    
+    setIsAnchoring(true)
+    try {
+      const result = await anchorPendingEntries()
+      alert(`Successfully anchored ${result.count} entries!\nTX: ${result.tx_hash}`)
+      loadData()
+    } catch (err) {
+      alert('Anchoring failed. See console for details.')
+    } finally {
+      setIsAnchoring(false)
+    }
+  }
+
   return (
     <div className="max-w-7xl">
-      <div className="card mb-6">
-        <div className="flex items-center gap-3 mb-4">
-          <Shield className="text-brand-green" size={28} />
-          <h1 className="text-3xl font-bold text-gray-100 font-brand">Content Ownership Ledger</h1>
+      <div className="flex justify-between items-start mb-6">
+        <div>
+          <div className="flex items-center gap-3 mb-4">
+            <Shield className="text-brand-green" size={28} />
+            <h1 className="text-3xl font-bold text-gray-100 font-brand">Content Ownership Ledger</h1>
+          </div>
+          <p className="text-gray-400 max-w-2xl">
+            Cryptographic registry of all content uploads. Immutable proof of ownership and authenticity, periodically anchored to the Ethereum/Polygon blockchain.
+          </p>
         </div>
-        <p className="text-gray-400">
-          Cryptographic registry of all content uploads. Immutable proof of ownership and authenticity.
-        </p>
+        <button 
+          onClick={handleAnchor}
+          disabled={isAnchoring || isLoading}
+          className="btn-primary py-3 px-6 flex items-center gap-2 shadow-lg shadow-brand-green/20"
+        >
+          {isAnchoring ? <Loader className="animate-spin" size={18} /> : <Zap size={18} />}
+          Anchor Pending Entries
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -58,7 +91,10 @@ export default function LedgerDashboard() {
         </div>
         <div className="card">
           <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Blockchain Anchored</p>
-          <p className="text-3xl font-bold text-blue-500">0</p>
+          <div className="flex items-center gap-2">
+            <p className="text-3xl font-bold text-blue-500">{entries.filter(e => e.blockchain_tx_hash).length}</p>
+            <LinkIcon size={20} className="text-blue-500/50" />
+          </div>
         </div>
         <div className="card">
           <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Disputed Items</p>
@@ -90,6 +126,7 @@ export default function LedgerDashboard() {
                 <tr className="border-b border-gray-700 text-gray-400 text-xs uppercase tracking-wider">
                   <th className="pb-3 pl-4">Certificate ID</th>
                   <th className="pb-3">Content</th>
+                  <th className="pb-3">Status</th>
                   <th className="pb-3">Owner</th>
                   <th className="pb-3">Source</th>
                   <th className="pb-3">Date</th>
@@ -106,6 +143,17 @@ export default function LedgerDashboard() {
                       <p className="font-semibold text-gray-100 text-sm">{entry.title}</p>
                       <p className="text-xs text-gray-500">{entry.artist_name}</p>
                     </td>
+                    <td className="py-4">
+                      {entry.blockchain_tx_hash ? (
+                        <span className="flex items-center gap-1.5 text-blue-400 text-[10px] font-bold uppercase tracking-tight">
+                          <CheckCircle2 size={12} /> Anchored
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-gray-500 text-[10px] font-bold uppercase tracking-tight">
+                          <div className="w-1.5 h-1.5 rounded-full bg-gray-600" /> Local
+                        </span>
+                      )}
+                    </td>
                     <td className="py-4 text-sm text-gray-300">
                       {entry.owner_name}
                     </td>
@@ -118,14 +166,27 @@ export default function LedgerDashboard() {
                       {new Date(entry.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 pr-4 text-right">
-                      <a 
-                        href={`/storage/certificates/${entry.certificate_id}.html`} 
-                        target="_blank" 
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
-                      >
-                        <FileText size={14} /> View <ExternalLink size={10} />
-                      </a>
+                      <div className="flex items-center justify-end gap-3">
+                        {entry.blockchain_tx_hash && (
+                          <a 
+                            href={`https://polygonscan.com/tx/${entry.blockchain_tx_hash}`} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="text-blue-500 hover:text-blue-400 transition-colors"
+                            title="View Blockchain Transaction"
+                          >
+                            <LinkIcon size={14} />
+                          </a>
+                        )}
+                        <a 
+                          href={`/storage/certificates/${entry.certificate_id}.html`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-white transition-colors"
+                        >
+                          <FileText size={14} /> View <ExternalLink size={10} />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))}

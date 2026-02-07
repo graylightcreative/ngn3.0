@@ -237,6 +237,18 @@ $router->get('/admin/content-ledger/:id', function (Request $request) use ($conf
     }
 });
 
+$router->post('/admin/content-ledger/anchor', function (Request $request) use ($config) {
+    try {
+        $pdo = $config->getDatabase();
+        $service = new \NGN\Lib\Legal\BlockchainAnchoringService($pdo, $config, new \Monolog\Logger('admin_anchoring'));
+        $result = $service->anchorPendingEntries();
+        
+        return new JsonResponse($result);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 // ===== RIGHTS LEDGER ROUTES =====
 $router->get('/admin/rights-ledger', function (Request $request) use ($config) {
     try {

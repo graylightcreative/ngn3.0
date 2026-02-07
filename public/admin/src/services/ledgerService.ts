@@ -12,3 +12,8 @@ export async function getLedgerEntry(id: number) {
     const response = await api.get(`/admin/content-ledger/${id}`)
     return response.data.data
 }
+
+export async function anchorPendingEntries() {
+    const response = await api.post('/admin/content-ledger/anchor')
+    return response.data
+}
