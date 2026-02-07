@@ -597,12 +597,14 @@ class ContentLedgerService
                 'offset' => $offset
             ];
         } catch (\Exception $e) {
+            error_log("ContentLedgerService::getList Error: " . $e->getMessage());
             $this->logger->error('ledger_list_failed', ['error' => $e->getMessage()]);
             return [
                 'items' => [],
                 'total' => 0,
                 'limit' => $limit,
-                'offset' => $offset
+                'offset' => $offset,
+                'error' => $e->getMessage()
             ];
         }
     }
