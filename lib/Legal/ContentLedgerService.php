@@ -297,17 +297,17 @@ class ContentLedgerService
     public function generateMetadataHash(array $metadata): string
     {
         // Create canonical JSON with sorted keys
-        $canonical = json_encode(
-            [
-                'title' => $metadata['title'] ?? '',
-                'artist_name' => $metadata['artist_name'] ?? '',
-                'credits' => $metadata['credits'] ?? null,
-                'rights_split' => $metadata['rights_split'] ?? null
-            ],
-            JSON_SORT_KEYS | JSON_UNESCAPED_SLASHES
-        );
+        $data = [
+            'title' => $metadata['title'] ?? '',
+            'artist_name' => $metadata['artist_name'] ?? '',
+            'credits' => $metadata['credits'] ?? null,
+            'rights_split' => $metadata['rights_split'] ?? null
+        ];
 
-        return hash($this::HASH_ALGORITHM, $canonical);
+        // Use numeric values: JSON_SORT_KEYS = 4, JSON_UNESCAPED_SLASHES = 64
+        $canonical = json_encode($data, 4 | 64);
+
+        return hash(self::HASH_ALGORITHM, $canonical);
     }
 
     /**
