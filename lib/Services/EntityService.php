@@ -39,8 +39,6 @@ class EntityService
             }
 
             $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
-            
-            die("DEBUG SQL: $sql | LIMIT: $limit | OFFSET: $offset");
 
             $stmt = $this->pdo->prepare($sql);
             
