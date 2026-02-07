@@ -114,11 +114,89 @@ class StationContentService
                 'filename' => $filename
             ]);
 
-            return [
+            // NGN 2.0.2: Register in content ledger (non-blocking)
+            $certificateId = null;
+            $certificateUrl = null;
+            try {
+                // Get station owner ID
+                $ownerStmt = $this->read->prepare("SELECT user_id FROM stations WHERE id = :station_id LIMIT 1");
+                $ownerStmt->execute([':station_id' => $stationId]);
+                $stationOwner = $ownerStmt->fetch(PDO::FETCH_ASSOC);
+                $ownerId = $stationOwner['user_id'] ?? 0;
+
+                if ($ownerId > 0) {
+                    $ledgerService = new \NGN\Lib\Legal\ContentLedgerService(
+                        $this->write,
+                        $this->config,
+                        $this->logger
+                    );
+
+                    // Register content in ledger
+                    $ledgerRecord = $ledgerService->registerContent(
+                        ownerId: $ownerId,
+                        contentHash: $fileHash,
+                        uploadSource: 'station_content',
+                        metadata: [
+                            'title' => $metadata['title'] ?? 'Untitled',
+                            'artist_name' => $metadata['artist_name'] ?? '',
+                            'credits' => $metadata['credits'] ?? null,
+                            'rights_split' => $metadata['rights_split'] ?? null
+                        ],
+                        fileInfo: [
+                            'size_bytes' => $file['size'],
+                            'mime_type' => $validatedFile['mime_type'],
+                            'filename' => $filename
+                        ],
+                        sourceRecordId: $contentId
+                    );
+
+                    $certificateId = $ledgerRecord['certificate_id'] ?? null;
+
+                    // Update station_content with certificate ID
+                    if ($certificateId) {
+                        $updateStmt = $this->write->prepare("UPDATE station_content SET certificate_id = :cert_id WHERE id = :id");
+                        $updateStmt->execute([':cert_id' => $certificateId, ':id' => $contentId]);
+
+                        // Generate certificate HTML
+                        try {
+                            $certService = new \NGN\Lib\Legal\DigitalCertificateService($this->config->baseUrl());
+                            $ownerStmt = $this->read->prepare("SELECT id, name, email FROM users WHERE id = :user_id LIMIT 1");
+                            $ownerStmt->execute([':user_id' => $ownerId]);
+                            $ownerInfo = $ownerStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+                            $certificateHtml = $certService->generateCertificateHtml($ledgerRecord, $ownerInfo);
+                            $certDir = __DIR__ . '/../../storage/certificates';
+                            @mkdir($certDir, 0775, true);
+                            $certPath = $certDir . '/' . $certificateId . '.html';
+                            @file_put_contents($certPath, $certificateHtml);
+                            $certificateUrl = '/storage/certificates/' . $certificateId . '.html';
+                        } catch (\Throwable $e) {
+                            $this->logger->warning('certificate_generation_failed', ['error' => $e->getMessage()]);
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Log error but don't fail the upload
+                $this->logger->warning('content_ledger_registration_failed', [
+                    'station_id' => $stationId,
+                    'content_id' => $contentId,
+                    'error' => $e->getMessage()
+                ]);
+            }
+
+            $response = [
                 'success' => true,
                 'id' => $contentId,
                 'message' => 'File uploaded successfully. Pending admin review.'
             ];
+
+            // Add certificate info if available
+            if ($certificateId && $certificateUrl) {
+                $response['certificate_id'] = $certificateId;
+                $response['certificate_url'] = $certificateUrl;
+            }
+
+            return $response;
 
         } catch (\InvalidArgumentException $e) {
             $this->logger->warning('byos_upload_validation_failed', [

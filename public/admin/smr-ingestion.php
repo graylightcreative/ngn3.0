@@ -78,6 +78,43 @@ require_once __DIR__ . '/_header.php';
                         $stmt->execute([$fileName, $fileHash, $fileSize, $_SESSION['user_id'] ?? 1]);
                         $uploadId = $pdo->lastInsertId();
 
+                        // NGN 2.0.2: Register in content ledger (non-blocking)
+                        try {
+                            require_once __DIR__ . '/../../lib/bootstrap.php';
+                            $config = new \NGN\Lib\Config();
+                            $ledgerService = new \NGN\Lib\Legal\ContentLedgerService($pdo, $config, new \Monolog\Logger('smr_ingestion'));
+
+                            $ownerId = $_SESSION['user_id'] ?? 1;
+                            if ($ownerId > 0) {
+                                $ledgerRecord = $ledgerService->registerContent(
+                                    ownerId: $ownerId,
+                                    contentHash: $fileHash,
+                                    uploadSource: 'smr_ingestion',
+                                    metadata: [
+                                        'title' => 'SMR Data Upload: ' . $fileName,
+                                        'artist_name' => '',
+                                        'credits' => null,
+                                        'rights_split' => null
+                                    ],
+                                    fileInfo: [
+                                        'size_bytes' => $fileSize,
+                                        'mime_type' => 'text/csv',
+                                        'filename' => $fileName
+                                    ],
+                                    sourceRecordId: $uploadId
+                                );
+
+                                // Update smr_uploads with certificate ID
+                                if (!empty($ledgerRecord['certificate_id'])) {
+                                    $updateStmt = $pdo->prepare("UPDATE smr_uploads SET certificate_id = ? WHERE id = ?");
+                                    $updateStmt->execute([$ledgerRecord['certificate_id'], $uploadId]);
+                                }
+                            }
+                        } catch (\Throwable $e) {
+                            // Log but don't fail the upload
+                            error_log('SMR content ledger registration failed: ' . $e->getMessage());
+                        }
+
                         // Parse CSV
                         $handle = fopen($filePath, "r");
                         $rowData = [];

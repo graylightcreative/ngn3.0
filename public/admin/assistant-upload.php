@@ -116,6 +116,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['smr_csv'])) {
         $uploadedFileId = $pdo->lastInsertId();
         $uploadSuccess = true;
 
+        // NGN 2.0.2: Register in content ledger (non-blocking)
+        try {
+            require_once __DIR__ . '/../../lib/bootstrap.php';
+            $config = new \NGN\Lib\Config();
+            $ledgerService = new \NGN\Lib\Legal\ContentLedgerService($pdo, $config, new \Monolog\Logger('assistant_upload'));
+
+            $ownerId = $_SESSION['user_id'] ?? 1;
+            if ($ownerId > 0) {
+                $ledgerRecord = $ledgerService->registerContent(
+                    ownerId: $ownerId,
+                    contentHash: $sha256Hash,
+                    uploadSource: 'smr_assistant',
+                    metadata: [
+                        'title' => 'Assistant Upload: ' . $newFilename,
+                        'artist_name' => '',
+                        'credits' => null,
+                        'rights_split' => null
+                    ],
+                    fileInfo: [
+                        'size_bytes' => $file['size'],
+                        'mime_type' => 'text/csv',
+                        'filename' => $newFilename
+                    ],
+                    sourceRecordId: $uploadedFileId
+                );
+
+                // Update smr_uploads with certificate ID
+                if (!empty($ledgerRecord['certificate_id'])) {
+                    $updateStmt = $pdo->prepare("UPDATE smr_uploads SET certificate_id = ? WHERE id = ?");
+                    $updateStmt->execute([$ledgerRecord['certificate_id'], $uploadedFileId]);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Log but don't fail the upload
+            error_log('Assistant upload ledger registration failed: ' . $e->getMessage());
+        }
+
         // Redirect to avoid resubmission
         header("Location: assistant-upload.php?upload=success&file_id={$uploadedFileId}");
         exit;

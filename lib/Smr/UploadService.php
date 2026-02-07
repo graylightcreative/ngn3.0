@@ -90,12 +90,57 @@ class UploadService
                 throw new \RuntimeException('Failed to store uploaded file');
             }
         }
+
+        // NGN 2.0.2: Calculate file hash for content ledger
+        $fileHash = hash_file('sha256', $target) ?: null;
+
         $detector = new HeaderDetector($this->config->previewMaxRows(), $this->config->previewTimeoutMs());
         $headers = $detector->detectHeaders($target);
 
         // Suggestions based on detected headers
         $suggester = new MappingSuggester();
         $suggestions = isset($headers['headers']) && is_array($headers['headers']) ? $suggester->suggest($headers['headers']) : [];
+
+        $certificateId = null;
+
+        // NGN 2.0.2: Register in content ledger (non-blocking)
+        if ($fileHash && $stationId) {
+            try {
+                $ledgerService = new \NGN\Lib\Legal\ContentLedgerService(
+                    \NGN\Lib\DB\ConnectionFactory::write($this->config),
+                    $this->config,
+                    $this->logger
+                );
+
+                // Default to station owner if available
+                $ownerId = $stationId > 0 ? 1 : 0; // Fallback to system user
+                if ($ownerId > 0) {
+                    $ledgerRecord = $ledgerService->registerContent(
+                        ownerId: $ownerId,
+                        contentHash: $fileHash,
+                        uploadSource: 'smr_upload_service',
+                        metadata: [
+                            'title' => $safeBase,
+                            'artist_name' => '',
+                            'credits' => null,
+                            'rights_split' => null
+                        ],
+                        fileInfo: [
+                            'size_bytes' => $size,
+                            'mime_type' => $mime,
+                            'filename' => basename($target)
+                        ],
+                        sourceRecordId: null
+                    );
+                    $certificateId = $ledgerRecord['certificate_id'] ?? null;
+                }
+            } catch (\Throwable $e) {
+                // Log but don't fail the upload
+                $this->logger->warning('smr_ledger_registration_failed', [
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
 
         $record = [
             'id' => $id,
@@ -105,6 +150,8 @@ class UploadService
             'mime' => $mime,
             'size_bytes' => $size,
             'path' => $target,
+            'file_hash' => $fileHash,
+            'certificate_id' => $certificateId,
             'status' => 'received',
             'created_at' => gmdate('c'),
             'updated_at' => gmdate('c'),
@@ -117,6 +164,8 @@ class UploadService
             'mime' => $mime,
             'size' => $size,
             'path' => $target,
+            'file_hash' => $fileHash ?? 'not_calculated',
+            'certificate_id' => $certificateId ?? 'not_registered'
         ]);
         $this->writeLedger($record);
         return $record;
