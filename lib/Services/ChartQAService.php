@@ -58,7 +58,7 @@ class ChartQAService
         $ingestionId ? $smrSpinsStmt->execute([$ingestionId]) : $smrSpinsStmt->execute();
         $smrSpins = (int)$smrSpinsStmt->fetchColumn();
         
-        $internalSpinsStmt = $this->pdo->query("SELECT COUNT(*) FROM spins");
+        $internalSpinsStmt = $this->pdo->query("SELECT COUNT(*) FROM station_spins");
         $internalSpins = (int)$internalSpinsStmt->fetchColumn();
         $parityRate = $smrSpins > 0 ? (min($smrSpins, $internalSpins) / max($smrSpins, $internalSpins)) * 100 : 0;
 
