@@ -535,4 +535,75 @@ class ContentLedgerService
             throw new InvalidArgumentException('Filename is required');
         }
     }
+
+    /**
+     * Get a list of ledger entries with filtering and pagination
+     * 
+     * @param int $limit Maximum number of records
+     * @param int $offset Offset for pagination
+     * @param int|null $ownerId Filter by owner
+     * @param string|null $source Filter by upload source
+     * @return array Result array with items and total count
+     */
+    public function getList(int $limit = 50, int $offset = 0, ?int $ownerId = null, ?string $source = null): array
+    {
+        try {
+            $query = "SELECT l.*, u.name as owner_name FROM content_ledger l LEFT JOIN users u ON l.owner_id = u.id";
+            $where = [];
+            $params = [];
+
+            if ($ownerId) {
+                $where[] = "l.owner_id = :ownerId";
+                $params[':ownerId'] = $ownerId;
+            }
+
+            if ($source) {
+                $where[] = "l.upload_source = :source";
+                $params[':source'] = $source;
+            }
+
+            if (!empty($where)) {
+                $query .= " WHERE " . implode(" AND ", $where);
+            }
+
+            $query .= " ORDER BY l.created_at DESC LIMIT :limit OFFSET :offset";
+
+            $stmt = $this->pdo->prepare($query);
+            foreach ($params as $key => $val) {
+                $stmt->bindValue($key, $val);
+            }
+            $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Get total count
+            $countQuery = "SELECT COUNT(*) FROM content_ledger l";
+            if (!empty($where)) {
+                $countQuery .= " WHERE " . implode(" AND ", $where);
+            }
+            $countStmt = $this->pdo->prepare($countQuery);
+            foreach ($params as $key => $val) {
+                $countStmt->bindValue($key, $val);
+            }
+            $countStmt->execute();
+            $total = (int)$countStmt->fetchColumn();
+
+            return [
+                'items' => $items,
+                'total' => $total,
+                'limit' => $limit,
+                'offset' => $offset
+            ];
+        } catch (\Exception $e) {
+            $this->logger->error('ledger_list_failed', ['error' => $e->getMessage()]);
+            return [
+                'items' => [],
+                'total' => 0,
+                'limit' => $limit,
+                'offset' => $offset
+            ];
+        }
+    }
 }

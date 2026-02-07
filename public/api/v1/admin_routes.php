@@ -200,6 +200,43 @@ $router->post('/admin/smr/:id/finalize', function (Request $request) use ($confi
     }
 });
 
+// ===== CONTENT LEDGER ROUTES (NGN 2.0.3) =====
+$router->get('/admin/content-ledger', function (Request $request) use ($config) {
+    try {
+        $queryParams = $request->query();
+        $limit = (int)($queryParams['limit'] ?? 50);
+        $offset = (int)($queryParams['offset'] ?? 0);
+        $ownerId = $queryParams['owner_id'] ?? null;
+        $source = $queryParams['source'] ?? null;
+
+        $pdo = $config->getDatabase();
+        $service = new \NGN\Lib\Legal\ContentLedgerService($pdo, $config, new \Monolog\Logger('admin_ledger'));
+        
+        // Since getRegistry doesn't exist in ContentLedgerService yet, we'll query directly or update service
+        // For now, let's assume we'll add getList to the service
+        $result = $service->getList($limit, $offset, $ownerId ? (int)$ownerId : null, $source);
+        
+        return new JsonResponse(['success' => true, 'data' => $result]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
+$router->get('/admin/content-ledger/:id', function (Request $request) use ($config) {
+    try {
+        $id = $request->param('id');
+        $pdo = $config->getDatabase();
+        $stmt = $pdo->prepare("SELECT * FROM content_ledger WHERE id = ?");
+        $stmt->execute([(int)$id]);
+        $entry = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$entry) return new JsonResponse(['error' => 'Not found'], 404);
+        
+        return new JsonResponse(['success' => true, 'data' => $entry]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 // ===== RIGHTS LEDGER ROUTES =====
 $router->get('/admin/rights-ledger', function (Request $request) use ($config) {
     try {
