@@ -424,12 +424,20 @@ $router->post('/admin/charts/disputes/:id/resolve', function (Request $request) 
 $router->get('/admin/entities/:type', function (Request $request) use ($config) {
     try {
         $type = $request->param('type');
-        $limit = (int)($request->query('limit') ?? 50);
-        $offset = (int)($request->query('offset') ?? 0);
-        $search = $request->query('search');
-        $pdo = $config->getDatabase();
-        $service = new \NGN\Lib\Services\EntityService($pdo);
-        $result = $service->getList($type, $limit, $offset, $search);
+                $limit = (int)($request->query('limit') ?? 50);
+                $offset = (int)($request->query('offset') ?? 0);
+                $search = $request->query('search');
+                
+                // Ensure search is a string or null, not an array
+                if (is_array($search)) {
+                    $search = !empty($search) ? (string)reset($search) : null;
+                }
+        
+                $pdo = $config->getDatabase();
+                $service = new \NGN\Lib\Services\EntityService($pdo);
+        
+                $result = $service->getList($type, $limit, $offset, $search);
+        
         return new JsonResponse(['success' => true, 'data' => $result]);
     } catch (Exception $e) {
         return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
