@@ -32,19 +32,23 @@ class EntityService
         $searchField = $this->getSearchField($type);
 
         $sql = "SELECT * FROM $table";
-        $params = [];
-
+        
         if ($search) {
-            $sql .= " WHERE $searchField LIKE ?";
-            $params[] = "%$search%";
+            $sql .= " WHERE $searchField LIKE :search";
         }
 
-        $sql .= " ORDER BY created_at DESC LIMIT ? OFFSET ?";
-        $params[] = $limit;
-        $params[] = $offset;
+        $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
+        
+        if ($search) {
+            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+        }
+        
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        
+        $stmt->execute();
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // Get total count for pagination
