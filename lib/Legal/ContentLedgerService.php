@@ -548,7 +548,7 @@ class ContentLedgerService
     public function getList(int $limit = 50, int $offset = 0, ?int $ownerId = null, ?string $source = null): array
     {
         try {
-            $query = "SELECT l.*, u.name as owner_name FROM content_ledger l LEFT JOIN users u ON l.owner_id = u.id";
+            $query = "SELECT l.*, u.display_name as owner_name FROM content_ledger l LEFT JOIN users u ON l.owner_id = u.id";
             $where = [];
             $params = [];
 
@@ -597,14 +597,12 @@ class ContentLedgerService
                 'offset' => $offset
             ];
         } catch (\Exception $e) {
-            error_log("ContentLedgerService::getList Error: " . $e->getMessage());
             $this->logger->error('ledger_list_failed', ['error' => $e->getMessage()]);
             return [
                 'items' => [],
                 'total' => 0,
                 'limit' => $limit,
-                'offset' => $offset,
-                'error' => $e->getMessage()
+                'offset' => $offset
             ];
         }
     }
