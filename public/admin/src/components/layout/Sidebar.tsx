@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { Menu, X, BarChart3, FileUp, Scale, DollarSign, Zap, Users, Settings } from 'lucide-react'
+import { Menu, X, BarChart3, TrendingUp, FileUp, Scale, DollarSign, Zap, Users, Settings } from 'lucide-react'
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(true)

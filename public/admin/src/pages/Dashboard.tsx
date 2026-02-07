@@ -1,8 +1,16 @@
 import { Link } from 'react-router-dom'
-import { FileUp, Scale, DollarSign, Zap, Users, AlertCircle } from 'lucide-react'
+import { FileUp, Scale, DollarSign, Zap, Users, AlertCircle, TrendingUp } from 'lucide-react'
 
 export default function Dashboard() {
   const modules = [
+    {
+      title: 'Analytics',
+      description: 'Platform metrics, growth trends, and engagement',
+      icon: TrendingUp,
+      color: 'bg-orange-500',
+      link: '/analytics',
+      status: 'Active'
+    },
     {
       title: 'SMR Pipeline',
       description: 'Upload and manage radio data (Erik\'s workflow)',
@@ -41,7 +49,7 @@ export default function Dashboard() {
       icon: Users,
       color: 'bg-cyan-500',
       link: '/entities/artists',
-      status: 'Coming Soon'
+      status: 'Active'
     }
   ]
 
