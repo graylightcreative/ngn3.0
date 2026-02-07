@@ -1,6 +1,9 @@
 RewriteEngine On
 RewriteBase /admin/
 
+# Redirect old admin-v2 path to /admin/
+RewriteRule ^admin-v2/(.*)$ /admin/$1 [R=301,L]
+
 # If the request is for a real file or directory, serve it
 RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d

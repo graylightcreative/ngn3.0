@@ -3,6 +3,9 @@
 
 RewriteEngine On
 
+# Redirect old admin-v2 path to /admin
+RewriteRule ^admin-v2(.*)$ admin$1 [R=301,L]
+
 # ============================================================================
 # SECURITY - Deny Direct Access to Sensitive Files/Directories
 # ============================================================================
