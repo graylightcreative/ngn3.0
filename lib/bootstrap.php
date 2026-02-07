@@ -223,9 +223,10 @@ try {
 if (!defined('NGN_VERSION_BANNER_RENDERED')) {
     try {
         if (php_sapi_name() !== 'cli' && !str_contains($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
-            $version = getenv('NGN_VERSION') ?: '2.0.1';
-            $environment = getenv('APP_ENV') ?: 'dev';
-            $releaseDate = getenv('NGN_RELEASE_DATE') ?: date('Y-m-d');
+            // Read from $_ENV (loaded by Env::load above) or use defaults
+            $version = $_ENV['NGN_VERSION'] ?? getenv('NGN_VERSION') ?? '2.0.1';
+            $environment = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'dev';
+            $releaseDate = $_ENV['NGN_RELEASE_DATE'] ?? getenv('NGN_RELEASE_DATE') ?? date('Y-m-d');
 
             if (class_exists('NGN\\Lib\\UI\\VersionBanner')) {
                 echo \NGN\Lib\UI\VersionBanner::render($version, $environment, $releaseDate);
