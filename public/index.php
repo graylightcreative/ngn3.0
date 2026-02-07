@@ -2626,5 +2626,8 @@ if ($isNotFound) {
         }
     });
   </script>
+
+  <?php require $root . 'lib/partials/global-footer.php'; ?>
+
 </body>
 </html>

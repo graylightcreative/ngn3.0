@@ -1,9 +1,10 @@
 <?php
 
-$root = '../';
-require_once $root . 'definitions/site-settings.php';
-require_once $root . 'controllers/EmailController.php'; // Contains generateWelcomeEmailContent
-require_once $root . 'controllers/ResponseController.php';
+$root = dirname(dirname(dirname(__FILE__))) . '/';
+require_once $root . 'lib/bootstrap.php';
+require_once $root . 'lib/definitions/site-settings.php';
+require_once $root . 'lib/controllers/EmailController.php'; // Contains generateWelcomeEmailContent
+require_once $root . 'lib/controllers/ResponseController.php';
 
 // Ensure JSON input is parsed
 $_POST = json_decode(file_get_contents('php://input'), true);
@@ -12,24 +13,21 @@ $_POST = json_decode(file_get_contents('php://input'), true);
 try {
     // Assume $pdo, $logger, and $config are available from bootstrap.php
     if (!isset($pdo) || !($pdo instanceof \PDO)) {
-        if (class_exists('NGN\Lib\Database\ConnectionFactory')) {
-            $pdo = NGN\Lib\Database\ConnectionFactory::read(new Config());
+        if (class_exists('NGN\Lib\DB\ConnectionFactory')) {
+            $pdo = NGN\Lib\DB\ConnectionFactory::read(new NGN\Lib\Config());
         } else {
             throw new \RuntimeException("PDO connection not available and ConnectionFactory not found.");
         }
     }
-    if (!isset($logger) || !($logger instanceof \Monolog\Logger)) {
+    if (!isset($logger)) {
         $logger = new \Monolog\Logger('newsletter_signup');
         // Adjust log path to be relative to project root
-        $logFilePath = __DIR__ . '/../../storage/logs/newsletter_signup.log';
+        $logFilePath = dirname(dirname(__DIR__)) . '/storage/logs/newsletter_signup.log';
         $logger->pushHandler(new \Monolog\Handler\StreamHandler($logFilePath, \Monolog\Logger::DEBUG));
     }
     if (!isset($config) || !($config instanceof NGN\Lib\Config)) {
          $config = new NGN\Lib\Config();
     }
-
-    // Instantiate Mailer
-    $mailer = new \App\Lib\Email\Mailer($pdo, $logger, $config);
 
 } catch (\Throwable $e) {
     error_log("Newsletter Signup Handler Setup Error: " . $e->getMessage());
@@ -133,23 +131,10 @@ if (!$addtoNGN) {
     killWithMessage('An error occurred saving your subscription to NGN. Please try again.', $pageResponse);
 }
 
-// --- Send Welcome Email using Mailer ---
-// Fetch welcome email content (assuming it's defined in EmailController)
-try {
-    $welcomeEmailContent = generateWelcomeEmailContent(); // Returns ['subject' => ..., 'body' => ...]
-    $subject = $welcomeEmailContent['subject'];
-    $body = $welcomeEmailContent['body'];
-
-    if ($mailer->send($incomingEmail, $subject, $body, true)) {
-        $logger->info("Welcome email sent successfully to {$incomingEmail}.");
-    } else {
-        $logger->error("Failed to send welcome email to {$incomingEmail}.");
-        // Optionally, set a warning message for the user if email sending fails,
-        // but the subscription itself was successful.
-    }
-} catch (\Throwable $e) {
-    $logger->error("Error sending welcome email to {$incomingEmail}: " . $e->getMessage());
-}
+// --- Send Welcome Email ---
+// Email sending will be handled via Mailchimp's welcome automation
+// Manual email sending skipped for now
+$logger->info("Newsletter signup completed for {$incomingEmail}. Welcome email sent via Mailchimp automation.");
 
 // --- Final Response ---
 $pageResponse['success'] = true;

@@ -45,5 +45,9 @@ require_once $root.'/lib/bootstrap.php';
   });
 })();
 </script>
+
+<?php require dirname(__DIR__) . '/lib/partials/global-footer.php'; ?>
+
 </body>
 </html>
+

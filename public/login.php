@@ -244,5 +244,7 @@ $fbLoginUrl = $fbAppId ? 'https://www.facebook.com/v22.0/dialog/oauth?client_id=
       }
     });
   </script>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

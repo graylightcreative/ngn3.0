@@ -275,5 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     });
 </script>
 
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

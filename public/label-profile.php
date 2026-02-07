@@ -236,5 +236,7 @@ function render_upsell_placeholder($title, $description, $claimed) {
             </div>
         </div>
     </div>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

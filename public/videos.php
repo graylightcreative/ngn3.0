@@ -391,5 +391,7 @@ $pageDescription = "Discover the latest music videos from independent artists on
             <?php endif; ?>
         <?php endif; ?>
     </div>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

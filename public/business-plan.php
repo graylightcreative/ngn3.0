@@ -436,5 +436,7 @@
     <p>By building the operating system that connects the dots between a verified SMR spin, a merchandise sale, and a royalty payment, we are capturing value that is currently lost in the noise. We invite you to join us in defining the Next Generation of the music industry.</p>
 </div>
 
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

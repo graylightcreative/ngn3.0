@@ -181,5 +181,7 @@ function render_upsell_placeholder($title, $description, $claimed) {
             <?php endif; ?>
         </div>
     </div>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

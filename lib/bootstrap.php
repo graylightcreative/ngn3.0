@@ -35,7 +35,7 @@ if (!class_exists('NGN\\Lib\\Env')) {
     // Proactively load Env to ensure autoload is functional even if class_exists checks happen early
     $envFile = $__root . '/lib/Env.php';
     if (!class_exists('NGN\\Lib\\Env') && is_file($envFile)) {
-// require $envFile;
+        require $envFile;
     }
 }
 

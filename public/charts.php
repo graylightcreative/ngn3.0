@@ -36,5 +36,8 @@ require_once $root.'/lib/bootstrap.php';
   }catch(e){ el.textContent = 'Failed to load sample: '+(e?.message||e); }
 })();
 </script>
+
+<?php require $root . '/lib/partials/global-footer.php'; ?>
+
 </body>
 </html>

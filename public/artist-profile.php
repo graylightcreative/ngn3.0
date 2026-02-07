@@ -373,5 +373,7 @@ function render_upsell_placeholder($title, $description, $claimed) {
             <p>&copy; <?= date('Y') ?> NextGenNoise. All rights reserved.</p>
         </div>
     </footer>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

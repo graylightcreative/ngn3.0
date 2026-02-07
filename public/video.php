@@ -388,5 +388,7 @@ $entity_name = $video['title'];
         });
     }
     </script>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>

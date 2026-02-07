@@ -538,5 +538,7 @@
         }, {passive: true});
     });
 </script>
+<?php require dirname(__DIR__) . "/lib/partials/global-footer.php"; ?>
+
 </body>
 </html>
