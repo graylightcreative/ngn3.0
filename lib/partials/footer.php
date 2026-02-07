@@ -117,8 +117,7 @@
         </p>
     </div>
 </div>
-<?php if (!$authenticated): ?>
-<!-- Aggressive Email Capture Modal for Non-Logged-In Users -->
+<!-- TEMPORARY: Modal shows to ALL users while we debug authentication -->
 <div class="popup" id="contactJoinPopup">
     <button class="close-popup btn btn-sm"><i class="bi bi-x"></i></button>
     <div class="container">
@@ -200,7 +199,6 @@
         </div>
     </div>
 </div>
-<?php endif; ?>
 
 <div id="footerMenu" class="text-bg-dark">
 
@@ -262,6 +260,13 @@
 <script src="<?=$GLOBALS['Default']['Baseurl'];?>lib/js/site.js?v=<?=strtotime('now');?>"></script>
 <script src='https://js.stripe.com/v3/'></script>
 <script src="<?=$GLOBALS['Default']['Baseurl'];?>lib/js/donations.js?v=<?=strtotime('now');?>"></script>
+
+<!-- Expose authentication state BEFORE newsletter-signup loads (it checks window.NGN.isAuthenticated) -->
+<script>
+    window.NGN = window.NGN || {};
+    window.NGN.isAuthenticated = <?php echo $authenticated ? 'true' : 'false'; ?>;
+</script>
+
 <script src="<?=$GLOBALS['Default']['Baseurl'];?>lib/js/newsletter-signup.js?v=<?=strtotime('now');?>"></script>
 <script src="<?=$GLOBALS['Default']['Baseurl'];?>lib/js/search.js?v=<?=strtotime('now');?>"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
@@ -278,10 +283,6 @@
     $('#footerMenuExpand').on('click', function () {
         $('#footerStats').slideToggle();
     })
-
-    // Expose authentication state to JavaScript
-    window.NGN = window.NGN || {};
-    window.NGN.isAuthenticated = <?php echo $authenticated ? 'true' : 'false'; ?>;
 </script>
 
 </body>
