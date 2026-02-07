@@ -190,8 +190,14 @@ $router->get('/admin/rights-ledger', function (Request $request) use ($config) {
 
 $router->get('/admin/rights-ledger/disputes', function (Request $request) use ($config) {
     try {
-        $status = $request->query('status');
-        $limit = (int)($request->query('limit') ?? 50);
+        $queryParams = $request->query();
+        $status = $queryParams['status'] ?? null;
+        
+        if (is_array($status)) {
+            $status = !empty($status) ? (string)reset($status) : null;
+        }
+        
+        $limit = (int)($queryParams['limit'] ?? 50);
         $pdo = $config->getDatabase();
         $service = new \NGN\Lib\Services\RightsLedgerService($pdo);
         $disputes = $service->getDisputes($status, $limit);
