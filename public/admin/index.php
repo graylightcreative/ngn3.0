@@ -8,7 +8,7 @@
  * 3. Serves the SPA shell that loads React
  */
 
-require_once __DIR__ . '/../admin/_guard.php';
+require_once __DIR__ . '/_guard.php';
 
 // Extract JWT from Authorization header or session
 $adminToken = '';
