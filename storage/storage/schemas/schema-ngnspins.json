@@ -1,0 +1,145 @@
+{
+  "connections": [
+    {
+      "connection": "ngnspins",
+      "database": "ngnspins",
+      "tables": [
+        {
+          "table": "spindata",
+          "columns": [
+            {
+              "Field": "Id",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "PRI",
+              "Default": null,
+              "Extra": "auto_increment",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Artist",
+              "Type": "varchar(255)",
+              "Collation": "utf8mb4_0900_ai_ci",
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Song",
+              "Type": "varchar(255)",
+              "Collation": "utf8mb4_0900_ai_ci",
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Timestamp",
+              "Type": "timestamp",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": "CURRENT_TIMESTAMP",
+              "Extra": "DEFAULT_GENERATED",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "StationId",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Approved",
+              "Type": "tinyint(1)",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": "0",
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Misc",
+              "Type": "text",
+              "Collation": "utf8mb4_0900_ai_ci",
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "TWS",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Program",
+              "Type": "varchar(255)",
+              "Collation": "utf8mb4_0900_ai_ci",
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Hotlist",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": "0",
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            }
+          ],
+          "indexes": [
+            {
+              "Table": "spindata",
+              "Non_unique": 0,
+              "Key_name": "PRIMARY",
+              "Seq_in_index": 1,
+              "Column_name": "Id",
+              "Collation": "A",
+              "Cardinality": 1920,
+              "Sub_part": null,
+              "Packed": null,
+              "Null": "",
+              "Index_type": "BTREE",
+              "Comment": "",
+              "Index_comment": "",
+              "Visible": "YES",
+              "Expression": null
+            }
+          ],
+          "create": "CREATE TABLE `spindata` (\n  `Id` int NOT NULL AUTO_INCREMENT,\n  `Artist` varchar(255) NOT NULL,\n  `Song` varchar(255) NOT NULL,\n  `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `StationId` int NOT NULL,\n  `Approved` tinyint(1) NOT NULL DEFAULT '0',\n  `Misc` text,\n  `TWS` int NOT NULL,\n  `Program` varchar(255) DEFAULT NULL,\n  `Hotlist` int NOT NULL DEFAULT '0',\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB AUTO_INCREMENT=2806 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci"
+        }
+      ]
+    }
+  ]
+}

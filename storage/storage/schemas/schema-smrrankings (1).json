@@ -1,0 +1,217 @@
+{
+  "connections": [
+    {
+      "connection": "smrrankings",
+      "database": "smr_charts",
+      "tables": [
+        {
+          "table": "chartdata",
+          "columns": [
+            {
+              "Field": "Id",
+              "Type": "int unsigned",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "PRI",
+              "Default": null,
+              "Extra": "auto_increment",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Artists",
+              "Type": "varchar(255)",
+              "Collation": "latin1_swedish_ci",
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Song",
+              "Type": "varchar(255)",
+              "Collation": "latin1_swedish_ci",
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Label",
+              "Type": "varchar(255)",
+              "Collation": "latin1_swedish_ci",
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "WOC",
+              "Type": "varchar(255)",
+              "Collation": "latin1_swedish_ci",
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "LWP",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "TWP",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Date",
+              "Type": "datetime",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "PRI",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Timestamp",
+              "Type": "timestamp",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": "CURRENT_TIMESTAMP",
+              "Extra": "DEFAULT_GENERATED",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Peak",
+              "Type": "int",
+              "Collation": null,
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "TWS",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "LWS",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Difference",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Adds",
+              "Type": "int",
+              "Collation": null,
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "StationsOn",
+              "Type": "varchar(50)",
+              "Collation": "latin1_swedish_ci",
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            }
+          ],
+          "indexes": [
+            {
+              "Table": "chartdata",
+              "Non_unique": 0,
+              "Key_name": "PRIMARY",
+              "Seq_in_index": 1,
+              "Column_name": "Id",
+              "Collation": "A",
+              "Cardinality": 22613,
+              "Sub_part": null,
+              "Packed": null,
+              "Null": "",
+              "Index_type": "BTREE",
+              "Comment": "",
+              "Index_comment": "",
+              "Visible": "YES",
+              "Expression": null
+            },
+            {
+              "Table": "chartdata",
+              "Non_unique": 0,
+              "Key_name": "PRIMARY",
+              "Seq_in_index": 2,
+              "Column_name": "Date",
+              "Collation": "A",
+              "Cardinality": 22613,
+              "Sub_part": null,
+              "Packed": null,
+              "Null": "",
+              "Index_type": "BTREE",
+              "Comment": "",
+              "Index_comment": "",
+              "Visible": "YES",
+              "Expression": null
+            }
+          ],
+          "create": "CREATE TABLE `chartdata` (\n  `Id` int unsigned NOT NULL AUTO_INCREMENT,\n  `Artists` varchar(255) NOT NULL,\n  `Song` varchar(255) NOT NULL,\n  `Label` varchar(255) NOT NULL,\n  `WOC` varchar(255) DEFAULT NULL,\n  `LWP` int NOT NULL,\n  `TWP` int NOT NULL,\n  `Date` datetime NOT NULL,\n  `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `Peak` int DEFAULT NULL,\n  `TWS` int NOT NULL,\n  `LWS` int NOT NULL,\n  `Difference` int NOT NULL,\n  `Adds` int DEFAULT NULL,\n  `StationsOn` varchar(50) DEFAULT NULL,\n  PRIMARY KEY (`Id`,`Date`)\n) ENGINE=InnoDB AUTO_INCREMENT=24349 DEFAULT CHARSET=latin1\n/*!50100 PARTITION BY RANGE (year(`Date`))\n(PARTITION p2013 VALUES LESS THAN (2014) ENGINE = InnoDB,\n PARTITION p2014 VALUES LESS THAN (2015) ENGINE = InnoDB,\n PARTITION p2015 VALUES LESS THAN (2016) ENGINE = InnoDB,\n PARTITION p2016 VALUES LESS THAN (2017) ENGINE = InnoDB,\n PARTITION p2017 VALUES LESS THAN (2018) ENGINE = InnoDB,\n PARTITION p2018 VALUES LESS THAN (2019) ENGINE = InnoDB,\n PARTITION p2019 VALUES LESS THAN (2020) ENGINE = InnoDB,\n PARTITION p2020 VALUES LESS THAN (2021) ENGINE = InnoDB,\n PARTITION p2021 VALUES LESS THAN (2022) ENGINE = InnoDB,\n PARTITION p2022 VALUES LESS THAN (2023) ENGINE = InnoDB,\n PARTITION p2023 VALUES LESS THAN (2024) ENGINE = InnoDB,\n PARTITION p_future VALUES LESS THAN MAXVALUE ENGINE = InnoDB) */"
+        }
+      ]
+    }
+  ]
+}

@@ -1,21 +1,10 @@
-# Admin Subdomain Configuration (admin.nextgennoise.com)
 RewriteEngine On
-RewriteBase /
+RewriteBase /admin/
 
-# Require authentication for all admin pages
-# (Handled in PHP via session guard in lib/bootstrap.php)
+# If the request is for a real file or directory, serve it
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
 
-# Route to admin dashboard
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /admin/index.php [L,QSA]
-
-# Security headers for admin area
-<IfModule mod_headers.c>
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-Content-Type-Options "nosniff"
-    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
-    Header set Pragma "no-cache"
-    Header set Expires "0"
-    Header set X-XSS-Protection "1; mode=block"
-</IfModule>
+# Otherwise, route everything to index.php
+RewriteRule ^ index.php [L]

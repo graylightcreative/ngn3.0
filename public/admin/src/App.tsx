@@ -19,7 +19,7 @@ import SystemHealth from './pages/system/Health'
 
 function App() {
   return (
-    <Router basename="/admin-v2">
+    <Router basename="/admin">
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />

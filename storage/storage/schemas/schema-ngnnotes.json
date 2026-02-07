@@ -1,0 +1,90 @@
+{
+  "connections": [
+    {
+      "connection": "ngnnotes",
+      "database": "ngnnotes",
+      "tables": [
+        {
+          "table": "development",
+          "columns": [
+            {
+              "Field": "Id",
+              "Type": "int unsigned",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "PRI",
+              "Default": null,
+              "Extra": "auto_increment",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Author",
+              "Type": "int",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Contents",
+              "Type": "blob",
+              "Collation": null,
+              "Null": "YES",
+              "Key": "",
+              "Default": null,
+              "Extra": "",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Created",
+              "Type": "timestamp",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": "CURRENT_TIMESTAMP",
+              "Extra": "DEFAULT_GENERATED",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            },
+            {
+              "Field": "Updated",
+              "Type": "timestamp",
+              "Collation": null,
+              "Null": "NO",
+              "Key": "",
+              "Default": "CURRENT_TIMESTAMP",
+              "Extra": "DEFAULT_GENERATED",
+              "Privileges": "select,insert,update,references",
+              "Comment": ""
+            }
+          ],
+          "indexes": [
+            {
+              "Table": "development",
+              "Non_unique": 0,
+              "Key_name": "PRIMARY",
+              "Seq_in_index": 1,
+              "Column_name": "Id",
+              "Collation": "A",
+              "Cardinality": 0,
+              "Sub_part": null,
+              "Packed": null,
+              "Null": "",
+              "Index_type": "BTREE",
+              "Comment": "",
+              "Index_comment": "",
+              "Visible": "YES",
+              "Expression": null
+            }
+          ],
+          "create": "CREATE TABLE `development` (\n  `Id` int unsigned NOT NULL AUTO_INCREMENT,\n  `Author` int NOT NULL,\n  `Contents` blob,\n  `Created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  `Updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\n  PRIMARY KEY (`Id`)\n) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3"
+        }
+      ]
+    }
+  ]
+}

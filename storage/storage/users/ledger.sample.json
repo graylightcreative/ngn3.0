@@ -1,0 +1,12 @@
+[
+  {
+    "email": "user@example.com",
+    "password": "secret",
+    "roles": ["guest"]
+  },
+  {
+    "email": "hashed@example.com",
+    "password_bcrypt": "$2y$10$CjCqFv1bXj1oQhS4b8dC7OniwJ5Qv9m7d4qTz6A0o7r8e9uWzT8Fe",
+    "roles": ["guest"]
+  }
+]
