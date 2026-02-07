@@ -28,48 +28,53 @@ class EntityService
      */
     public function getList(string $type, int $limit = 50, int $offset = 0, ?string $search = null): array
     {
-        $table = $this->mapTypeToTable($type);
-        $searchField = $this->getSearchField($type);
+        try {
+            $table = $this->mapTypeToTable($type);
+            $searchField = $this->getSearchField($type);
 
-        $sql = "SELECT * FROM $table";
-        
-        if ($search) {
-            $sql .= " WHERE $searchField LIKE :search";
+            $sql = "SELECT * FROM $table";
+            
+            if ($search) {
+                $sql .= " WHERE $searchField LIKE :search";
+            }
+
+            $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
+
+            $stmt = $this->pdo->prepare($sql);
+            
+            if ($search) {
+                $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+            }
+            
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Get total count for pagination
+            $countSql = "SELECT COUNT(*) FROM $table";
+            if ($search) {
+                $countSql .= " WHERE $searchField LIKE :search";
+            }
+            
+            $countStmt = $this->pdo->prepare($countSql);
+            if ($search) {
+                $countStmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
+            }
+            $countStmt->execute();
+            $total = (int)$countStmt->fetchColumn();
+
+            return [
+                'items' => $items,
+                'total' => $total,
+                'page' => floor($offset / $limit) + 1,
+                'limit' => $limit
+            ];
+        } catch (Exception $e) {
+            error_log("EntityService Error ($type): " . $e->getMessage());
+            throw $e;
         }
-
-        $sql .= " ORDER BY created_at DESC LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->pdo->prepare($sql);
-        
-        if ($search) {
-            $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
-        }
-        
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        
-        $stmt->execute();
-        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Get total count for pagination
-        $countSql = "SELECT COUNT(*) FROM $table";
-        if ($search) {
-            $countSql .= " WHERE $searchField LIKE :search";
-        }
-        
-        $countStmt = $this->pdo->prepare($countSql);
-        if ($search) {
-            $countStmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
-        }
-        $countStmt->execute();
-        $total = (int)$countStmt->fetchColumn();
-
-        return [
-            'items' => $items,
-            'total' => $total,
-            'page' => floor($offset / $limit) + 1,
-            'limit' => $limit
-        ];
     }
 
     /**
