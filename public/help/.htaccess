@@ -1,0 +1,14 @@
+# Help/Support Subdomain Configuration (help.nextgennoise.com)
+RewriteEngine On
+RewriteBase /
+
+# Route to help section
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /help/index.php [L,QSA]
+
+# Enable caching for help pages
+<IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=3600"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

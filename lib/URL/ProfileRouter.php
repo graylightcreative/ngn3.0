@@ -406,4 +406,28 @@ class ProfileRouter
             $this->cache = [];
         }
     }
+
+    /**
+     * Static helper: Resolve custom domain quickly with config-provided PDO
+     * Useful for early routing in bootstrap or index.php
+     *
+     * @param string $domain - e.g., "johnny.com"
+     * @param PDO|null $pdo - Optional PDO instance; uses Config default if not provided
+     * @return array|null
+     */
+    public static function staticResolveCustomDomain(string $domain, ?PDO $pdo = null): ?array
+    {
+        if (!$pdo) {
+            try {
+                $config = new \NGN\Lib\Config();
+                $pdo = \NGN\Lib\DB\ConnectionFactory::read($config);
+            } catch (Exception $e) {
+                error_log("ProfileRouter::staticResolveCustomDomain - Failed to get PDO: " . $e->getMessage());
+                return null;
+            }
+        }
+
+        $router = new self($pdo);
+        return $router->resolveByCustomDomain($domain);
+    }
 }

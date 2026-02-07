@@ -2,6 +2,30 @@ RewriteEngine On
 Options -MultiViews -Indexes
 
 # ============================================================================
+# SUBDOMAIN ROUTING (Compartmentalization)
+# ============================================================================
+
+# Route api.nextgennoise.com to /api/
+RewriteCond %{HTTP_HOST} ^api\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ /api/$1 [L,QSA]
+
+# Route admin.nextgennoise.com to /admin/
+RewriteCond %{HTTP_HOST} ^admin\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ /admin/$1 [L,QSA]
+
+# Route legal.nextgennoise.com to /legal/
+RewriteCond %{HTTP_HOST} ^legal\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ /legal/$1 [L,QSA]
+
+# Route help.nextgennoise.com to /help/
+RewriteCond %{HTTP_HOST} ^help\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ /help/$1 [L,QSA]
+
+# Route my.nextgennoise.com to /dashboard/
+RewriteCond %{HTTP_HOST} ^my\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ /dashboard/$1 [L,QSA]
+
+# ============================================================================
 # HTTP CACHING & COMPRESSION
 # ============================================================================
 

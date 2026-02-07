@@ -1,0 +1,20 @@
+# Legal Subdomain Configuration (legal.nextgennoise.com)
+RewriteEngine On
+RewriteBase /
+
+# Route to legal section
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /legal/index.php [L,QSA]
+
+# Enable moderate caching for certificate pages
+<IfModule mod_headers.c>
+    Header set Cache-Control "public, max-age=300"
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>
+
+# Gzip compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>

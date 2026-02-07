@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital DNA Certificate - CRT-20260206-12345678</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .certificate-container {
+            max-width: 850px;
+            margin: 20px auto;
+            background: white;
+            padding: 60px 50px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative background watermark */
+        .certificate-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .certificate-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .seal-icon {
+            display: inline-block;
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .certificate-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .certificate-subtitle {
+            font-size: 14px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #3b82f6, transparent);
+            margin: 20px auto;
+        }
+
+        .content-section {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 40px;
+        }
+
+        .content-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .content-value {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f9fafb;
+            border-left: 3px solid #3b82f6;
+            padding-left: 15px;
+        }
+
+        .certificate-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .info-group {
+            text-align: left;
+        }
+
+        .info-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .info-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #9ca3af;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #1f2937;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+
+        .hash-display {
+            background: #f3f4f6;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 12px;
+            word-break: break-all;
+        }
+
+        .qr-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 40px 0;
+            padding: 30px;
+            background: #f9fafb;
+            border-radius: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .qr-code {
+            flex-shrink: 0;
+        }
+
+        .qr-code img {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 8px;
+            background: white;
+        }
+
+        .qr-info {
+            flex: 1;
+            margin-left: 30px;
+        }
+
+        .qr-info-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .qr-info-text {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .verification-url {
+            font-size: 11px;
+            color: #3b82f6;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #e5e7eb;
+            margin-top: 8px;
+        }
+
+        .certificate-footer {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-text {
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .footer-seal {
+            display: inline-block;
+            padding: 12px 20px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background 0.3s ease;
+        }
+
+        .print-button:hover {
+            background: #2563eb;
+        }
+
+        .print-button:active {
+            transform: scale(0.98);
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .certificate-container {
+                max-width: 100%;
+                margin: 0;
+                padding: 40px 60px;
+                box-shadow: none;
+                page-break-after: avoid;
+            }
+
+            .print-button {
+                display: none;
+            }
+
+            a {
+                color: #3b82f6;
+                text-decoration: underline;
+            }
+
+            .verification-url {
+                text-decoration: underline;
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .certificate-container {
+                padding: 30px 20px;
+            }
+
+            .certificate-title {
+                font-size: 24px;
+            }
+
+            .certificate-info {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .qr-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .qr-info {
+                margin-left: 0;
+                margin-top: 20px;
+            }
+
+            .print-button {
+                position: static;
+                display: block;
+                width: 100%;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">🖨️ Print Certificate</button>
+
+    <div class="certificate-container">
+        <div class="certificate-header">
+            <div class="seal-icon">🔐</div>
+            <div class="certificate-subtitle">Digital DNA Certificate</div>
+            <h1 class="certificate-title">Ownership Verified</h1>
+            <div class="divider"></div>
+        </div>
+
+        <div class="content-section">
+            <div class="content-label">Content Title</div>
+            <div class="content-value">Test Track</div>
+
+            <div class="content-label">Artist Name</div>
+            <div class="content-value">Test Artist</div>
+        </div>
+
+        <div class="certificate-info">
+            <div class="info-group">
+                <div class="info-label">Certificate ID</div>
+                <div class="info-value">CRT-20260206-12345678</div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Registered Owner</div>
+                <div class="info-value">Test Artist</div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">Registration Date</div>
+                <div class="info-value">February 07, 2026 at 1:30 AM</div>
+            </div>
+
+            <div class="info-group">
+                <div class="info-label">File Size</div>
+                <div class="info-value">0 MB</div>
+            </div>
+
+            <div class="info-group full">
+                <div class="info-label">Content Hash (SHA-256)</div>
+                <div class="info-value">6ade3f5b...</div>
+                <div class="hash-display">6ade3f5b2363a16fd519938eaa37049e010602953ea9e3ddbe0834e62d99f974</div>
+            </div>
+
+            <div class="info-group full">
+                <div class="info-label">File Type</div>
+                <div class="info-value">audio/mpeg</div>
+            </div>
+        </div>
+
+        <div class="qr-section">
+            <div class="qr-code">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAR0AAAEdCAIAAAC+CCQsAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAIQUlEQVR4nO3d0W7lKhKG0enRvP8r97m3Rj5CfIVJtNZtb2PvdH4hV6D48/fv3/8Aqf9+/QDwC8kV9OQKenIFPbmCnlxBT66gJ1fQkyvoyRX05Ap6cgU9uYKeXEFPrqAnV9CTK+jJFfTkCnr/27n4z58/1XO8ezThWLrvewOPna8w91RLHvd9f6qlZz724YedZw7t/B+Zr6AnV9CTK+jJFfS26hYPc+/i7zd6//BOOWFp5KWvv/MFw5f+cKidD+849lu3xHwFPbmCnlxBT66gV9YtHubWH+z8LX9p5PCl/yF8rd8pJyyNvGNu1cvOUHOH6ZivoCdX0JMr6MkV9AbrFnOOrbdY8tU2iiXhFoyd0sv7F/wFZ/Oar6AnV9CTK+jJFfR+ZN3iWM+GpcdYMreNYmflylcFg19QqHgwX0FPrqAnV9CTK+gN1i3mXkZ3Njtc0vPxXbhr5quFHe83mquXXFICMV9BT66gJ1fQkyvolXWLYy/9x1YJ7NQ8wjf18PvuPNWxClDYR+Qr5ivoyRX05Ap6cgW9rbrFJX/bXnLs+Im5YkMo7DMxVwLZeaqvmK+gJ1fQkyvoyRX0/lzyFvjVESHhY/yIVQLhV3h3rAHoJWtiHsxX0JMr6MkV9OQKelt1i5039bltFA9zxYawH+ixasrStUtDvY98rFlqeG7LDvMV9OQKenIFPbmC3uB6i7klBXPvxHM7I8KqxleliDnHjp8Nr31nvoKeXEFPrqAnV9A7t0/k2IqKnWUBO+bWW7zf6JIGoMe+0cMlRawH8xX05Ap6cgU9uYLeLf0tHsJX87m2E+FL8LGtLju+Ohb1J24bMV9BT66gJ1fQkyvonetvsXPtXBljyVwLyLkbPVyyGOWrjSHHmK+gJ1fQkyvoyRX0Bs9B3akQzL1eX9JJ4v1GO08Vnkf6LlwkMfffPbc05535CnpyBT25gp5cQe9Hrrd4N3e45cNXHTt+4paTY71EL1luYr6CnlxBT66gJ1fQK+sWD8devuf6LjzcuSPjkmLDJaecXNILxHwFPbmCnlxBT66gd269xVzLyyXHDh+5cwfKu0uaQ7y78+DTB/MV9OQKenIFPbmC3uB6iyXHWl7uPEY41FdHfc79JI9tz1ly7HDaB/MV9OQKenIFPbmC3lZfzodjLS+PHYu69FRLN5pr03ls18zStXfuIgl/Vg/mK+jJFfTkCnpyBb2ybrFk7iySHV+tTpj78FIJZMncqpcdl/xema+gJ1fQkyvoyRX0tvaJ/MvQGzWApaHeP7wjXDRwyYKD9/tesi9m7r7HmK+gJ1fQkyvoyRX0Lu3LueSSrgw/sfHonQeuXvKror8F3EWuoCdX0JMr6A2ut3je6dQJGkv3nTP3jd6vfX+Mr5aMzB1tunQjdQv4weQKenIFPbmCXtnfIqwQHHuPX7pv2B9zrqqx09L03Vf1g/eR7zy71XwFPbmCnlxBT66gt1W3OHYe6dJj7Ay19BWOreQ4tl1laahLDnpdMjfyg/kKenIFPbmCnlxBr9wn8iO6Zy5dO/daP2euYLDzGA93du0MV3KYr6AnV9CTK+jJFfQG6xbvwhfKuY0h7x9eutHOfZeGWvLVz/nYUy3dKGS+gp5cQU+uoCdX0BvcJ7J07dLIc2dkvD/G0oe/OqpjaeRLyifvQ82tp1m67xLzFfTkCnpyBT25gt4t+0QuWfYR+uoLHjuZ5ZJTUr/6NXtnvoKeXEFPrqAnV9C7pS/nXLHhkjUEO3bOMTm252LH3FqNnWutt4C7yBX05Ap6cgW9wXNQvzok4thJpw9f9bfYOY712De6pA3rMeYr6MkV9OQKenIFvUv7cs65pFCx49jhpe+O7eaYG+qd9RZwF7mCnlxBT66gd8s+kYdjJ1mEz/zViaM7u0jeh9rx1Wqb93/V3wJ+MLmCnlxBT66gt1W3mOszceyv5nPFhnDrx0NYe5g7Aub9RsfqQ0vXLg31znwFPbmCnlxBT66gV663eNhZ7R8e9flup/Qy16Ni58OXlATu3I9jvQX8YHIFPbmCnlxBr+zLueSrgy0uOV5k58X9klM/ji0KWfrhLP2s5ooc5ivoyRX05Ap6cgW9sm6xtEhi6fTOh523/HA1xiXrD3aGChtivrtzzcTc8gvzFfTkCnpyBT25gt7geSLHXlUvOapjaah34fKLnSJHWD16v/arjq5LQy0xX0FPrqAnV9CTK+gN7hPZWd6/Y+5dfOlGcx0dvtpiM1eXmltgEa5NWWK+gp5cQU+uoCdX0Bvsy/kwt/xiZ3/KsUaNS8L2Dw/HzvUIH+Orfh47zFfQkyvoyRX05Ap65T6RY+b+8P8QLt0IP/x+7ZJjyxHmtpzMDbXDfAU9uYKeXEFPrqC3Vbc49ofwOysTobCJ5yWHj4S/V3Pfd+5/33wFPbmCnlxBT66gd+48kSXhxoGvVkWEf/i/s8PpV8sg5o41CX+BzVfQkyvoyRX05Ap6n/XlfNh5c53r+RievnFs68fSyDutQd5H3nmqcOSwHeoS8xX05Ap6cgU9uYLeYN3imGOnpM699B9b57H04a92oMyd3frOPhG4mlxBT66gJ1fQ+w11i/fXzZ3TSueaaS69fB9r4RCe3XrJkpGHYw9pvoKeXEFPrqAnV9AbrFt8dVJJuH0jXLsQrhI41pczfMid+4bXhgWhd+Yr6MkV9OQKenIFvbJuccnRFUsrKo6tt9gpgcz1mQhvFJ4Z+wuYr6AnV9CTK+jJFfS2zkEF/i/zFfTkCnpyBT25gp5cQU+uoCdX0JMr6MkV9OQKenIFPbmCnlxBT66gJ1fQkyvoyRX05Ap6cgW9fwC/9Juqivf0vQAAAABJRU5ErkJggg==" alt="QR Code for verification">
+            </div>
+            <div class="qr-info">
+                <div class="qr-info-title">Verify This Certificate</div>
+                <div class="qr-info-text">
+                    Scan the QR code with any smartphone to verify this certificate's authenticity on the NGN ledger. This ensures the content ownership is legitimate and the file has not been tampered with.
+                </div>
+                <div class="verification-url">
+                    https://test.example.com/api/v1/legal/verify?certificate_id=CRT-20260206-12345678
+                </div>
+            </div>
+        </div>
+
+        <div class="certificate-footer">
+            <div class="footer-text">
+                This Digital DNA Certificate proves ownership and registration of the content in the NGN (Next Generation Noise) Ledger. The QR code above can be scanned to verify the certificate's authenticity and view ownership details.
+            </div>
+            <div class="footer-text">
+                Certificate Status: Active | Ledger: NGN 2.0.2 | System: Digital Safety Seal
+            </div>
+            <div class="footer-seal">
+                ✓ Cryptographically Verified
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Auto-open print dialog on load (optional - comment out if not desired)
+        // window.addEventListener('load', function() {
+        //     window.print();
+        // });
+
+        // Handle QR code click to copy verification URL
+        document.querySelectorAll('.verification-url').forEach(el => {
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', function() {
+                const url = this.textContent;
+                navigator.clipboard.writeText(url).then(() => {
+                    alert('Verification URL copied to clipboard!');
+                }).catch(() => {
+                    console.log('URL: ' + url);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,40 @@
-Options +FollowSymLinks -MultiViews -indexes
+# API Subdomain Configuration (api.nextgennoise.com)
 RewriteEngine On
+RewriteBase /
 
+# Remove /api prefix from URI (already routed by subdomain)
+RewriteRule ^api/(.*)$ /$1 [L,R=301]
 
-RewriteRule ^login login.php [QSA,L]
+# Route all requests to API index
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /api/index.php [L,QSA]
+
+# CORS Headers for API
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept"
+    Header set Access-Control-Allow-Credentials "false"
+    Header set Access-Control-Max-Age "86400"
+
+    # No caching for API responses
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+    Header set Expires "0"
+
+    # Security headers
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "DENY"
+</IfModule>
+
+# Handle OPTIONS requests
+RewriteCond %{REQUEST_METHOD} ^OPTIONS$ [NC]
+RewriteRule ^(.*)$ - [L]
+
+# Gzip compression for API responses
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE text/javascript
+</IfModule>

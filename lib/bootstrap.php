@@ -218,3 +218,21 @@ try {
 } catch (\Throwable $e) {
     // Never break the site due to guard errors
 }
+
+// Version Banner (inject early for visibility)
+if (!defined('NGN_VERSION_BANNER_RENDERED')) {
+    try {
+        if (php_sapi_name() !== 'cli' && !str_contains($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
+            $version = getenv('NGN_VERSION') ?: '2.0.1';
+            $environment = getenv('APP_ENV') ?: 'dev';
+            $releaseDate = getenv('NGN_RELEASE_DATE') ?: date('Y-m-d');
+
+            if (class_exists('NGN\\Lib\\UI\\VersionBanner')) {
+                echo \NGN\Lib\UI\VersionBanner::render($version, $environment, $releaseDate);
+                define('NGN_VERSION_BANNER_RENDERED', true);
+            }
+        }
+    } catch (\Throwable $e) {
+        // Silently ignore banner errors
+    }
+}
