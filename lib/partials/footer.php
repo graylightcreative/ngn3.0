@@ -117,6 +117,8 @@
         </p>
     </div>
 </div>
+<?php if (!$authenticated): ?>
+<!-- Aggressive Email Capture Modal for Non-Logged-In Users -->
 <div class="popup" id="contactJoinPopup">
     <button class="close-popup btn btn-sm"><i class="bi bi-x"></i></button>
     <div class="container">
@@ -125,7 +127,7 @@
                 <form action='' method='post' novalidate class='newsletterSignup'>
                     <div class='row'>
                         <div class='col'>
-                            <h2>Newsletter Signup</h2>
+                            <h2>🤘 Join the NGN Movement!</h2>
                             <p>
                                 Don't miss a beat of the underground music scene. Sign up for the NextGen Noise newsletter and get:
                             </p>
@@ -191,13 +193,14 @@
                             </div><!-- // Band -->
                         </div>
                     </div>
-                    <button class='btn btn-lg btn-primary d-block w-100 btn-round mt-2'>Join Now
-                    </button>
+                    <button class='btn btn-lg btn-primary d-block w-100 btn-round mt-2'>Get Exclusive Access</button>
+                    <button type='button' class='btn btn-link d-block w-100 mt-2 dismiss-popup'>Not now</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<?php endif; ?>
 
 <div id="footerMenu" class="text-bg-dark">
 
@@ -275,6 +278,10 @@
     $('#footerMenuExpand').on('click', function () {
         $('#footerStats').slideToggle();
     })
+
+    // Expose authentication state to JavaScript
+    window.NGN = window.NGN || {};
+    window.NGN.isAuthenticated = <?php echo $authenticated ? 'true' : 'false'; ?>;
 </script>
 
 </body>
