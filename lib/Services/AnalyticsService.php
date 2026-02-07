@@ -37,7 +37,7 @@ class AnalyticsService
     public function getRevenueTrends(int $days = 30): array
     {
         $stmt = $this->pdo->prepare("
-            SELECT DATE(created_at) as date, SUM(amount) as total
+            SELECT DATE(created_at) as date, SUM(amount_net) as total
             FROM cdm_royalty_transactions
             WHERE source_type != 'payout' AND created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
             GROUP BY DATE(created_at)

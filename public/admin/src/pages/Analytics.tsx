@@ -36,6 +36,18 @@ export default function AnalyticsPage() {
     )
   }
 
+  if (!summary) {
+    return (
+      <div className="max-w-6xl">
+        <div className="card border-red-500/50 bg-red-500/10 text-center py-12">
+          <h2 className="text-xl font-bold text-gray-100 mb-2">Analytics Data Unavailable</h2>
+          <p className="text-red-400 mb-6">Could not retrieve platform metrics at this time.</p>
+          <button onClick={loadData} className="btn-primary px-6">Retry Connection</button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-6xl">
       <div className="flex justify-between items-center mb-6">
