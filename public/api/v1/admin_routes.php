@@ -107,6 +107,36 @@ $router->post('/admin/smr/upload', function (Request $request) use ($config) {
         }
         $userId = $request->header('X-User-Id', '1'); 
         $ingestionId = $smrService->storeUpload($file['name'], $filePath, $fileHash, $file['size'], (int)$userId);
+
+        // NGN 2.0.2: Register in content ledger (non-blocking)
+        try {
+            $ledgerService = new \NGN\Lib\Legal\ContentLedgerService($pdo, $config, new \Monolog\Logger('smr_api'));
+            $ledgerRecord = $ledgerService->registerContent(
+                ownerId: (int)$userId,
+                contentHash: $fileHash,
+                uploadSource: 'smr_ingestion',
+                metadata: [
+                    'title' => 'SMR Data Upload: ' . $file['name'],
+                    'artist_name' => '',
+                    'credits' => null,
+                    'rights_split' => null
+                ],
+                fileInfo: [
+                    'size_bytes' => $file['size'],
+                    'mime_type' => $ext === 'csv' ? 'text/csv' : 'application/vnd.ms-excel',
+                    'filename' => $file['name']
+                ],
+                sourceRecordId: $ingestionId
+            );
+
+            if (!empty($ledgerRecord['certificate_id'])) {
+                $updateStmt = $pdo->prepare("UPDATE smr_ingestions SET certificate_id = ? WHERE id = ?");
+                $updateStmt->execute([$ledgerRecord['certificate_id'], $ingestionId]);
+            }
+        } catch (\Throwable $e) {
+            error_log('SMR ledger registration failed: ' . $e->getMessage());
+        }
+
         $records = $smrService->parseFile($filePath);
         $smrService->storeRecords($ingestionId, $records);
         return new JsonResponse(['success' => true, 'data' => ['ingestion_id' => $ingestionId, 'filename' => $file['name'], 'records_parsed' => count($records)]], 201);

@@ -122,13 +122,11 @@ class EntityService
 
     private function mapTypeToTable(string $type): string
     {
-        return match ($type) {
-            'artists' => 'artists',
-            'users' => 'users',
-            'labels' => 'labels',
-            'stations' => 'stations',
-            default => throw new Exception("Invalid entity type: $type")
-        };
+        $allowed = ['artists', 'users', 'labels', 'stations'];
+        if (!in_array($type, $allowed)) {
+            throw new Exception("Invalid entity type: $type");
+        }
+        return $type;
     }
 
     private function getSearchField(string $type): string
