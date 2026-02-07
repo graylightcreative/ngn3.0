@@ -58,7 +58,8 @@ export default function Sidebar() {
       label: 'System',
       icon: Settings,
       submenu: [
-        { label: 'Health', path: '/system/health' }
+        { label: 'Health', path: '/system/health' },
+        { label: 'Ledger', path: '/system/ledger' }
       ]
     }
   ]

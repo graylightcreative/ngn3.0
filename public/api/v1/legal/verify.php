@@ -40,12 +40,27 @@ use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Legal\ContentLedgerService;
 use NGN\Lib\Logging\LoggerFactory;
+use NGN\Lib\Http\Request;
+use NGN\Lib\Middleware\RateLimiter;
+
+// Initialize config and request
+$config = new Config();
+$request = new Request();
 
 // Set response headers
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+// 2.0.3 Rate Limiting
+$limiter = new RateLimiter(__DIR__ . '/../../../../storage/logs/ratelimit', 100, 3600);
+$limitResponse = $limiter->check($request);
+if ($limitResponse) {
+    $limitResponse->send();
+    exit;
+}
+
 header('Cache-Control: public, max-age=300'); // Cache verification for 5 minutes
 
 // Handle OPTIONS preflight
@@ -62,7 +77,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $config = new Config();
     $pdo = ConnectionFactory::read($config);
     $logger = LoggerFactory::create($config, 'content_verification_api');
 

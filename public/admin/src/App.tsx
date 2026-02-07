@@ -16,6 +16,7 @@ import EntitiesUsers from './pages/entities/Users'
 import EntitiesLabels from './pages/entities/Labels'
 import EntitiesStations from './pages/entities/Stations'
 import SystemHealth from './pages/system/Health'
+import SystemLedger from './pages/system/Ledger'
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
 
           {/* System */}
           <Route path="system/health" element={<SystemHealth />} />
+          <Route path="system/ledger" element={<SystemLedger />} />
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
