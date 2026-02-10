@@ -606,4 +606,55 @@ class ContentLedgerService
             ];
         }
     }
+
+    /**
+     * Get summary statistics for the content ledger
+     * 
+     * @return array
+     */
+    public function getStats(): array
+    {
+        try {
+            // Total registrations
+            $totalStmt = $this->pdo->query("SELECT COUNT(*) FROM content_ledger");
+            $totalRegistrations = (int)$totalStmt->fetchColumn();
+
+            // Total verifications
+            $verifStmt = $this->pdo->query("SELECT COALESCE(SUM(verification_count), 0) FROM content_ledger");
+            $totalVerifications = (int)$verifStmt->fetchColumn();
+
+            // Pending anchors
+            $pendingStmt = $this->pdo->query("SELECT COUNT(*) FROM content_ledger WHERE blockchain_tx_hash IS NULL");
+            $pendingAnchors = (int)$pendingStmt->fetchColumn();
+
+            // Minted NFTs
+            $nftStmt = $this->pdo->query("SELECT COUNT(*) FROM content_ledger WHERE nft_status = 'minted'");
+            $mintedNfts = (int)$nftStmt->fetchColumn();
+
+            // Registrations in last 24 hours
+            $recentStmt = $this->pdo->query("SELECT COUNT(*) FROM content_ledger WHERE created_at >= NOW() - INTERVAL 1 DAY");
+            $recentRegistrations = (int)$recentStmt->fetchColumn();
+
+            // Verifications by result type
+            $resultStmt = $this->pdo->query("
+                SELECT verification_result, COUNT(*) as count 
+                FROM content_ledger_verification_log 
+                GROUP BY verification_result
+            ");
+            $verificationResults = $resultStmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            return [
+                'total_registrations' => $totalRegistrations,
+                'total_verifications' => $totalVerifications,
+                'pending_anchors' => $pendingAnchors,
+                'minted_nfts' => $mintedNfts,
+                'recent_registrations_24h' => $recentRegistrations,
+                'verification_results' => $verificationResults,
+                'last_updated' => date('c')
+            ];
+        } catch (\Exception $e) {
+            $this->logger->error('ledger_stats_failed', ['error' => $e->getMessage()]);
+            return [];
+        }
+    }
 }

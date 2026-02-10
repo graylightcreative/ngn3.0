@@ -53,6 +53,9 @@ class BlockchainAnchoringService
             $hashes = array_column($entries, 'content_hash');
             $merkle = new MerkleTree($hashes);
             $root = $merkle->getRoot();
+            if ($root && !str_starts_with($root, '0x')) {
+                $root = '0x' . $root;
+            }
 
             // 3. Submit to Blockchain
             $result = $this->blockchain->anchorRoot($root);

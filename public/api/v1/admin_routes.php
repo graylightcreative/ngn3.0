@@ -221,6 +221,17 @@ $router->post('/admin/smr/:id/finalize', function (Request $request) use ($confi
 });
 
 // ===== CONTENT LEDGER ROUTES (NGN 2.0.3) =====
+$router->get('/admin/content-ledger/stats', function (Request $request) use ($config) {
+    try {
+        $pdo = $config->getDatabase();
+        $service = new \NGN\Lib\Legal\ContentLedgerService($pdo, $config, new \Monolog\Logger('admin_ledger'));
+        $stats = $service->getStats();
+        return new JsonResponse(['success' => true, 'data' => $stats]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 $router->get('/admin/content-ledger', function (Request $request) use ($config) {
     try {
         $queryParams = $request->query();
@@ -264,6 +275,45 @@ $router->post('/admin/content-ledger/anchor', function (Request $request) use ($
         $result = $service->anchorPendingEntries();
         
         return new JsonResponse($result);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
+$router->post('/admin/content-ledger/:id/mint', function (Request $request) use ($config) {
+    try {
+        $id = $request->param('id');
+        $pdo = $config->getDatabase();
+        
+        // Find owner's wallet address (in real app, this would be in users table)
+        // For now, we'll use the deployer wallet as fallback for testing
+        $artistWallet = getenv('PRIVATE_KEY_ADDRESS') ?: '0xa87f29Af209f0D7c910B2f844E8Fd2d89c9D2Aaf';
+        
+        $service = new \NGN\Lib\Blockchain\NFTMintingService($pdo, $config, new \Monolog\Logger('admin_minting'));
+        $result = $service->mintForEntry((int)$id, $artistWallet);
+        
+        return new JsonResponse(['success' => true, 'data' => $result]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
+$router->put('/admin/content-ledger/:id/status', function (Request $request) use ($config) {
+    try {
+        $id = $request->param('id');
+        $body = json_decode($request->body(), true);
+        $status = $body['status'] ?? 'active';
+        $notes = $body['notes'] ?? null;
+        
+        if (!in_array($status, ['active', 'disputed', 'revoked', 'transferred'])) {
+            return new JsonResponse(['error' => 'Invalid status'], 400);
+        }
+        
+        $pdo = $config->getDatabase();
+        $stmt = $pdo->prepare("UPDATE content_ledger SET status = ?, dispute_notes = ? WHERE id = ?");
+        $stmt->execute([$status, $notes, (int)$id]);
+        
+        return new JsonResponse(['success' => true, 'message' => 'Status updated successfully']);
     } catch (Exception $e) {
         return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
     }

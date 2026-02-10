@@ -13,7 +13,22 @@ export async function getLedgerEntry(id: number) {
     return response.data.data
 }
 
+export async function getLedgerStats() {
+    const response = await api.get('/admin/content-ledger/stats')
+    return response.data.data
+}
+
 export async function anchorPendingEntries() {
     const response = await api.post('/admin/content-ledger/anchor')
+    return response.data
+}
+
+export async function mintNFT(id: number) {
+    const response = await api.post(`/admin/content-ledger/${id}/mint`)
+    return response.data
+}
+
+export async function updateLedgerStatus(id: number, status: string, notes?: string) {
+    const response = await api.put(`/admin/content-ledger/${id}/status`, { status, notes })
     return response.data
 }

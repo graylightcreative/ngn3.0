@@ -44,8 +44,10 @@ class BlockchainService
 
         $this->logger->info('blockchain_service_anchoring_start', ['merkle_root' => $merkleRoot]);
 
+        $network = getenv('BLOCKCHAIN_NETWORK') ?: 'amoy';
         $command = sprintf(
-            'npx hardhat anchor --network mumbai --root %s 2>&1',
+            'npx hardhat anchor --network %s --root %s 2>&1',
+            escapeshellarg($network),
             escapeshellarg($merkleRoot)
         );
 

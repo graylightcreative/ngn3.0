@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Shield, Search, Loader, Filter, ExternalLink, FileText, Download, Zap, CheckCircle2, Link as LinkIcon } from 'lucide-react'
-import { getLedgerEntries, anchorPendingEntries } from '../../services/ledgerService'
+import { Shield, Search, Loader, Filter, ExternalLink, FileText, Download, Zap, CheckCircle2, Link as LinkIcon, Cpu, BadgeCheck } from 'lucide-react'
+import { getLedgerEntries, anchorPendingEntries, getLedgerStats, mintNFT } from '../../services/ledgerService'
 
 interface LedgerEntry {
   id: number
@@ -14,15 +14,26 @@ interface LedgerEntry {
   status: string
   blockchain_tx_hash?: string
   blockchain_anchored_at?: string
+  nft_token_id?: string
+  nft_tx_hash?: string
+}
+
+interface LedgerStats {
+  total_registrations: number
+  total_verifications: number
+  pending_anchors: number
+  minted_nfts: number
+  recent_registrations_24h: number
 }
 
 export default function LedgerDashboard() {
   const [entries, setEntries] = useState<LedgerEntry[]>([])
+  const [stats, setStats] = useState<LedgerStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isAnchoring, setIsAnchoring] = useState(false)
+  const [isMinting, setIsMinting] = useState<number | null>(null)
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
-  const [anchoredCount, setAnchoredCount] = useState(0)
   
   const limit = 20
 
@@ -33,13 +44,13 @@ export default function LedgerDashboard() {
   async function loadData() {
     setIsLoading(true)
     try {
-      const data = await getLedgerEntries(limit, (page - 1) * limit)
-      setEntries(data.items)
-      setTotal(data.total)
-      
-      // Calculate anchored count from current items (simple approximation for UI)
-      const anchored = data.items.filter((e: LedgerEntry) => e.blockchain_tx_hash).length
-      setAnchoredCount(anchored) // In production, get this from API summary
+      const [entriesData, statsData] = await Promise.all([
+        getLedgerEntries(limit, (page - 1) * limit),
+        getLedgerStats()
+      ])
+      setEntries(entriesData.items)
+      setTotal(entriesData.total)
+      setStats(statsData)
     } catch (err) {
       console.error(err)
     } finally {
@@ -62,6 +73,21 @@ export default function LedgerDashboard() {
     }
   }
 
+  async function handleMint(id: number) {
+    if (!confirm('Mint official ERC-721 certificate for this content? This will incur gas costs.')) return
+    
+    setIsMinting(id)
+    try {
+      const result = await mintNFT(id)
+      alert(`Successfully minted NFT Certificate #${result.data.token_id}!\nTX: ${result.data.tx_hash}`)
+      loadData()
+    } catch (err) {
+      alert('Minting failed. Check wallet balance and try again.')
+    } finally {
+      setIsMinting(null)
+    }
+  }
+
   return (
     <div className="max-w-7xl">
       <div className="flex justify-between items-start mb-6">
@@ -80,25 +106,34 @@ export default function LedgerDashboard() {
           className="btn-primary py-3 px-6 flex items-center gap-2 shadow-lg shadow-brand-green/20"
         >
           {isAnchoring ? <Loader className="animate-spin" size={18} /> : <Zap size={18} />}
-          Anchor Pending Entries
+          Anchor {stats?.pending_anchors || 0} Pending Entries
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="card">
           <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Total Registered</p>
-          <p className="text-3xl font-bold text-gray-100">{total}</p>
+          <p className="text-3xl font-bold text-gray-100">{stats?.total_registrations || 0}</p>
         </div>
         <div className="card">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Blockchain Anchored</p>
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Anchored</p>
           <div className="flex items-center gap-2">
-            <p className="text-3xl font-bold text-blue-500">{entries.filter(e => e.blockchain_tx_hash).length}</p>
+            <p className="text-3xl font-bold text-blue-500">
+              {(stats?.total_registrations || 0) - (stats?.pending_anchors || 0)}
+            </p>
             <LinkIcon size={20} className="text-blue-500/50" />
           </div>
         </div>
         <div className="card">
-          <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Disputed Items</p>
-          <p className="text-3xl font-bold text-red-500">0</p>
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">NFTs Minted</p>
+          <div className="flex items-center gap-2">
+            <p className="text-3xl font-bold text-purple-500">{stats?.minted_nfts || 0}</p>
+            <Cpu size={20} className="text-purple-500/50" />
+          </div>
+        </div>
+        <div className="card">
+          <p className="text-xs text-gray-500 uppercase font-bold tracking-widest mb-1">Verifications</p>
+          <p className="text-3xl font-bold text-brand-green">{stats?.total_verifications || 0}</p>
         </div>
       </div>
 
@@ -126,11 +161,12 @@ export default function LedgerDashboard() {
                 <tr className="border-b border-gray-700 text-gray-400 text-xs uppercase tracking-wider">
                   <th className="pb-3 pl-4">Certificate ID</th>
                   <th className="pb-3">Content</th>
-                  <th className="pb-3">Status</th>
+                  <th className="pb-3">Chain Status</th>
+                  <th className="pb-3">NFT Status</th>
                   <th className="pb-3">Owner</th>
                   <th className="pb-3">Source</th>
                   <th className="pb-3">Date</th>
-                  <th className="pb-3 text-right pr-4">Verify</th>
+                  <th className="pb-3 text-right pr-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
@@ -154,6 +190,32 @@ export default function LedgerDashboard() {
                         </span>
                       )}
                     </td>
+                    <td className="py-4">
+                      {entry.nft_token_id ? (
+                        <span className="flex items-center gap-1.5 text-purple-400 text-[10px] font-bold uppercase tracking-tight">
+                          <Cpu size={12} /> Minted (#{entry.nft_token_id})
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5 text-gray-500 text-[10px] font-bold uppercase tracking-tight">
+                          <div className="w-1.5 h-1.5 rounded-full bg-gray-600" /> Pending
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-4">
+                      <button 
+                        onClick={() => handleStatusUpdate(entry.id, entry.status)}
+                        className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-tight px-2 py-0.5 rounded border ${
+                          entry.status === 'active' ? 'text-brand-green border-brand-green/30 bg-brand-green/5' :
+                          entry.status === 'disputed' ? 'text-yellow-500 border-yellow-500/30 bg-yellow-500/5' :
+                          'text-red-500 border-red-500/30 bg-red-500/5'
+                        }`}
+                      >
+                        {entry.status === 'active' && <CheckCircle2 size={10} />}
+                        {entry.status === 'disputed' && <AlertCircle size={10} />}
+                        {entry.status === 'revoked' && <XCircle size={10} />}
+                        {entry.status}
+                      </button>
+                    </td>
                     <td className="py-4 text-sm text-gray-300">
                       {entry.owner_name}
                     </td>
@@ -167,13 +229,34 @@ export default function LedgerDashboard() {
                     </td>
                     <td className="py-4 pr-4 text-right">
                       <div className="flex items-center justify-end gap-3">
+                        {!entry.nft_token_id && (
+                          <button 
+                            onClick={() => handleMint(entry.id)}
+                            disabled={isMinting !== null}
+                            className="text-purple-500 hover:text-purple-400 transition-colors p-1"
+                            title="Mint NFT Certificate"
+                          >
+                            {isMinting === entry.id ? <Loader className="animate-spin" size={14} /> : <BadgeCheck size={16} />}
+                          </button>
+                        )}
+                        {entry.nft_tx_hash && (
+                          <a 
+                            href={`https://amoy.polygonscan.com/tx/${entry.nft_tx_hash}`} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="text-purple-500 hover:text-purple-400 transition-colors"
+                            title="View NFT Transaction"
+                          >
+                            <LinkIcon size={14} />
+                          </a>
+                        )}
                         {entry.blockchain_tx_hash && (
                           <a 
-                            href={`https://polygonscan.com/tx/${entry.blockchain_tx_hash}`} 
+                            href={`https://amoy.polygonscan.com/tx/${entry.blockchain_tx_hash}`} 
                             target="_blank" 
                             rel="noreferrer"
                             className="text-blue-500 hover:text-blue-400 transition-colors"
-                            title="View Blockchain Transaction"
+                            title="View Anchoring Transaction"
                           >
                             <LinkIcon size={14} />
                           </a>

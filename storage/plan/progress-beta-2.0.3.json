@@ -19,7 +19,7 @@
     {
       "id": "nft_certificate_minting",
       "description": "Mint ERC-721 NFT certificates",
-      "status": "pending",
+      "status": "completed",
       "priority": "high",
       "phase": "post-2.0.2",
       "details": "Automatically mint NFT for each registered content. Store certificate metadata on IPFS. Transfer NFT to artist's wallet. Enables digital ownership verification and potential secondary market functionality."
@@ -35,7 +35,7 @@
     {
       "id": "admin_ledger_dashboard",
       "description": "Create admin dashboard for ledger management",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "phase": "post-2.0.2",
       "details": "Admin UI to view ledger entries, filter by owner/source/status, view verification analytics, manage disputed content, bulk operations. Real-time statistics on registration and verification activity."
@@ -140,7 +140,7 @@
   },
   "summary": {
     "total_planned_tasks": 12,
-    "completed": 0,
+    "completed": 2,
     "in_progress": 1,
     "pending": 11,
     "estimated_effort_weeks": 16,
@@ -154,7 +154,7 @@
       "completion_percentage": 0,
       "deliverables": "Smart contract on testnet, Web3 integration, DB schema, batch worker"
     },
-    "completion_percentage": 15
+    "completion_percentage": 35
   },
   "dependencies": {
     "2_0_2_must_complete": [
