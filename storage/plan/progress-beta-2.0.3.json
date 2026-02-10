@@ -6,7 +6,7 @@
   "target_release": "May 9-16, 2026",
   "target_completion_date": "2026-05-16",
   "description": "Beta 2.0.3 - Advanced Features: Blockchain Anchoring, NFT Certificates, Enhanced Governance",
-  "notes": "Officially launched February 9, 2026. Phase 1 (Blockchain) executing weeks Feb 16 - Mar 13.",
+  "notes": "Contract deployed to Amoy: 0xfD39fc3c30794c8F0f9983279f02D10B3BD45Ce3",
   "tasks": [
     {
       "id": "blockchain_anchoring",
@@ -106,7 +106,10 @@
     }
   ],
   "blockchain_integration_plan": {
-    "networks": ["Ethereum Mainnet", "Polygon (preferred - lower fees)"],
+    "networks": [
+      "Ethereum Mainnet",
+      "Polygon (preferred - lower fees)"
+    ],
     "contract_type": "Custom smart contract for content ledger anchoring",
     "key_functions": [
       "anchor(bytes32 merkle_root) - Submit ledger root hash",
@@ -150,7 +153,8 @@
       "status": "Starting Week of Feb 16",
       "completion_percentage": 0,
       "deliverables": "Smart contract on testnet, Web3 integration, DB schema, batch worker"
-    }
+    },
+    "completion_percentage": 15
   },
   "dependencies": {
     "2_0_2_must_complete": [

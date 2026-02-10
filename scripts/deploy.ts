@@ -43,8 +43,8 @@ async function main() {
     contractAddress,
     deployerAddress: deployer.address,
     admin,
-    network: "Polygon Mumbai",
-    chainId: 80001,
+    network: "Polygon Amoy",
+    chainId: 80002,
     deployedAt: new Date().toISOString(),
   };
 

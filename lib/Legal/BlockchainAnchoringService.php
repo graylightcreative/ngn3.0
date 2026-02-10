@@ -6,6 +6,7 @@ use PDO;
 use Exception;
 use NGN\Lib\Config;
 use NGN\Lib\Utils\MerkleTree;
+use NGN\Lib\Blockchain\BlockchainService;
 use Monolog\Logger;
 
 /**
@@ -16,12 +17,14 @@ class BlockchainAnchoringService
     private PDO $pdo;
     private Config $config;
     private Logger $logger;
+    private BlockchainService $blockchain;
 
     public function __construct(PDO $pdo, Config $config, Logger $logger)
     {
         $this->pdo = $pdo;
         $this->config = $config;
         $this->logger = $logger;
+        $this->blockchain = new BlockchainService($config, $logger);
     }
 
     /**
@@ -51,9 +54,9 @@ class BlockchainAnchoringService
             $merkle = new MerkleTree($hashes);
             $root = $merkle->getRoot();
 
-            // 3. Submit to Blockchain (Simulated for Phase 1 of 2.0.3)
-            // In Phase 2, this will use Web3.php to call the Polygon smart contract
-            $txHash = '0x' . hash('sha256', $root . time());
+            // 3. Submit to Blockchain
+            $result = $this->blockchain->anchorRoot($root);
+            $txHash = $result['tx_hash'];
             $anchoredAt = date('Y-m-d H:i:s');
 
             // 4. Update Ledger Entries
@@ -62,7 +65,7 @@ class BlockchainAnchoringService
             
             $updateStmt = $this->pdo->prepare("
                 UPDATE content_ledger 
-                SET blockchain_tx_hash = ?, blockchain_anchored_at = ? 
+                SET blockchain_tx_hash = ?, blockchain_anchored_at = ?, blockchain_status = 'confirmed'
                 WHERE id IN ($placeholders)
             ");
             
