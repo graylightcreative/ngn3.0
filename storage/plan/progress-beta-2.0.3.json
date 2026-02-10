@@ -6,7 +6,7 @@
   "target_release": "May 9-16, 2026",
   "target_completion_date": "2026-05-16",
   "description": "Beta 2.0.3 - Advanced Features: Blockchain Anchoring, NFT Certificates, Enhanced Governance",
-  "notes": "Contract deployed to Amoy: 0xfD39fc3c30794c8F0f9983279f02D10B3BD45Ce3",
+  "notes": "NGN transitioned to Graylight Tenant model. Core services (Identity, Storage, Settlement) offloaded to Sovereign API. Bridge operational.",
   "tasks": [
     {
       "id": "blockchain_anchoring",
@@ -154,7 +154,7 @@
       "completion_percentage": 0,
       "deliverables": "Smart contract on testnet, Web3 integration, DB schema, batch worker"
     },
-    "completion_percentage": 35
+    "completion_percentage": 45
   },
   "dependencies": {
     "2_0_2_must_complete": [

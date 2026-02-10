@@ -265,6 +265,11 @@ class Config
     // Global API auth requirement (defaults to true — lock down API)
     public function requireAuthForApi(): bool { return Env::bool('REQUIRE_AUTH_FOR_API', true); }
 
+    // Graylight Sovereign API Config
+    public function glApiKey(): string { return Env::get('GL_API_KEY', '') ?? ''; }
+    public function glSecretKey(): string { return Env::get('GL_SECRET_KEY', '') ?? ''; }
+    public function glBaseUrl(): string { return rtrim(Env::get('GL_BASE_URL', 'https://graylightcreative.com/api/v1'), '/'); }
+
     /**
      * Get a PDO database connection.
      * This is used extensively by the Admin v2 API and setup scripts.
