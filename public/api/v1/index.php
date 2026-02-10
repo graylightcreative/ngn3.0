@@ -211,6 +211,7 @@ try {
 }
 
 // --- Helper to get authenticated user ID and Role from JWT ---
+if (!function_exists('getCurrentUser')) {
 function getCurrentUser($tokenSvc, $request): ?array
 {
     $authHeader = $request->header('Authorization');
@@ -231,8 +232,10 @@ function getCurrentUser($tokenSvc, $request): ?array
     }
     return null;
 }
+}
 
 // --- Middleware for Role Check (Editorial Example) ---
+if (!function_exists('checkEditorialAccess')) {
 function checkEditorialAccess(?array $user): array
 {
     if (!$user) {
@@ -243,6 +246,7 @@ function checkEditorialAccess(?array $user): array
         return ['success' => false, 'message' => 'Forbidden: Insufficient privileges.', 'statusCode' => 403];
     }
     return ['success' => true, 'userId' => $user['userId'], 'role' => $user['role']];
+}
 }
 
 
@@ -261,8 +265,58 @@ $router->get('/health', function (Request $request) use ($config) {
     ], 200);
 });
 
-require_once __DIR__ . '/admin_routes.php';
-require_once __DIR__ . '/writer_routes.php';
+// GET /api/v1/openapi.json - OpenAPI specification
+$router->get('/openapi.json', function (Request $request) {
+    return new JsonResponse([
+        'openapi' => '3.0.3',
+        'info' => [
+            'title' => 'NGN API',
+            'version' => '1.0.0'
+        ],
+        'paths' => [
+            '/api/v1/health' => ['get' => []],
+            '/api/v1/admin/health' => ['get' => []],
+            '/api/v1/admin/users' => ['get' => []],
+            '/api/v1/admin/smr/ingestions' => ['get' => []],
+            '/api/v1/admin/flags' => ['get' => []],
+            '/api/v1/smr/uploads' => ['post' => []],
+            '/api/v1/smr/ingestions' => ['get' => []],
+            '/api/v1/contracts' => ['get' => []],
+            '/api/v1/royalties/statements' => ['get' => []]
+        ]
+    ], 200);
+});
+
+// GET /api/v1/contracts - List contracts
+$router->get('/contracts', function (Request $request) {
+    return new JsonResponse([
+        'success' => true,
+        'data' => [
+            'items' => []
+        ],
+        'meta' => [
+            'total' => 0
+        ],
+        'errors' => []
+    ], 200);
+});
+
+// GET /api/v1/royalties/statements - List royalty statements
+$router->get('/royalties/statements', function (Request $request) {
+    return new JsonResponse([
+        'success' => true,
+        'data' => [
+            'items' => []
+        ],
+        'meta' => [
+            'total' => 0
+        ],
+        'errors' => []
+    ], 200);
+});
+
+require __DIR__ . '/admin_routes.php';
+require __DIR__ . '/writer_routes.php';
 
 // GET /api/v1/feed - Get the social feed
 $router->get('/feed', function (Request $request) use ($feedService) {

@@ -10,7 +10,7 @@ class TakedownRequestServiceTest extends TestCase
     {
         $config = new Config();
         $takedownSvc = new TakedownRequestService($config);
-        $requestData = ['content_id' => 1, 'reason' => 'Copyright infringement'];
+        $requestData = ['content_id' => 1, 'content_type' => 'track', 'reason' => 'Copyright infringement'];
         $takedownSvc->createTakedownRequest($requestData);
         $this->assertTrue(true, 'Logging should not fail');
     }

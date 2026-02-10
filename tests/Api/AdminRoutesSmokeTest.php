@@ -29,12 +29,12 @@ class AdminRoutesSmokeTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/v1/admin/health';
         $_GET = [];
 
-        $index = __DIR__ . '/../../api/v1/index.php';
+        $index = __DIR__ . '/../../public/api/v1/index.php';
         ob_start();
         include $index;
         $out = ob_get_clean();
         $json = json_decode($out, true);
-        $this->assertArrayHasKey('data', $json);
+        $this->assertArrayHasKey('data', $json, "Response missing 'data' key. Output: " . $out);
         $this->assertArrayHasKey('meta', $json);
         $this->assertArrayHasKey('errors', $json);
         $this->assertArrayHasKey('services', $json['data']);

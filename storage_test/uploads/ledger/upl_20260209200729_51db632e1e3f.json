@@ -1,0 +1,55 @@
+{
+    "id": "upl_20260209200729_51db632e1e3f",
+    "station_id": 1,
+    "filename": "upl_20260209200729_51db632e1e3f.csv",
+    "original_name": "sample.csv",
+    "mime": "text/csv",
+    "size_bytes": 46,
+    "path": "/Users/brock/Documents/Projects/ngn_202/tests/Smr/../../storage_test/uploads/20260209/upl_20260209200729_51db632e1e3f.csv",
+    "file_hash": "b80f195351bfad0bbc3662b4cf2b98d708134eb9825f27d338d319a65d14d119",
+    "certificate_id": null,
+    "status": "preview_ready",
+    "created_at": "2026-02-09T20:07:29+00:00",
+    "updated_at": "2026-02-09T20:07:29+00:00",
+    "header_candidates": {
+        "headers": [
+            "Artist",
+            "Track",
+            "Spins",
+            "Date"
+        ],
+        "sheet": null,
+        "rows_sampled": 1,
+        "sheets": [],
+        "sample_rows": [
+            {
+                "Artist": "Foo",
+                "Track": "Bar",
+                "Spins": "10",
+                "Date": "2025-01-01"
+            }
+        ]
+    },
+    "mapping_suggestions": {
+        "artist": {
+            "header": "Artist",
+            "confidence": 100
+        },
+        "track": {
+            "header": "Track",
+            "confidence": 100
+        },
+        "spins": {
+            "header": "Spins",
+            "confidence": 100
+        },
+        "date": {
+            "header": "Date",
+            "confidence": 100
+        }
+    },
+    "preview_path": "/Users/brock/Documents/Projects/ngn_202/tests/Smr/../../storage_test/uploads/previews/upl_20260209200729_51db632e1e3f.json",
+    "rows_count": 1,
+    "progress": 100,
+    "preview_available": true
+}

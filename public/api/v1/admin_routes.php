@@ -10,6 +10,26 @@ if (!isset($router) || !isset($config)) {
     return;
 }
 
+// GET /api/v1/admin/health - Admin system health check
+$router->get('/admin/health', function (Request $request) use ($config) {
+    try {
+        $pdo = $config->getDatabase();
+        $service = new \NGN\Lib\Services\SystemHealthService($pdo);
+        return new JsonResponse([
+            'success' => true,
+            'data' => [
+                'services' => $service->getHealthStatus()
+            ],
+            'meta' => [
+                'time' => date('c')
+            ],
+            'errors' => []
+        ], 200);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+});
+
 // GET /api/v1/admin/upgrade/checks
 $router->get('/admin/upgrade/checks', function (Request $request) use ($config) {
     try {

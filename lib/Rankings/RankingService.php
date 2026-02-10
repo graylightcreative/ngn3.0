@@ -34,6 +34,7 @@ class RankingService
      */
     public function topArtists(int $top, string $interval): array
     {
+        $top = max(1, min($top, 100));
         if ($this->dbReady) {
             $list = $this->list('artists', $interval, 1, $top, 'rank', 'asc');
             return ['items' => $list['items'], 'interval' => $interval, 'top' => $top];
@@ -47,6 +48,7 @@ class RankingService
      */
     public function topLabels(int $top, string $interval): array
     {
+        $top = max(1, min($top, 100));
         if ($this->dbReady) {
             $list = $this->list('labels', $interval, 1, $top, 'rank', 'asc');
             return ['items' => $list['items'], 'interval' => $interval, 'top' => $top];
@@ -60,6 +62,7 @@ class RankingService
      */
     public function topGenres(int $top, string $interval): array
     {
+        $top = max(1, min($top, 100));
         if ($this->dbReady) {
             $list = $this->list('genres', $interval, 1, $top, 'rank', 'asc');
             return ['items' => $list['items'], 'interval' => $interval, 'top' => $top];
@@ -104,7 +107,14 @@ class RankingService
                     if ($win) {
                         $wid = (int)$win['id'];
                         $orderCol = (strtolower($sort) === 'score') ? 'score' : 'rank';
-                        $sql = "SELECT SQL_CALC_FOUND_ROWS entity_id AS id, score, rank, prev_rank
+                        
+                        // Get total first (since FOUND_ROWS() is unreliable/deprecated)
+                        $countSql = "SELECT COUNT(*) FROM `ngn_rankings_2025`.`ranking_items` WHERE window_id = :wid AND entity_type = :et";
+                        $cstmt = $this->pdo->prepare($countSql);
+                        $cstmt->execute([':wid' => $wid, ':et' => $entityType]);
+                        $total = (int)$cstmt->fetchColumn();
+
+                        $sql = "SELECT entity_id AS id, `score`, `rank`, prev_rank
                                 FROM `ngn_rankings_2025`.`ranking_items`
                                 WHERE window_id = :wid AND entity_type = :et
                                 ORDER BY `{$orderCol}` {$dirSql}, entity_id ASC
@@ -116,7 +126,6 @@ class RankingService
                         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
                         $stmt->execute();
                         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                        $total = (int)($this->pdo->query('SELECT FOUND_ROWS()')->fetchColumn() ?: 0);
 
                         // Best-effort join to ngn_2025 for display names
                         $nameMap = [];
@@ -255,6 +264,14 @@ class RankingService
                 // fall through to mock
             }
         }
+
+        // Fallback: mock item
+        $all = $this->mockItems($resource === 'artists' ? 'artist' : ($resource === 'labels' ? 'label' : 'genre'), 100, $interval);
+        foreach ($all as $it) {
+            if ($it['id'] === $id) return $it;
+        }
+        return null;
+    }
 
     private function sort(array $items, string $sort, string $dir): array
     {

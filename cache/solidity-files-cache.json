@@ -1,0 +1,40 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/brock/Documents/Projects/ngn_202/contracts/ContentLedgerAnchor.sol": {
+      "lastModificationDate": 1770648719606,
+      "contentHash": "978cab96edf1db06c87001a8bcdd7e19",
+      "sourceName": "contracts/ContentLedgerAnchor.sol",
+      "solcConfig": {
+        "version": "0.8.19",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.19"
+      ],
+      "artifacts": [
+        "ContentLedgerAnchor"
+      ]
+    }
+  }
+}

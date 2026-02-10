@@ -26,16 +26,21 @@
     {
       "version": "beta-2.0.3",
       "file": "progress-beta-2.0.3.json",
-      "status": "PLANNED",
-      "target_release": "Q2 2026",
+      "status": "IN_PROGRESS",
+      "start_date": "2026-02-09",
+      "target_release": "May 16, 2026",
+      "current_phase": "1_blockchain_integration",
+      "phase_start_date": "2026-02-16",
       "completion": 0,
       "planned_tasks": 12,
+      "in_progress_tasks": 1,
       "key_features": [
         "Blockchain anchoring for immutable proof",
         "NFT certificate minting (ERC-721)",
         "Advanced analytics dashboard",
         "Multi-party rights management"
-      ]
+      ],
+      "active_team": "Backend Lead + Blockchain Specialist + Full-Stack Engineer"
     }
   ],
   "deployment_roadmap": [

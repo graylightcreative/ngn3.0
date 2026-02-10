@@ -9,6 +9,7 @@ class UploadServiceNegativeTest extends TestCase
     {
         // Use a dedicated temp upload dir for tests
         putenv('UPLOAD_DIR=' . sys_get_temp_dir() . '/ngn_uploads_test_' . bin2hex(random_bytes(3)));
+        putenv('UPLOAD_MAX_MB=50');
         @mkdir(getenv('UPLOAD_DIR'), 0775, true);
     }
 
@@ -16,6 +17,7 @@ class UploadServiceNegativeTest extends TestCase
     {
         // Set max to 1 byte to force rejection
         putenv('UPLOAD_MAX_MB=0');
+        $_ENV['UPLOAD_MAX_MB'] = '0';
         $tmp = tempnam(sys_get_temp_dir(), 'ngn_csv_');
         file_put_contents($tmp, "A\n"); // > 0 bytes
         $files = [

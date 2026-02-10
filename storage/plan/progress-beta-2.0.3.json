@@ -1,13 +1,17 @@
 {
   "version": "beta-2.0.3",
-  "status": "PLANNED",
-  "target_release": "Q2 2026",
+  "status": "IN_PROGRESS",
+  "current_phase": "1_blockchain_integration",
+  "start_date": "2026-02-09",
+  "target_release": "May 9-16, 2026",
+  "target_completion_date": "2026-05-16",
   "description": "Beta 2.0.3 - Advanced Features: Blockchain Anchoring, NFT Certificates, Enhanced Governance",
+  "notes": "Officially launched February 9, 2026. Phase 1 (Blockchain) executing weeks Feb 16 - Mar 13.",
   "tasks": [
     {
       "id": "blockchain_anchoring",
       "description": "Implement blockchain anchoring for immutable proof",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "high",
       "phase": "post-2.0.2",
       "details": "Submit Merkle root of content ledger to Ethereum/Polygon smart contract. Store blockchain_tx_hash in ledger entries. Provide immutable timestamp proof for copyright protection. Enables artists to prove ownership across multiple platforms."
@@ -134,10 +138,19 @@
   "summary": {
     "total_planned_tasks": 12,
     "completed": 0,
-    "in_progress": 0,
-    "pending": 12,
+    "in_progress": 1,
+    "pending": 11,
     "estimated_effort_weeks": 16,
-    "estimated_team_size": 2
+    "actual_effort_weeks_so_far": 0.5,
+    "estimated_team_size": 2,
+    "budget_total": 13500,
+    "budget_allocated": 13500,
+    "budget_spent": 0,
+    "phase_1_progress": {
+      "status": "Starting Week of Feb 16",
+      "completion_percentage": 0,
+      "deliverables": "Smart contract on testnet, Web3 integration, DB schema, batch worker"
+    }
   },
   "dependencies": {
     "2_0_2_must_complete": [

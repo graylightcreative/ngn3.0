@@ -11,6 +11,8 @@ class FastlyTest extends TestCase
 
     protected function setUp(): void
     {
+        putenv('FASTLY_API_KEY=test-key');
+        putenv('FASTLY_SERVICE_ID=test-service-id');
         // Create the mock CurlHandler
         $this->mockCurlHandler = $this->createMock(CurlHandler::class);
 

@@ -1,0 +1,16 @@
+{
+    "headers": [
+        "Artist",
+        "Track",
+        "Spins",
+        "Date"
+    ],
+    "sample_rows": [
+        {
+            "Artist": "Foo",
+            "Track": "Bar",
+            "Spins": "10",
+            "Date": "2025-01-01"
+        }
+    ]
+}

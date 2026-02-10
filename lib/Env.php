@@ -208,7 +208,10 @@ class Env
 
     public static function get(string $key, ?string $default = null): ?string
     {
-        $v = $_ENV[$key] ?? $_SERVER[$key] ?? \getenv($key);
+        $v = \getenv($key);
+        if ($v === false || $v === null || $v === '') {
+            $v = $_ENV[$key] ?? $_SERVER[$key] ?? $v;
+        }
         if ($v === false || $v === null) return $default;
         return (string)$v;
     }

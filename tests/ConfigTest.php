@@ -23,6 +23,7 @@ class ConfigTest extends TestCase
     public function testValidateCriticalFailsWithoutJwtSecret(): void
     {
         putenv('JWT_SECRET=');
+        unset($_ENV['JWT_SECRET'], $_SERVER['JWT_SECRET']);
         $config = new Config();
         $this->assertFalse($config->validateCritical());
         $this->assertNotEmpty($config->errors());

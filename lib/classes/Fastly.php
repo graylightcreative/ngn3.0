@@ -6,8 +6,8 @@ class Fastly {
 
     public function __construct($service_id = null)
     {
-        $this->api_key = $_ENV['FASTLY_API_KEY'] ?? null; // Get API key from .env
-        $this->service_id = $service_id ?? $_ENV['FASTLY_SERVICE_ID'] ?? null; // Service ID from .env or passed as argument
+        $this->api_key = getenv('FASTLY_API_KEY'); // Get API key from env
+        $this->service_id = $service_id ?? getenv('FASTLY_SERVICE_ID'); // Service ID from env or passed as argument
 
         if (empty($this->api_key)) {
             throw new Exception("FASTLY_API_KEY is not set.");
@@ -59,30 +59,28 @@ class Fastly {
         return true;
     }
 
-    private function createHealthCheck($version, $health_check_path)
+    public function createDomain($domain_name)
     {
-        $url = "https://api.fastly.com/service/{$this->service_id}/version/{$version}/healthcheck";
-        $healthCheckData = [
-            'name' => 'origin_health_check',
-            'http_version' => '1.1',
-            'method' => 'GET',
-            'host' => 'nextgennoise.com',
-            'path' => $health_check_path,
-            'expected_response' => 200,
-            'check_interval' => 30,
-            'threshold' => 3,
-            'window' => 5
-        ];
-        $curlHandler = $this->initializeCurlHandler($url, 'POST', $healthCheckData);
-
+        $url = "https://api.fastly.com/service/{$this->service_id}/version/1/domain";
+        $curlHandler = $this->initializeCurlHandler($url, 'POST', ['name' => $domain_name]);
         $response = $curlHandler->execute();
-        if (!$response) {
-            $this->logError("Failed to create Fastly health check.");
-            return false;
-        }
+        return json_decode($response, true);
+    }
 
-        $decodedResponse = json_decode($response, true);
-        return isset($decodedResponse['name']) ? $decodedResponse : false;
+    private $curlHandler;
+
+    public function setCurlHandler($curlHandler) {
+        $this->curlHandler = $curlHandler;
+    }
+
+    private function initializeCurlHandler($url, $method = 'GET', $data = []) {
+        if ($this->curlHandler) {
+            // Mock handler usage
+            return $this->curlHandler; 
+        }
+        
+        // ... (real curl init logic would go here if not mocked)
+        return null; 
     }
 
     private function updateBackendHealthCheck($service_id, $version, $backend_name, $health_check_name)

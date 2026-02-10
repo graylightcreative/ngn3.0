@@ -28,7 +28,7 @@ class RankingsApiTest extends TestCase
 
     public function testServiceListPaginationAndSorting(): void
     {
-        $svc = new NGN\Lib\Rankings\RankingService();
+        $svc = new NGN\Lib\Rankings\RankingService(new Config());
         $res = $svc->list('artist', 'daily', 2, 5, 'score', 'desc');
         $this->assertIsArray($res);
         $this->assertArrayHasKey('items', $res);

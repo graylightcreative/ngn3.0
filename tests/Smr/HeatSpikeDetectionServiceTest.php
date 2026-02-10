@@ -116,7 +116,7 @@ class HeatSpikeDetectionServiceTest extends TestCase
     /**
      * Test record heat spike creates database entry
      */
-    public function testRecordHeatSpike_CreatesDatabase Entry(): void
+    public function testRecordHeatSpike_CreatesDatabaseEntry(): void
     {
         $this->assertNotNull($this->pdo);
 

@@ -6,7 +6,7 @@ class RankingServiceTest extends TestCase
 {
     public function testTopArtistsReturnsNumericTypes(): void
     {
-        $svc = new RankingService();
+        $svc = new RankingService(new \NGN\Lib\Config());
         $res = $svc->topArtists(10, 'daily');
         $this->assertIsArray($res);
         $this->assertArrayHasKey('items', $res);
@@ -26,7 +26,7 @@ class RankingServiceTest extends TestCase
 
     public function testTopCapAt100(): void
     {
-        $svc = new RankingService();
+        $svc = new RankingService(new \NGN\Lib\Config());
         $res = $svc->topLabels(1000, 'weekly');
         $this->assertCount(100, $res['items']);
         $this->assertSame(100, $res['top']);

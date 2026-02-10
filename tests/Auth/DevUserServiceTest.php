@@ -16,6 +16,8 @@ class DevUserServiceTest extends TestCase
         ];
         file_put_contents($this->ledgerPath, json_encode($users));
         putenv('USERS_LEDGER_PATH=' . $this->ledgerPath);
+        $_ENV['USERS_LEDGER_PATH'] = $this->ledgerPath;
+        $_SERVER['USERS_LEDGER_PATH'] = $this->ledgerPath;
     }
 
     protected function tearDown(): void

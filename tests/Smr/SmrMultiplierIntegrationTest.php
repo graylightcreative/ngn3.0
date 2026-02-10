@@ -15,6 +15,8 @@ class SmrMultiplierIntegrationTest extends TestCase
 
     protected function setUp(): void
     {
+        putenv('SMR_SPIN_WEIGHT=50');
+        $_ENV['SMR_SPIN_WEIGHT'] = 50;
         try {
             $config = new Config();
             $this->calculator = new RankingCalculator($config);

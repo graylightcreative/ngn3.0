@@ -22,7 +22,7 @@ class OpenApiRouteTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/v1/openapi.json';
         $_GET = [];
 
-        $index = __DIR__ . '/../../api/v1/index.php';
+        $index = __DIR__ . '/../../public/api/v1/index.php';
         $this->assertFileExists($index, 'API front controller not found');
 
         ob_start();
@@ -36,10 +36,11 @@ class OpenApiRouteTest extends TestCase
         $this->assertArrayHasKey('info', $json);
         $this->assertArrayHasKey('paths', $json);
         $this->assertSame('3.0.3', $json['openapi']);
-        $this->assertArrayHasKey('/api/v1/health', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/smr/uploads', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/smr/ingestions', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/contracts', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/royalties/statements', $json['paths']);
+        $paths = $json['paths'] ?? [];
+        $this->assertArrayHasKey('/api/v1/health', $paths);
+        $this->assertArrayHasKey('/api/v1/smr/uploads', $paths);
+        $this->assertArrayHasKey('/api/v1/smr/ingestions', $paths);
+        $this->assertArrayHasKey('/api/v1/contracts', $paths);
+        $this->assertArrayHasKey('/api/v1/royalties/statements', $paths);
     }
 }

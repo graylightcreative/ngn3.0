@@ -18,7 +18,7 @@ class RoyaltiesRoutesSmokeTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/api/v1/contracts?labelId=2';
         $_GET = ['labelId' => '2'];
-        $index = __DIR__ . '/../../api/v1/index.php';
+        $index = __DIR__ . '/../../public/api/v1/index.php';
         ob_start();
         include $index;
         $out = ob_get_clean();
@@ -35,7 +35,7 @@ class RoyaltiesRoutesSmokeTest extends TestCase
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $_SERVER['REQUEST_URI'] = '/api/v1/royalties/statements?period=2025-Q2';
         $_GET = ['period' => '2025-Q2'];
-        $index = __DIR__ . '/../../api/v1/index.php';
+        $index = __DIR__ . '/../../public/api/v1/index.php';
         ob_start();
         include $index;
         $out = ob_get_clean();

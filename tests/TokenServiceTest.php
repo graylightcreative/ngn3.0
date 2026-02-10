@@ -7,10 +7,18 @@ class TokenServiceTest extends TestCase
 {
     protected function setUp(): void
     {
-        putenv('JWT_SECRET=test-secret');
-        putenv('JWT_ISS=ngn-test');
-        putenv('JWT_AUD=ngn-clients-test');
-        putenv('JWT_TTL_SECONDS=60');
+        $envVars = [
+            'JWT_SECRET' => 'test-secret',
+            'JWT_ISS' => 'ngn-test',
+            'JWT_AUD' => 'ngn-clients-test',
+            'JWT_TTL_SECONDS' => '60'
+        ];
+        
+        foreach ($envVars as $key => $val) {
+            putenv("$key=$val");
+            $_ENV[$key] = $val;
+            $_SERVER[$key] = $val;
+        }
     }
 
     public function testIssueAndDecodeToken(): void

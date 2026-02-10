@@ -18,14 +18,18 @@ class AdminOpenApiTest extends TestCase
         $_SERVER['REQUEST_URI'] = '/api/v1/openapi.json';
         $_GET = [];
 
-        $index = __DIR__ . '/../../api/v1/index.php';
+        $index = __DIR__ . '/../../public/api/v1/index.php';
         ob_start();
         include $index;
         $out = ob_get_clean();
         $json = json_decode($out, true);
-        $this->assertArrayHasKey('/api/v1/admin/health', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/admin/users', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/admin/smr/ingestions', $json['paths']);
-        $this->assertArrayHasKey('/api/v1/admin/flags', $json['paths']);
+        
+        $this->assertIsArray($json, 'Output is not valid JSON: ' . $out);
+        $this->assertArrayHasKey('paths', $json, "OpenAPI spec missing 'paths' key. Output: " . $out);
+        $paths = $json['paths'] ?? [];
+        $this->assertArrayHasKey('/api/v1/admin/health', $paths);
+        $this->assertArrayHasKey('/api/v1/admin/users', $paths);
+        $this->assertArrayHasKey('/api/v1/admin/smr/ingestions', $paths);
+        $this->assertArrayHasKey('/api/v1/admin/flags', $paths);
     }
 }

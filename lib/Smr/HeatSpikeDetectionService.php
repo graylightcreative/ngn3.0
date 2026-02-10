@@ -39,7 +39,7 @@ class HeatSpikeDetectionService
             $upload = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$upload) {
-                throw new Exception("Upload {$uploadId} not found");
+                return [];
             }
 
             // Get all unique artists from this upload

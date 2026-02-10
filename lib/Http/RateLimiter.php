@@ -12,8 +12,10 @@ class RateLimiter
     public function __construct(Config $config, ?string $storageDir = null)
     {
         $this->storageDir = $storageDir ?: sys_get_temp_dir().'/ngn_rate_limit';
-        $this->perMin = (int)(getenv('RATE_LIMIT_PER_MIN') ?: 60);
-        $this->burst = (int)(getenv('RATE_LIMIT_BURST') ?: 30);
+        $perMin = getenv('RATE_LIMIT_PER_MIN');
+        $this->perMin = ($perMin !== false) ? (int)$perMin : 60;
+        $burst = getenv('RATE_LIMIT_BURST');
+        $this->burst = ($burst !== false) ? (int)$burst : 30;
         if (!is_dir($this->storageDir)) {
             @mkdir($this->storageDir, 0775, true);
         }

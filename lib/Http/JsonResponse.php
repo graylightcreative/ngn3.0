@@ -25,11 +25,13 @@ class JsonResponse
      */
     public function send(): void
     {
-        http_response_code($this->statusCode);
-        header('Content-Type: application/json; charset=utf-8');
+        if (!headers_sent()) {
+            http_response_code($this->statusCode);
+            header('Content-Type: application/json; charset=utf-8');
 
-        foreach ($this->headers as $key => $value) {
-            header($key . ': ' . $value);
+            foreach ($this->headers as $key => $value) {
+                header($key . ': ' . $value);
+            }
         }
 
         echo json_encode($this->payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
