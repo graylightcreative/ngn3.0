@@ -38,14 +38,16 @@ class SMRIngestionService
         $filename = basename($filePath);
         
         // 1. Temporal Anchoring - Extract Week and Year from filename
-        // Pattern: SMR-MMDDYYYY.xlsx - [Week]-[Year] Top 200.csv
         $temporalData = $this->extractTemporalData($filename);
         $spinAt = $this->calculateSpinAt($temporalData['week'], $temporalData['year']);
 
         // 2. Parse CSV and Map Columns
         $rows = $this->parseAndMapCsv($filePath, $spinAt);
 
-        // 3. Prepare Payload for Graylight
+        // 3. Store Locally for Matching (Optional but recommended for CDM_Match)
+        $this->storeLocally($filename, $rows);
+
+        // 4. Prepare Payload for Graylight
         $payload = [
             'namespace' => 'NGN_SMR_DUMP',
             'schema_version' => 'v1.1.0',
@@ -59,17 +61,49 @@ class SMRIngestionService
             'data' => $rows
         ];
 
-        // 4. The Push to Graylight
+        // 5. The Push to Graylight
         $result = $this->glClient->call('ingest/push', $payload);
 
         if (!isset($result['success']) || !$result['success']) {
             throw new Exception("Graylight Ingestion Failed: " . ($result['message'] ?? 'unknown_error'));
         }
 
-        // 5. Local Match (Placeholder for Task 4.Local Match)
-        // In real execution, this would trigger CDM_Match logic using $result['vault_id']
-        
-        return array_merge($result, ['report_date' => $spinAt]);
+        return array_merge($result, [
+            'report_date' => $spinAt,
+            'week' => $temporalData['week'],
+            'year' => $temporalData['year']
+        ]);
+    }
+
+    /**
+     * Store records in local smr_records table for CDM_Match
+     */
+    private function storeLocally(string $filename, array $rows): void
+    {
+        // Create an ingestion record if not exists or use filename
+        $stmt = $this->pdo->prepare("
+            INSERT INTO smr_ingestions (filename, status, created_at)
+            VALUES (?, 'pending_review', NOW())
+        ");
+        $stmt->execute([$filename]);
+        $ingestionId = $this->pdo->lastInsertId();
+
+        $recordStmt = $this->pdo->prepare("
+            INSERT INTO smr_records (
+                ingestion_id, artist_name, track_title, spin_count, reach_count, last_week_spin_count, status
+            ) VALUES (?, ?, ?, ?, ?, ?, 'pending_mapping')
+        ");
+
+        foreach ($rows as $row) {
+            $recordStmt->execute([
+                $ingestionId,
+                $row['raw_artist_name'],
+                $row['raw_track_title'],
+                $row['spin_count'],
+                $row['reach_count'],
+                $row['last_week_spin_count']
+            ]);
+        }
     }
 
     /**
@@ -77,8 +111,9 @@ class SMRIngestionService
      */
     private function extractTemporalData(string $filename): array
     {
-        // Example: SMR-01012024.xlsx - 01-2024 Top 200.csv
-        if (preg_match('/(\d{2})-(\d{4}) Top 200/i', $filename, $matches)) {
+        // Pattern: SMR TOP 50 CHART Master Week [Week]-[Year].xlsx - [Week]-[Year] Top 200.csv
+        // Extract from the suffix as per directive
+        if (preg_match('/ - (\d{1,2})-(\d{4}) Top 200/i', $filename, $matches)) {
             return [
                 'week' => (int)$matches[1],
                 'year' => (int)$matches[2]
@@ -113,7 +148,7 @@ class SMRIngestionService
         $headerTrimmed = array_map('trim', $header);
         $map = array_flip($headerTrimmed);
         
-        $required = ['ARTIST', 'TITLE', 'TW SPIN', 'TW POS', 'STATIONS ON', 'LABEL'];
+        $required = ['ARTIST', 'TITLE', 'TW SPIN', 'LW SPIN', 'STATIONS ON', 'LABEL'];
         foreach ($required as $col) {
             if (!isset($map[$col])) {
                 $found = implode(', ', $headerTrimmed);
@@ -133,7 +168,8 @@ class SMRIngestionService
                 'raw_artist_name' => $row[$map['ARTIST']] ?? '',
                 'raw_track_title' => $row[$map['TITLE']] ?? '',
                 'spin_count' => (int)($row[$map['TW SPIN']] ?? 0),
-                'rank_position' => (int)($row[$map['TW POS']] ?? 0),
+                'last_week_spin_count' => (int)($row[$map['LW SPIN']] ?? 0),
+                'rank_position' => (int)($row[$map['TW POS']] ?? 0), // Include if exists
                 'reach_count' => $reachCount,
                 'raw_label_name' => $row[$map['LABEL']] ?? '',
                 'spin_at' => $spinAt

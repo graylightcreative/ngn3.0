@@ -32,6 +32,7 @@ if (!is_dir($archiveDir)) {
 
 // 1. Scan for files
 echo "Scanning $archiveDir for SMR Archive files...\n";
+// Pattern: SMR TOP 50 CHART Master Week [Week]-[Year].xlsx - [Week]-[Year] Top 200.csv
 $files = glob($archiveDir . '/* Top 200.csv');
 
 if (empty($files)) {
@@ -53,23 +54,26 @@ foreach ($files as $filePath) {
         $result = $ingestService->push($filePath);
         
         $vaultId = $result['data']['vault_id'] ?? 'N/A';
+        $txHash = $result['data']['transaction_hash'] ?? 'N/A';
         echo "   [OK] Anchored! Vault ID: $vaultId\n";
+        echo "   [OK] Transaction: $txHash\n";
         echo "   [DATE] Report Date: " . $result['report_date'] . "\n";
         
         // 2. Log Locally
         $stmt = $pdo->prepare("
             INSERT INTO cdm_ingestion_logs (
-                vault_id, namespace, filename, report_week, report_year, status
-            ) VALUES (?, ?, ?, ?, ?, ?)
+                vault_id, transaction_hash, namespace, filename, report_week, report_year, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         ");
         
-        // Extract metadata for logging
-        preg_match('/(\d{2})-(\d{4}) Top 200/i', $filename, $m);
+        // Extract metadata for logging (from suffix)
+        preg_match('/ - (\d{1,2})-(\d{4}) Top 200/i', $filename, $m);
         $week = isset($m[1]) ? (int)$m[1] : null;
         $year = isset($m[2]) ? (int)$m[2] : null;
         
         $stmt->execute([
             $vaultId,
+            $txHash,
             'NGN_SMR_DUMP',
             $filename,
             $week,
@@ -80,7 +84,8 @@ foreach ($files as $filePath) {
         $successCount++;
         
         // 3. Local Match (CDM Reload)
-        // trigger matching script
+        echo "   🔄 Triggering CDM Match...\n";
+        include __DIR__ . '/CDM_Match.php';
         
     } catch (\Throwable $e) {
         echo "   [FAIL] " . $e->getMessage() . "\n";
