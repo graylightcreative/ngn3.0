@@ -33,7 +33,7 @@ class GraylightServiceClient
         $baseUrl = $this->config->glBaseUrl();
         $url = $baseUrl . '/' . ltrim($endpoint, '/');
         $timestamp = time();
-        $jsonPayload = json_encode($payload);
+        $jsonPayload = json_encode(['payload' => $payload]);
         
         // HMAC SHA-256: Payload + Timestamp signed with Secret Key
         $signature = hash_hmac('sha256', $jsonPayload . $timestamp, $this->config->glSecretKey());

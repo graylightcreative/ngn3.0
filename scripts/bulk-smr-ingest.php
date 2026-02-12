@@ -25,18 +25,24 @@ $ingestService = new SMRIngestionService($pdo, $config, $glClient);
 
 $archiveDir = __DIR__ . '/../storage/archives/smr';
 
-if (!is_dir($archiveDir)) {
-    echo "[ERROR] Archive directory not found at $archiveDir\n";
-    exit(1);
+// Handle single file argument
+$targetFile = null;
+foreach ($argv as $arg) {
+    if (str_contains($arg, '--file=')) {
+        $targetFile = str_replace('--file=', '', $arg);
+    }
 }
 
-// 1. Scan for files
-echo "Scanning $archiveDir for SMR Archive files...\n";
-// Pattern: SMR TOP 50 CHART Master Week [Week]-[Year].xlsx - [Week]-[Year] Top 200.csv
-$files = glob($archiveDir . '/* Top 200.csv');
+if ($targetFile) {
+    $files = [$targetFile];
+    echo "🎯 Targeting single file: " . basename($targetFile) . "\n";
+} else {
+    echo "Scanning $archiveDir for SMR Archive files...\n";
+    $files = glob($archiveDir . '/* Top 200.csv');
+}
 
 if (empty($files)) {
-    echo "[INFO] No files matching '* Top 200.csv' found.\n";
+    echo "[INFO] No files found.\n";
     exit(0);
 }
 
@@ -46,9 +52,19 @@ $successCount = 0;
 $failCount = 0;
 
 foreach ($files as $filePath) {
+    if (!file_exists($filePath)) {
+        echo "   [SKIP] File not found: $filePath\n";
+        continue;
+    }
+
     $filename = basename($filePath);
     echo "\nProcessing: $filename\n";
     
+    if (strpos($filename, 'unknown') !== false) {
+        echo "   [SKIP] Non-historical fragment detected.\n";
+        continue;
+    }
+
     try {
         // Ingest and Push
         $result = $ingestService->push($filePath);
@@ -57,7 +73,7 @@ foreach ($files as $filePath) {
         $txHash = $result['data']['transaction_hash'] ?? 'N/A';
         echo "   [OK] Anchored! Vault ID: $vaultId\n";
         echo "   [OK] Transaction: $txHash\n";
-        echo "   [DATE] Report Date: " . $result['report_date'] . "\n";
+        echo "   [DATE] Report Date: " . ($result['report_date'] ?? 'N/A') . "\n";
         
         // 2. Log Locally
         $stmt = $pdo->prepare("
@@ -66,18 +82,13 @@ foreach ($files as $filePath) {
             ) VALUES (?, ?, ?, ?, ?, ?, ?)
         ");
         
-        // Extract metadata for logging (from suffix)
-        preg_match('/ - (\d{1,2})-(\d{4}) Top 200/i', $filename, $m);
-        $week = isset($m[1]) ? (int)$m[1] : null;
-        $year = isset($m[2]) ? (int)$m[2] : null;
-        
         $stmt->execute([
             $vaultId,
             $txHash,
             'NGN_SMR_DUMP',
             $filename,
-            $week,
-            $year,
+            $result['week'] ?? null,
+            $result['year'] ?? null,
             'anchored'
         ]);
         
@@ -89,6 +100,13 @@ foreach ($files as $filePath) {
         
     } catch (\Throwable $e) {
         echo "   [FAIL] " . $e->getMessage() . "\n";
+        
+        // Log failure locally
+        try {
+            $stmt = $pdo->prepare("INSERT INTO cdm_ingestion_logs (vault_id, namespace, filename, status) VALUES (?, ?, ?, ?)");
+            $stmt->execute(['FAILED', 'NGN_SMR_DUMP', $filename, 'failed_anchor']);
+        } catch (\Throwable $dbE) {}
+        
         $failCount++;
     }
 }

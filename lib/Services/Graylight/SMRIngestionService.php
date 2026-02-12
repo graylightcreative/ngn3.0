@@ -64,7 +64,8 @@ class SMRIngestionService
         // 5. The Push to Graylight
         $result = $this->glClient->call('ingest/push', $payload);
 
-        if (!isset($result['success']) || !$result['success']) {
+        if (!isset($result['status']) || $result['status'] !== 'success') {
+            error_log("Graylight Error Response: " . json_encode($result));
             throw new Exception("Graylight Ingestion Failed: " . ($result['message'] ?? 'unknown_error'));
         }
 
@@ -90,14 +91,15 @@ class SMRIngestionService
 
         $recordStmt = $this->pdo->prepare("
             INSERT INTO smr_records (
-                ingestion_id, artist_name, track_title, spin_count, reach_count, last_week_spin_count, status
-            ) VALUES (?, ?, ?, ?, ?, ?, 'pending_mapping')
+                ingestion_id, artist_name, label_name, track_title, spin_count, reach_count, last_week_spin_count, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending_mapping')
         ");
 
         foreach ($rows as $row) {
             $recordStmt->execute([
                 $ingestionId,
                 $row['raw_artist_name'],
+                $row['raw_label_name'],
                 $row['raw_track_title'],
                 $row['spin_count'],
                 $row['reach_count'],
@@ -141,7 +143,7 @@ class SMRIngestionService
         $handle = fopen($filePath, 'r');
         if (!$handle) throw new Exception("Cannot open file: $filePath");
 
-        $header = fgetcsv($handle);
+        $header = fgetcsv($handle, null, ',', '"', "\\");
         if (!$header) throw new Exception("Empty CSV: $filePath");
 
         // Map column names to indexes
@@ -157,7 +159,7 @@ class SMRIngestionService
         }
 
         $rows = [];
-        while (($row = fgetcsv($handle)) !== false) {
+        while (($row = fgetcsv($handle, null, ',', '"', "\\")) !== false) {
             if (empty(array_filter($row))) continue;
 
             // STATIONS ON Logic: "32 of 34" -> 32

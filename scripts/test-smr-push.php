@@ -9,10 +9,13 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 use NGN\Lib\Config;
 use NGN\Lib\Services\Graylight\GraylightServiceClient;
 
-echo "🛰️  NGN Ingest - Graylight Handshake Test
-";
-echo "========================================
-";
+echo "🛰️  NGN Ingest - Graylight Handshake Test\n";
+echo "========================================\n";
+
+// 1. Timestamp Audit
+$now = time();
+echo "[AUDIT] Local System Time: " . date('Y-m-d H:i:s', $now) . " (Unix: $now)\n";
+echo "[AUDIT] Feb 10, 2026 Expected: 1770681600 (Approx)\n";
 
 $config = new Config();
 $client = new GraylightServiceClient($config);
@@ -40,22 +43,23 @@ $testPayload = [
 ];
 
 try {
-    echo "Pushing single-row test payload to /v1/ingest/push...
-";
+    echo "Pushing single-row test payload to /v1/ingest/push...\n";
     $result = $client->call('ingest/push', $testPayload);
     
-    echo "✅ Success! Handshake verified.
-";
-    echo "   Vault ID: " . ($result['data']['vault_id'] ?? 'N/A') . "
-";
-    echo "   Result: " . json_encode($result, JSON_PRETTY_PRINT) . "
-";
+    if (isset($result['status']) && $result['status'] === 'error') {
+        echo "❌ Graylight API Error: " . ($result['message'] ?? 'Unknown Error') . "\n";
+        echo "   Code: " . ($result['code'] ?? 'N/A') . "\n";
+        echo "   Full Response: " . json_encode($result, JSON_PRETTY_PRINT) . "\n";
+        exit(1);
+    }
+
+    echo "✅ Success! Handshake verified.\n";
+    echo "   Vault ID: " . ($result['data']['vault_id'] ?? 'N/A') . "\n";
+    echo "   Transaction: " . ($result['data']['transaction_hash'] ?? 'N/A') . "\n";
     
 } catch (\Throwable $e) {
-    echo "❌ Error: " . $e->getMessage() . "
-";
+    echo "❌ Execution Error: " . $e->getMessage() . "\n";
+    exit(1);
 }
 
-echo "
-✅ Test run complete.
-";
+echo "\n✅ Test run complete.\n";

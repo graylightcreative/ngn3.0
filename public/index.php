@@ -33,6 +33,15 @@ try {
 
 // Session & Auth
 if (session_status() !== PHP_SESSION_ACTIVE) { @session_start(); }
+
+// Hardened User ID Extraction (Bible Ch. 41 compliant)
+$currentUserId = 0;
+if (!empty($_SESSION['user_id'])) {
+    $currentUserId = (int)$_SESSION['user_id'];
+} elseif (!empty($_SESSION['User']) && is_array($_SESSION['User'])) {
+    $currentUserId = (int)($_SESSION['User']['id'] ?? $_SESSION['User']['Id'] ?? 0);
+}
+
 $isAdmin = false;
 $isLoggedIn = false;
 $currentUser = null;
@@ -43,7 +52,7 @@ try {
 if (!empty($_SESSION['User']['role_id'])) {
     $rid = (string)$_SESSION['User']['role_id'];
     $isAdmin = in_array($rid, $adminRoleIds, true);
-    $isLoggedIn = true;
+    $isLoggedIn = $currentUserId > 0;
     $currentUser = $_SESSION['User'] ?? null;
 }
 
@@ -55,7 +64,7 @@ if (!in_array($view, $validViews, true)) $view = '404';
 // Agreement Guard (Bible Ch. 41)
 // Erik Baker (User ID 4) and Artists must sign their respective agreements
 if ($isLoggedIn && $view !== 'agreement' && $view !== 'logout') {
-    $userId = (int)($_SESSION['user_id'] ?? $_SESSION['User']['id'] ?? $_SESSION['User']['Id'] ?? 0);
+    $userId = $currentUserId;
     $roleId = (int)($_SESSION['User']['role_id'] ?? $_SESSION['User']['RoleId'] ?? 0);
     
     try {
@@ -447,7 +456,7 @@ if ($pdo) {
                 $service = new \NGN\Lib\Services\Legal\AgreementService($pdo);
                 $data['agreement_template'] = $service->getTemplate($templateSlug);
                 if ($isLoggedIn) {
-                    $data['agreement_signed'] = $service->hasSigned((int)$_SESSION['user_id'], $templateSlug);
+                    $data['agreement_signed'] = $service->hasSigned($currentUserId, $templateSlug);
                 }
             } catch (\Throwable $e) {
                 error_log("Error fetching agreement: " . $e->getMessage());
@@ -2500,6 +2509,8 @@ if ($isNotFound) {
       </div> <!-- End px-4 lg:px-8 py-6 -->
     </main>
   </div>
+
+  <?php include $root . 'lib/partials/dispute-modal.php'; ?>
 
   <!-- GLOBAL MUSIC PLAYER -->
   <div id="global-player" class="player-bar hidden">

@@ -59,6 +59,7 @@ $scores = $station['scores'] ?? ['Score' => 0];
                     </div>
                     <?php if ($isClaimed): ?>
                         <span class="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10">Verified Network</span>
+                        <button onclick="openDisputeModal('station', <?= $station['id'] ?>)" class="px-3 py-1 bg-white/5 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-red-500 hover:text-white transition-all">Dispute Claim</button>
                     <?php else: ?>
                         <a href="/claim-profile.php?slug=<?= urlencode($stationSlug) ?>" class="px-3 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-emerald-500/20 hover:bg-emerald-500 hover:text-black transition-all">Claim Station</a>
                     <?php endif; ?>

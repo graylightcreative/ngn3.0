@@ -51,6 +51,7 @@ $scores = $artist['scores'] ?? ['Score' => 0];
                 <div class="flex items-center justify-center md:justify-start gap-2 mb-4">
                     <?php if ($isClaimed): ?>
                         <span class="px-3 py-1 bg-brand text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full">Verified Artist</span>
+                        <button onclick="openDisputeModal('artist', <?= $artist['id'] ?>)" class="px-3 py-1 bg-white/5 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-red-500 hover:text-white transition-all">Dispute Claim</button>
                     <?php else: ?>
                         <a href="/claim-profile.php?slug=<?= urlencode($artistSlug) ?>" class="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-brand hover:text-black transition-all">Claim Profile</a>
                     <?php endif; ?>

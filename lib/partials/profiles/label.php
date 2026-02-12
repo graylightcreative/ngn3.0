@@ -48,6 +48,7 @@ $scores = $label['scores'] ?? ['Score' => 0];
                 <div class="flex items-center justify-center md:justify-start gap-2 mb-4">
                     <?php if ($isClaimed): ?>
                         <span class="px-3 py-1 bg-blue-500 text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full">Verified Label</span>
+                        <button onclick="openDisputeModal('label', <?= $label['id'] ?>)" class="px-3 py-1 bg-white/5 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-red-500 hover:text-white transition-all">Dispute Claim</button>
                     <?php else: ?>
                         <a href="/claim-profile.php?slug=<?= urlencode($labelSlug) ?>" class="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-blue-500 hover:text-black transition-all">Claim Profile</a>
                     <?php endif; ?>

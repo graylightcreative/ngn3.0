@@ -4383,6 +4383,113 @@ $router->post('/claims/reject/:id', function (Request $request) use ($config, $l
     }
 });
 
+/**
+ * PHASE 3: DISPUTE RESOLUTION ENDPOINTS
+ */
+
+// POST /api/v1/disputes/file - File a profile dispute
+$router->post('/disputes/file', function (Request $request) use ($config, $logger, $pdo, $tokenSvc) {
+    try {
+        $user = getCurrentUser($tokenSvc, $request);
+        $body = json_decode($request->body(), true);
+        
+        $disputeService = new \NGN\Lib\Services\DisputeService($pdo, $config);
+        
+        // Enrich with user data if logged in
+        if ($user) {
+            $body['disputant_user_id'] = $user['userId'];
+            $body['disputant_email'] = $user['email'] ?? $body['disputant_email'];
+            $body['disputant_name'] = $user['name'] ?? $body['disputant_name'];
+        }
+
+        $disputeId = $disputeService->fileDispute($body);
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Dispute filed successfully and is under review.',
+            'data' => ['dispute_id' => $disputeId]
+        ], 201);
+
+    } catch (\Throwable $e) {
+        $logger->error("Dispute filing error: " . $e->getMessage());
+        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 400);
+    }
+});
+
+// GET /api/v1/disputes/list - List disputes (admin only)
+$router->get('/disputes/list', function (Request $request) use ($config, $logger, $pdo, $tokenSvc) {
+    try {
+        $user = getCurrentUser($tokenSvc, $request);
+        if (!$user || $user['role'] !== 'admin') {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        $status = $request->query('status');
+        $page = (int)($request->query('page') ?? 1);
+        $limit = 20;
+        $offset = ($page - 1) * $limit;
+
+        $disputeService = new \NGN\Lib\Services\DisputeService($pdo, $config);
+        $disputes = $disputeService->getDisputes($status, $limit, $offset);
+
+        return new JsonResponse([
+            'success' => true,
+            'data' => $disputes,
+            'pagination' => [
+                'page' => $page,
+                'limit' => $limit
+            ]
+        ], 200);
+
+    } catch (\Throwable $e) {
+        $logger->error("Disputes list error: " . $e->getMessage());
+        return new JsonResponse(['success' => false, 'message' => 'Error loading disputes.'], 500);
+    }
+});
+
+// POST /api/v1/disputes/resolve/:id - Resolve dispute (admin only)
+$router->post('/disputes/resolve/:id', function (Request $request) use ($config, $logger, $pdo, $tokenSvc) {
+    try {
+        $user = getCurrentUser($tokenSvc, $request);
+        if (!$user || $user['role'] !== 'admin') {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized.'], 403);
+        }
+
+        $disputeId = (int)$request->param('id');
+        $body = json_decode($request->body(), true);
+        $resolution = $body['resolution'] ?? 'resolved'; // resolved, dismissed
+        $notes = $body['notes'] ?? '';
+
+        if (!in_array($resolution, ['resolved', 'dismissed'])) {
+            return new JsonResponse(['success' => false, 'message' => 'Invalid resolution status.'], 400);
+        }
+
+        $disputeService = new \NGN\Lib\Services\DisputeService($pdo, $config);
+        $disputeService->resolveDispute($disputeId, $user['userId'], $resolution, $notes);
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => "Dispute marked as $resolution."
+        ], 200);
+
+    } catch (\Throwable $e) {
+        $logger->error("Dispute resolution error: " . $e->getMessage());
+        return new JsonResponse(['success' => false, 'message' => 'Error resolving dispute.'], 500);
+    }
+});
+
+// ----------------------------------------------------------------------------
+// FINTECH & ROYALTIES
+// ----------------------------------------------------------------------------
+$router->group('/fintech', function($group) {
+    require_once __DIR__ . '/fintech/index.php';
+});
+
+// Stripe Callback (Browser Redirect)
+$router->get('/stripe/callback', function() {
+    require_once __DIR__ . '/stripe/callback.php';
+});
+
 // --- Dispatching the router with P95 timing middleware ---
 try {
     // Create Request from superglobals
