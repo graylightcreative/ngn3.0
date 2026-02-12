@@ -22,6 +22,7 @@ $productService = null;
 
 try {
     $config = new Config();
+    \NGN\Lib\Http\Cors::apply($config);
     $pdo = ConnectionFactory::write($config); // Primary ngn_2025 connection
     
     // Services
