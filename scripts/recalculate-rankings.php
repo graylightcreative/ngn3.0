@@ -41,6 +41,27 @@ $previousArtistRankings = [];
 $previousLabelRankings = [];
 
 $force = in_array('--force', $argv);
+$resume = in_array('--resume', $argv);
+
+// If resuming, we need to preload the state from the last processed window
+if ($resume && !$force) {
+    echo "Resuming: Preloading state from latest ranking window...\n";
+    $stmt = $rankingsPdo->query("SELECT MAX(id) FROM ranking_windows");
+    $lastWindowId = $stmt->fetchColumn();
+    if ($lastWindowId) {
+        // Preload Artists
+        $stmt = $rankingsPdo->prepare("SELECT entity_id, `rank` FROM ranking_items WHERE window_id = ? AND entity_type = 'artist'");
+        $stmt->execute([$lastWindowId]);
+        $previousArtistRankings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        // Preload Labels
+        $stmt = $rankingsPdo->prepare("SELECT entity_id, `rank` FROM ranking_items WHERE window_id = ? AND entity_type = 'label'");
+        $stmt->execute([$lastWindowId]);
+        $previousLabelRankings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        echo "   Loaded " . count($previousArtistRankings) . " artist rankings and " . count($previousLabelRankings) . " label rankings.\n";
+    }
+}
 
 foreach ($ingestions as $ingestion) {
     $week = (int)$ingestion['report_week'];
@@ -64,7 +85,18 @@ foreach ($ingestions as $ingestion) {
         $checkStmt = $rankingsPdo->prepare("SELECT COUNT(*) FROM ranking_items WHERE window_id = ?");
         $checkStmt->execute([$windowId]);
         if ($checkStmt->fetchColumn() > 0) {
-            echo "[SKIP] Already exists.\n";
+            echo "[SKIP] Updating local state... ";
+            
+            // Still need to update previousRankings to keep the chain accurate
+            $stmt = $rankingsPdo->prepare("SELECT entity_id, `rank` FROM ranking_items WHERE window_id = ? AND entity_type = 'artist'");
+            $stmt->execute([$windowId]);
+            $previousArtistRankings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+            
+            $stmt = $rankingsPdo->prepare("SELECT entity_id, `rank` FROM ranking_items WHERE window_id = ? AND entity_type = 'label'");
+            $stmt->execute([$windowId]);
+            $previousLabelRankings = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+            
+            echo "OK.\n";
             continue;
         }
     }

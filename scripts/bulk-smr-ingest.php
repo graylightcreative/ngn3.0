@@ -27,6 +27,8 @@ $archiveDir = __DIR__ . '/../storage/archives/smr';
 
 // Handle single file argument
 $targetFile = null;
+$skipGraylight = in_array('--skip-graylight', $argv);
+
 foreach ($argv as $arg) {
     if (str_contains($arg, '--file=')) {
         $targetFile = str_replace('--file=', '', $arg);
@@ -66,11 +68,52 @@ foreach ($files as $filePath) {
     }
 
     try {
-        // Ingest and Push
-        $result = $ingestService->push($filePath);
-        
-        $vaultId = $result['data']['vault_id'] ?? 'N/A';
-        $txHash = $result['data']['transaction_hash'] ?? 'N/A';
+        if ($skipGraylight) {
+            echo "   [SKIP] Graylight push bypassed.\n";
+            // We still need temporal data for logging
+            $temporalData = preg_match('/ - (\d{1,2})-(\d{4}) Top 200/i', $filename, $matches) ? ['week' => $matches[1], 'year' => $matches[2]] : [];
+            
+            // Still need to parse and store locally
+            $handle = fopen($filePath, 'r');
+            $header = fgetcsv($handle, null, ',', '"', "\\");
+            $headerTrimmed = array_map('trim', $header);
+            $map = array_flip($headerTrimmed);
+            
+            $rows = [];
+            while (($row = fgetcsv($handle, null, ',', '"', "\\")) !== false) {
+                if (empty(array_filter($row))) continue;
+                $stationsRaw = $row[$map['STATIONS ON']] ?? '0';
+                $reachCount = (int)preg_replace('/[^0-9].*$/', '', $stationsRaw);
+                $rows[] = [
+                    'raw_artist_name' => $row[$map['ARTIST']] ?? '',
+                    'raw_track_title' => $row[$map['TITLE']] ?? '',
+                    'raw_label_name' => $row[$map['LABEL']] ?? '',
+                    'spin_count' => (int)($row[$map['TW SPIN']] ?? 0),
+                    'last_week_spin_count' => (int)($row[$map['LW SPIN']] ?? 0),
+                    'reach_count' => $reachCount
+                ];
+            }
+            fclose($handle);
+
+            // Store locally
+            $stmt = $pdo->prepare("INSERT INTO smr_ingestions (filename, status, created_at) VALUES (?, 'finalized', NOW())");
+            $stmt->execute([$filename]);
+            $ingId = $pdo->lastInsertId();
+
+            $recordStmt = $pdo->prepare("INSERT INTO smr_records (ingestion_id, artist_name, label_name, track_title, spin_count, reach_count, last_week_spin_count, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending_mapping')");
+            foreach ($rows as $r) {
+                $recordStmt->execute([$ingId, $r['raw_artist_name'], $r['raw_label_name'], $r['raw_track_title'], $r['spin_count'], $r['reach_count'], $r['last_week_spin_count']]);
+            }
+            
+            $vaultId = 'ALREADY_ANCHORED';
+            $txHash = 'ALREADY_ANCHORED';
+            $result = ['week' => $temporalData['week'] ?? null, 'year' => $temporalData['year'] ?? null];
+        } else {
+            // Ingest and Push
+            $result = $ingestService->push($filePath);
+            $vaultId = $result['data']['vault_id'] ?? 'N/A';
+            $txHash = $result['data']['transaction_hash'] ?? 'N/A';
+        }
         echo "   [OK] Anchored! Vault ID: $vaultId\n";
         echo "   [OK] Transaction: $txHash\n";
         echo "   [DATE] Report Date: " . ($result['report_date'] ?? 'N/A') . "\n";
