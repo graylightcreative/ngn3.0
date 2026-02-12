@@ -1,28 +1,64 @@
-              <?php elseif ($view === 'charts'): ?>
-                <!-- NGN CHARTS OVERHAUL -->
-                <div class="mb-12">
-                  <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
-                      <h1 class="text-4xl font-black mb-2 tracking-tight">NGN Charts</h1>
-                      <p class="text-gray-500 dark:text-gray-400">The industry standard for metal & rock popularity, driven by real-time engagement data.</p>
-                    </div>
-                    
-                    <?php $chartType = $data['chart_type'] ?? 'artists'; ?>
-                    <div class="flex bg-gray-100 dark:bg-white/5 p-1 rounded-xl w-fit">
-                      <a href="/charts?type=artists" class="px-6 py-2 rounded-lg text-sm font-bold transition-all <?= $chartType === 'artists' ? 'bg-white dark:bg-white/10 shadow-sm text-brand' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300' ?>">Artists</a>
-                      <a href="/charts?type=labels" class="px-6 py-2 rounded-lg text-sm font-bold tran|Ú][Û‹X[ÏH	Ú\\HOOH	ÛX™[ÉÈÈ	Ø™Ë]Ú]H\šÎ˜™Ë]Ú]KÌLÚYÝË\ÛH^Xœ˜[™	Èˆ	Ý^YÜ˜^KMLÝ™\Ž^YÜ˜^KMÌ\šÎšÝ™\Ž^YÜ˜^KLÌ	ÈÏˆ“X™[ÏØO‚ˆÙ]‚ˆÙ]‚ˆÙ]‚ˆˆÜˆ	˜[šÚ[™ÜÈH
-	Ú\\HOOH	Ø\\ÝÉÊHÈ
-	]VÉØ\\ÝÜ˜[šÚ[™ÜÉ×HÏÈ×JHˆ
-	]VÉÛX™[Ü˜[šÚ[™ÜÉ×HÏÈ×JNÂˆ	[]T]H
-	Ú\\HOOH	Ø\\ÝÉÊHÈ	Ø\\Ý	Èˆ	ÛX™[	ÎÂˆÏ‚ˆˆÜYˆ
-Y[\J	˜[šÚ[™ÜÊJNˆÏ‚ˆ]ˆÛ\ÜÏHœÜXÙK^KM‚ˆÜ›Ü™XXÚ
-	˜[šÚ[™ÜÈ\È	HOˆ][JNˆÏ‚ˆÜˆ	ÛYÈH	][VÉÜÛYÉ×HÏÈ	ÉÎÈˆ	[YÈH
-][VÉÚ[XYÙWÝ\›	×HÏÈ[
-HÎˆQUSÐUUTŽÂˆ	\ÕÜÈH	HÎÂˆÏ‚ˆH™YH‹ÏÏH	[]T]Ï‹ÏÏH[ÜXÚX[Ú\œÊ	ÛYÊHÏˆˆÛ\ÜÏH™Ü›Ý\›^][\ËXÙ[\ˆØ\MˆM›Ý[™YLž™Ë]Ú]H\šÎ˜™Ë]Ú]KÍH›Ü™\ˆ›Ü™\‹YÜ˜^KLŒ\šÎ˜›Ü™\‹]Ú]KÌLÝ™\Ž˜›Ü™\‹Xœ˜[™\šÎšÝ™\Ž˜›Ü™\‹Xœ˜[™ÍL˜[œÚ][Û‹X[Ý™\ŽœØØ[KVÌKŒWHÝ™\ŽœÚYÝË^ÈÝ™\ŽœÚYÝËXœ˜[™ÍH‚ˆ]ˆÛ\ÜÏHËLLˆ^XÙ[\ˆ›^\Úš[šËL‚ˆÜYˆ
-	HOOH
-NˆÏ‚ˆÜ[ˆÛ\ÜÏH^LÞ¼'ä¥ÏÜÜ[‚ˆÜ[ÙZYˆ
-	HOOHJNˆÏ‚ˆÜ[ˆÛ\ÜÏH^LÞ¼'ä¥ÜÜ[‚ˆÜ[ÙZYˆ
-	HOOHŠNˆÏ‚ˆÜ[ˆÛ\ÜÏH^LÞ¼'ä¥ÏÜÜ[‚ˆÜ[ÙNˆÏ‚ˆÜ[ˆÛ\ÜÏH^^›ÛX›XÚÈ^YÜ˜^KLÌ\šÎ^]Ú]KÌŒˆÏÏH	H
-ÈHÏÜÜ[‚ˆÜ[™YŽÈÏ‚ˆÙ]‚ˆˆ]ˆÛ\ÜÏHœ™[]]™H›^\Úš[šËL‚ˆYÈÜ˜ÏHÏH[ÜXÚX[Ú\œÊ	[YÊHÏˆˆ[HˆˆÛ\ÜÏHËLMˆLMˆ›Ý[™Y^Øš™XÝXÛÝ™\ˆÚYÝË[ÈÜ›Ý\ZÝ™\Žœ›Ý]KLÈ˜[œÚ][Û‹]˜[œÙ›Ü›HˆÛ™\œ›ÜH\Ë›Û™\œ›Ü[[Ý\ËœÜ˜ÏIÏÏHQUSÐUUTˆÏ‰È‚ˆÜYˆ
-	\ÕÜÊNˆÏ‚ˆ]ˆÛ\ÜÏH˜XœÛÛ]H]ÜLˆ\šYÚLˆËMˆMˆ™ËXœ˜[™^X›XÚÈ›Ý[™YY[›^][\ËXÙ[\ˆ\ÝYžKXÙ[\ˆ^VÌLH›ÛX›XÚÈ›Ü™\‹Lˆ›Ü™\‹]Ú]H\šÎ˜›Ü™\‹YÜ˜^KNL‚ˆHÛ\ÜÏH˜šK\Ý\‹Yš[ÚO‚ˆÙ]‚ˆÜ[™YŽÈÏ‚ˆÙ]‚ˆˆ]ˆÛ\ÜÏH™›^LHZ[‹]ËL‚ˆ]ˆÛ\ÜÏH™›ÛX›XÚÈ^[È[˜Ø]HÜ›Ý\ZÝ™\Ž^Xœ˜[™˜[œÚ][Û‹XÛÛÜœÈÏH[ÜXÚX[Ú\œÊ][VÉÓ˜[YI×HÏÈ	Õ[šÛ›ÝÛ‰ÊHÏÙ]‚ˆ]ˆÛ\ÜÏH™›^][\ËXÙ[\ˆØ\LÈ]LH^^È›ÛX›Û\\˜Ø\ÙH˜XÚÚ[™Ë]ÚY\Ý^YÜ˜^KML‚ˆÜ[ˆÛ\ÜÏH™›^][\ËXÙ[\ˆØ\LHHÛ\ÜÏH˜šK[YÚš[™ËXÚ\™ÙKYš[^Xœ˜[™ÚOˆÏH[X™\—Ù›Ü›X]
-][VÉÔØÛÜ™I×KJHÏˆÏÜÜ[‚ˆÜ[ˆÛ\ÜÏHËLHLH™ËYÜ˜^KLÌ\šÎ˜™Ë]Ú]KÌŒ›Ý[™YY[ÜÜ[‚ˆÜ[ˆÛ\ÜÏH^YÜ˜^KM”ÝX›OÜÜ[‚ˆÙ]‚ˆÙ]‚ˆˆ]ˆÛ\ÜÏHšY[ˆY˜›ØÚÈ^\šYÚ›^\Úš[šËL‚ˆ]ˆÛ\ÜÏH^VÌLH\\˜Ø\ÙH›ÛX›XÚÈ^YÜ˜^KMX‹LH”˜[šÈ™[ØÚ]OÙ]‚ˆ]ˆÛ\ÜÏH™›^][\ËXÙ[\ˆ\ÝYžKY[™Ø\LH^Xœ˜[™‚ˆHÛ\ÜÏH˜šKXØ\™]]\Yš[ÚO‚ˆÜ[ˆÛ\ÜÏH™›ÛX›Û’ÝÜÜ[‚ˆÙ]‚ˆÙ]‚ˆˆ]ˆÛ\ÜÏHËLLLL›Ý[™YY[™ËYÜ˜^KLL\šÎ˜™Ë]Ú]KÍH›^][\ËXÙ[\ˆ\ÝYžKXÙ[\ˆÜ›Ý\ZÝ™\Ž˜™ËXœ˜[™Ü›Ý\ZÝ™\Ž^X›XÚÈ˜[œÚ][Û‹XÛÛÜœÈ‚ˆHÛ\ÜÏH˜šKXÚ]œ›Û‹\šYÚÚO‚ˆÙ]‚ˆØO‚ˆÜ[™›Ü™XXÚÈÏ‚ˆÙ]‚ˆÜ[ÙNˆÏ‚ˆ]ˆÛ\ÜÏH˜™Ë]Ú]H\šÎ˜™Ë]Ú]KÍH›Ý[™YLÞ›Ü™\‹Lˆ›Ü™\‹Y\ÚY›Ü™\‹YÜ˜^KLŒ\šÎ˜›Ü™\‹]Ú]KÌLLŒ^XÙ[\ˆ‚ˆ]ˆÛ\ÜÏH^MžX‹Mˆ¼'ä¢Ù]‚ˆˆÛ\ÜÏH^Lž›ÛX›ÛX‹LˆÛÛ\[[™ÈÚ\]K‹‹Ú‚ˆÛ\ÜÏH^YÜ˜^KMLX^\ÛH^X]]È•ÙIÜ™HÝ\œ™[HYÙÜ™YØ][™ÈH]\Ý[™ØYÙ[Y[ÚYÛ˜[ËˆÚXÚÈ˜XÚÈ[ˆH™]ÈZ[]\È›ÜˆH\]Y˜[šÚ[™ÜËÜ‚ˆÙ]‚ˆÜ[™YŽÈÏ‚
+<?php
+/**
+ * NGN 2.0.3 Charts View
+ * Spotify-Killer Design
+ */
+$chartType = $data['chart_type'] ?? 'artists';
+$rankings = ($chartType === 'labels') ? ($data['label_rankings'] ?? []) : ($data['artist_rankings'] ?? []);
+?>
+<div class="mb-12">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+        <div>
+            <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-4 rounded-sm">Institutional_Intelligence</div>
+            <h1 class="text-5xl lg:text-7xl font-black tracking-tighter text-white">NGN CHARTS</h1>
+            <p class="text-zinc-500 font-mono text-sm mt-4 max-w-xl">Real-time engagement signals processed through the NGN Story Engine.</p>
+        </div>
+        
+        <div class="flex bg-zinc-900 p-1 rounded-2xl border border-white/5">
+            <a href="/charts?type=artists" class="px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all <?= $chartType === 'artists' ? 'bg-[#FF5F1F] text-black shadow-xl shadow-[#FF5F1F]/20' : 'text-zinc-500 hover:text-white' ?>">Artists</a>
+            <a href="/charts?type=labels" class="px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all <?= $chartType === 'labels' ? 'bg-[#FF5F1F] text-black shadow-xl shadow-[#FF5F1F]/20' : 'text-zinc-500 hover:text-white' ?>">Labels</a>
+        </div>
+    </div>
+
+    <?php if (!empty($rankings)): ?>
+    <div class="bg-zinc-900/30 rounded-[2rem] border border-white/5 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-white/5">
+                    <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest w-20">Rank</th>
+                    <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest"><?= ucfirst($chartType) ?></th>
+                    <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($rankings as $i => $item): ?>
+                <tr class="group hover:bg-white/5 transition-all cursor-pointer border-b border-white/5 last:border-0" onclick="window.location='/<?= rtrim($chartType, 's') ?>/<?= $item['slug'] ?? $item['entity_id'] ?>'">
+                    <td class="px-8 py-6">
+                        <span class="text-2xl font-black <?= $i < 3 ? 'text-[#FF5F1F]' : 'text-zinc-700' ?>"><?= $i + 1 ?></span>
+                    </td>
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-6">
+                            <img src="<?= htmlspecialchars($item['image_url'] ?? DEFAULT_AVATAR) ?>" class="w-14 h-14 rounded-xl object-cover shadow-2xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                            <div>
+                                <div class="font-black text-white text-lg group-hover:text-[#FF5F1F] transition-colors"><?= htmlspecialchars($item['Name'] ?? 'Unknown') ?></div>
+                                <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">Active Signaling</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6 text-right">
+                        <div class="text-xl font-black text-white"><?= number_format($item['Score'] ?? 0) ?></div>
+                        <div class="text-[10px] font-black text-brand uppercase tracking-widest">Pressure_Index</div>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <?php else: ?>
+    <div class="text-center py-24 sp-card border border-dashed border-white/10">
+        <i class="bi-bar-chart text-4xl text-zinc-700 mb-4 block"></i>
+        <h2 class="text-xl font-black text-white">No ranking data available</h2>
+        <p class="text-zinc-500 font-mono text-sm mt-2">The moat is currently being pressurized. Check back shortly.</p>
+    </div>
+    <?php endif; ?>
+</div>

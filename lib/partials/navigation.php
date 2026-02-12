@@ -19,7 +19,7 @@
         <i class="bi-search text-2xl"></i>
         <span class="text-[10px] font-black uppercase tracking-widest">Search</span>
     </a>
-    <a href="/artists" class="flex flex-col items-center gap-1 <?= $view === 'artists' ? 'text-[#FF5F1F]' : 'text-zinc-500' ?>">
+    <a href="/artists" class="flex flex-col items-center gap-1 <?= in_array($view, ['artists', 'labels', 'stations', 'venues']) ? 'text-[#FF5F1F]' : 'text-zinc-500' ?>">
         <i class="bi-collection-play-fill text-2xl"></i>
         <span class="text-[10px] font-black uppercase tracking-widest">Library</span>
     </a>
@@ -44,6 +44,12 @@
             </a>
             <a href="/videos" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'videos' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
                 <i class="bi-play-circle-fill text-2xl <?= $view === 'videos' ? 'text-[#FF5F1F]' : '' ?>"></i> Video Vault
+            </a>
+            <a href="/releases" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'releases' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
+                <i class="bi-vinyl-fill text-2xl <?= $view === 'releases' ? 'text-[#FF5F1F]' : '' ?>"></i> Releases
+            </a>
+            <a href="/posts" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'posts' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
+                <i class="bi-newspaper text-2xl <?= $view === 'posts' ? 'text-[#FF5F1F]' : '' ?>"></i> Intelligence
             </a>
         </nav>
     </div>
@@ -74,6 +80,12 @@
                         <i class="bi-broadcast text-zinc-500 group-hover:text-[#FF5F1F]"></i>
                     </div>
                     <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Stations</span>
+                </a>
+                <a href="/venues" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
+                        <i class="bi-geo-alt-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
+                    </div>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Venues</span>
                 </a>
             </div>
         </div>

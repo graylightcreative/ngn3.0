@@ -1437,9 +1437,11 @@ if ($isNotFound) {
         </div>
                 <?php endif; ?>
         
-              <?php include $root . 'lib/partials/view-charts.php'; ?>
+              <?php elseif ($view === 'charts'): ?>
+                <?php include $root . 'lib/partials/view-charts.php'; ?>
 
-              <?php include $root . 'lib/partials/view-smr-charts.php'; ?>
+              <?php elseif ($view === 'smr-charts'): ?>
+                <?php include $root . 'lib/partials/view-smr-charts.php'; ?>
 
               <?php elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])): ?>
         <!-- ENTITY LIST VIEW -->

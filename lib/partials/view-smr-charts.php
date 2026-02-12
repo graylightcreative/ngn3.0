@@ -1,74 +1,72 @@
-              <?php elseif ($view === 'smr-charts'): ?>
-                <!-- SMR CHARTS OVERHAUL -->
-                <div class="mb-12">
-                  <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div>
-                      <h1 class="text-4xl font-black mb-2 tracking-tight">SMR Airplay Charts</h1>
-                      <p class="text-gray-500 dark:text-gray-400">Spins Music Radio - Official radio airplay monitoring for independent metal & rock.</p>
-                    </div>
-                    
-                    <?php if ($data['smr_date']): ?>
-                    <div class="px-4 py-2 bg-brand/10 text-brand rounded-full text-xs font-black uppercase tracking-tighter border border-brand/20">
-                      Week of <?= htmlspecialchars($data['smr_date']) ?>
-                    </div>
-                    <? endif; ?>
-                  </div>
-                </div>
-        
-                <?php if (!empty($data['smz_charts'])): ?>
-                <div class="bg-white dark:bg-white/5 rounded-3xl border border-gray-200 dark:border-white/10 overflow-hidden shadow-2xl">
-                  <div class="grid grid-cols-12 gap-4 p-6 bg-gray-50 dark:bg-white/5 text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] border-b border-gray-200 dark:border-white/10">
-                    <div class="col-span-1 text-center">TW</div>
-                    <div class="col-span-1 text-center">LW</div>
-                    <div class="col-span-5 md:col-span-4">Artist / Track</div>
-                    <div class="hidden md:block col-span-3">Label</div>
-                    <div class="col-span-2 text-center">Spins</div>
-                    <div class="col-span-1 text-center">WOC</div>
-                  </div>
-                  
-                  <div class="divide-y divide-gray-100 dark:divide-white/5">
-                    <?php foreach ($data['smr_charts'] as $i => $item): ?>
-                    <div class="grid grid-cols-12 gap-4 p-6 hover:bg-gray-50 dark:hover:bg-white/5 items-center transition-all group">
-                      <div class="col-span-1 text-center font-black text-xl <?= $i < 10 ? 'text-brand' : 'text-gray-400' ?>">
-                        <?= $item['TWP'] ?? ($i + 1) ?>
-                      </div>
-                      <div class="col-span-1 text-center text-gray-400 font-bold text-xs">
-                        <?= Hitem['LWP'] ?? '-' ?>
-                      </div>
-                      
-                      <div class="col-span-5 md:col-span-4 flex items-center gap-4 min-w-0">
-                        <div class="relative flex-shrink-0">
-                          <img src="<?= htmlspecialchars($item['artist']['image_url'] ?? DEFAULT_AVATAR) ?>" class="w-12 h-12 rounded-lg object-cover shadow-md" onerror="this.src='<?= DEFAUSAVATAR ?>'">
-                          <button class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity text-white">
-                            <i class="bi-play-fill text-xl"></i>
-                          </button>
-                        </div>
-                        <div class="min-w-0">
-                          <a href="/artist/<?= htmlspecialchars(Hitem['artist']['slug'] ?? '') ?>" class="font-black truncate block hover:text-brand transition-colors"><?= htmlspecialchars($Hitem['Artists'] ?? 'Unknown Artist') ?></a>
-                          <div class="text-sm text-gray-500 truncate font-medium"><?= htmlspecialchars($item['Song'] ?? 'Unknown Track') ?></div>
-                        </div>
-                      </div>
-                      
-                      <div class="hidden md:block col-span-3 truncate text-xs font-bold text-gray-400 uppercase tracking-wider">
-                        <?= htmlspecialchars($item['Label'] ?? 'Independent') ?>
-                      </div>
-                      
-                      <div class="col-span-2 text-center">
-                        <div class="font-black text-lg"><?= number_format(Hitem['TWS'] ?? 0) ?></div>
-                        <div class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Total Spins</div>
-                      </div>
-                      
-                      <div class="col-span-1 text-center font-bold text-gray-400">
-                        <?= Hitem['WOC'] ?? '1' ?>
-                      </div>
-                    </div>
+<?php
+/**
+ * NGN 2.0.3 SMR Charts View
+ */
+$smrData = $data['smr_charts'] ?? [];
+$smrDate = $data['smr_date'] ?? 'N/A';
+?>
+<div class="mb-12">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+        <div>
+            <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-4 rounded-sm">Radio_Intelligence</div>
+            <h1 class="text-5xl lg:text-7xl font-black tracking-tighter text-white">SMR CHARTS</h1>
+            <p class="text-zinc-500 font-mono text-sm mt-4 max-w-xl">Spins Music Radio global airplay tracking. Updated weekly.</p>
+        </div>
+        <div class="text-right">
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">Chart Date</div>
+            <div class="text-xl font-black text-white"><?= $smrDate ?></div>
+        </div>
+    </div>
+
+    <?php if (!empty($smrData)): ?>
+    <div class="bg-zinc-900/30 rounded-[2rem] border border-white/5 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-white/5">
+                        <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest w-20">TW</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest w-20 text-center">LW</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest">Track / Artist</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-center">WOC</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-zinc-500 uppercase tracking-widest text-right">Spins</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($smrData as $row): ?>
+                    <tr class="group hover:bg-white/5 transition-all cursor-pointer border-b border-white/5 last:border-0">
+                        <td class="px-8 py-6">
+                            <span class="text-2xl font-black <?= (int)$row['TWP'] <= 3 ? 'text-[#FF5F1F]' : 'text-zinc-400' ?>"><?= $row['TWP'] ?></span>
+                        </td>
+                        <td class="px-8 py-6 text-center">
+                            <span class="text-xs font-black text-zinc-600"><?= $row['LWP'] ?></span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-6">
+                                <img src="<?= htmlspecialchars($row['artist']['image_url'] ?? DEFAULT_AVATAR) ?>" class="w-12 h-12 rounded-lg object-cover shadow-xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                                <div>
+                                    <div class="font-black text-white group-hover:text-[#FF5F1F] transition-colors"><?= htmlspecialchars($row['Song']) ?></div>
+                                    <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($row['artist']['name']) ?></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-center">
+                            <span class="text-xs font-black text-zinc-400"><?= $row['WOC'] ?></span>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            <div class="text-lg font-black text-white"><?= number_format($row['TWS']) ?></div>
+                            <div class="text-[10px] font-black text-brand uppercase tracking-widest">Spins</div>
+                        </td>
+                    </tr>
                     <?php endforeach; ?>
-                  </div>
-                </div>
-                <?php else: ?>
-                <div class="bg-white dark:bg-white/5 rounded-3xl border-2 border-dashed border-gray-200 dark:border-white/10 p-20 text-center">
-                  <div class="text-6xl mb-6">💻️</div>
-                  <h2 class="text-2xl font-bold mb-2">Waiting for Radio Reports</h2>
-                  <p class="text-gray-500 max-w-sm mx-auto">The SMR airplay data is being synchronized with our tracking partners. Please check back shortly.</p>
-                </div>
-                <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <?php else: ?>
+    <div class="text-center py-24 sp-card border border-dashed border-white/10">
+        <i class="bi-broadcast text-4xl text-zinc-700 mb-4 block"></i>
+        <h2 class="text-xl font-black text-white">No radio data found</h2>
+        <p class="text-zinc-500 font-mono text-sm mt-2">Connecting to SMR broadcast satellites...</p>
+    </div>
+    <?php endif; ?>
+</div>
