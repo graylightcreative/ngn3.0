@@ -7,13 +7,76 @@
                 <!-- Slide 1: THE FUSION -->
                 <div class='absolute inset-0 transition-all duration-1000 opacity-100' data-story-slide='0'>
                     <img src='/lib/images/site/hero-fusion.jpg' class='w-full h-full object-cover scale-110' 
-                         onerror="if(this.src != 'https://images.unsplash.com/photo-1470225620780-dba8ba367745?auto=format&fit=crop&q=80&w=2000') this.src='https://images.unsplash.com/photo-1470225620780-dba8ba367745?auto=format&fit=crop&q=80&w=2000';">
+                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1470225620780-dba8ba367745?auto=format&fit=crop&q=80&w=2000';">
                 </div>
                 <!-- Slide 2: THE SOVEREIGNTY -->
                 <div class='absolute inset-0 transition-all duration-1000 opacity-0' data-story-slide='1'>
                     <img src='/lib/images/site/hero-sovereignty.jpg' class='w-full h-full object-cover' 
-                         onerror="if(this.src != 'https://images.unsplash.com/photo-1451187580459-43d3794fc78a?auto=format&fit=crop&q=80&w=2000') this.src='https://images.unsplash.com/photo-1451187580459-43d3794fc78a?auto=format&fit=crop&q=80&w=2000';">
+                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1451187580459-43d3794fc78a?auto=format&fit=crop&q=80&w=2000';">
                 </div>
                 <!-- Slide 3: THE REVENUE -->
                 <div class='absolute inset-0 transition-all duration-1000 opacity-0' data-story-slide='2'>
-                    <img,Ü˜ÏIËÛX‹Ú[XYÙ\ËÜÚ]KÚ\›Ë\™]™[YKšœÉÈÛ\ÜÏIÝËY[Y[Øš™XÝXÛÝ™\‰ÈˆÛ™\œ›ÜHšYŠ\ËœÜ˜ÈOH	ÚÎ‹ËÚ[XYÙ\Ë[œÜ\Ú˜ÛÛKÜÝËLMMLÍÌŽMNKYY™LMYŒMYØ]]ÏY›Ü›X]	™š]XÜ›Ü	œON	ÏLŒ	ÊH\ËœÜ˜ÏIÚÎ‹ËÚ[XYÙ\Ë[œÜ\Ú˜ÛÛKÜÝËLMMLÍÌŽMNKYY™LMYŒMYØ]]ÏY›Ü›X]	™š]XÜ›Ü	œON	ÏLŒ	ÎÈ‚ˆÙ]‚ˆÙ]‚‚ˆ]ˆÛ\ÜÏIÜ™[]]™H‹LŒLLˆÎœLZ[‹ZÍŒH›^][\ËXÙ[\‰Ï‚ˆ]ˆÛ\ÜÏIÛX^]ËLÞ	Ï‚ˆ]ˆÛ\ÜÏIÜÝÜžKXÛÛ[˜[œÚ][Û‹X[\˜][Û‹MÌ›ØÚÉÈ]K\ÝÜžKXÛÛ[IÌ	Ï‚ˆ]ˆÛ\ÜÏIÚ[›[™KX›ØÚÈLÈKLH™ËXœ˜[™^X›XÚÈ›ÛX›XÚÈ^VÌLH\\˜Ø\ÙH˜XÚÚ[™Ë]ÚY\ÝX‹Mˆ›Ý[™Y\ÛIÏ•WÑ\Ú[ÛÙ]‚ˆHÛ\ÜÏIÝ^MžÎ^N›ÛX›XÚÈX‹N˜Z6¶–ær×F–v‡FW"ÆVF–ærÖæöæRsäÕU4”2ÔTUE2Æ'#ãÇ7â6Æ73ÒwFW‡BÖ'&æB—FÆ–2såDU$Ô”äÃÂ÷7ãâdTÄô4•E“Âöƒà¢Ç6Æ73ÒwFW‡B×†ÂFW‡BÖw&’ÓCföçBÖÖöæòÖ"Ó"Ö‚×r×†ÂsäæW‡DvVäæö—6R"ãã2—2F†RFVf–æ—F—fRgW6–öâöbVæFW&w&÷VæB6÷VæBæB&W77W&—¦VBFV6‚ãÂ÷à¢ÆF—b6Æ73ÒvfÆW‚vÓbsà¢Æ‡&VcÒr÷&Vv—7FW"ç‡r6Æ73Òv&rÖ'&æBFW‡BÖ&Æ6²föçBÖ&Æ6²‚Ó"’ÓRWW&66RFW‡B×‡2G&6¶–ær×v–FW7B†÷fW#¦&r×v†—FRG&ç6—F–öâÖÆÂ&÷VæFVB×6Òsä¦ö–åõF†UôfÆVWCÂöà¢ÂöF—cà¢ÂöF—cà¢ÆF—b6Æ73Òw7F÷'’Ö6öçFVçBG&ç6—F–öâÖÆÂGW&F–öâÓs†–FFVârFF×7F÷'’Ö6öçFVçCÒssà¢ÆF—b6Æ73Òv–æÆ–æRÖ&Æö6²‚Ó2’Ó&rÖ'&æBFW‡BÖ&Æ6²föçBÖ&Æ6²FW‡BÕc…ÒWW&66RG&6¶–ær×v–FW7BÖ"Ób&÷VæFVB×6Òså6÷fW&V–vçG“ÂöF—cà¢Æƒ6Æ73ÒwFW‡BÓg†ÂÆs§FW‡BÓ‡†ÂföçBÖ&Æ6²Ö"Ó‚G&6¶–ær×F–v‡FW"ÆVF–ærÖæöæRsäõtâ”õU"Æ'#ãÇ7â6Æ73ÒwFW‡BÖ'&æB—FÆ–2sä”äe$5E%T5EU$SÂ÷7ããÂöƒà¢Ç6Æ73ÒwFW‡B×†ÂFW‡BÖw&’ÓCföçBÖÖöæòÖ"Ó"Ö‚×r×†ÂsäæòÖ÷&R&VçFVBÆFf÷&×2âätâ"ãã2&÷f–FW2'6öÇWFR6÷fW&V–vçG’f÷"'F—7G2æBÆ&VÇ2ãÂ÷à¢ÆF—b6Æ73ÒvfÆW‚vÓbsà¢Æ‡&VcÒr÷&Vv—7FW"ç‡r6Æ73Òv&rÖ'&æBFW‡BÖ&Æ6²föçBÖ&Æ6²‚Ó"’ÓRWW&66RFW‡B×‡2G&6¶–ær×v–FW7B†÷fW#¦&r×v†—FRG&ç6—F–öâÖÆÂ&÷VæFVB×6ÒsävWEôô'Væ¶W#Âöà¢ÂöF—cà¢ÂöF—cà¢ÆF—b6Æ73Òw7F÷'’Ö6öçFVçBG&ç6—F–öâÖÆÂGW&F–öâÓs†–FFVârFF×7F÷'’Ö6öçFVçCÒs"sà¢ÆF—b6Æ73Òv–æÆ–æRÖ&Æö6²‚Ó2’Ó&rÖ'&æBFW‡BÖ&Æ6²föçBÖ&Æ6²FW‡BÕc…ÒWW&66RG&6¶–ær×v–FW7BÖ"Ób&÷VæFVB×6Òså&WfVçVSÂöà¢Æƒ6Æ73ÒwFW‡BÓg†ÂÆs§FW‡BÓ‡†ÂföçBÖ&Æ6²Ö"Ó‚G&6¶–ær×F–v‡FW"ÆVF–ærÖæöæRsä%D•5BÔd•%5BÆ'#ãÇ7â6Æ73ÒwFW‡BÖ'&æB—FÆ–2så$UdTåTSÂ÷7ãâTät”äU3Âöƒà¢Ç6Æ73ÒwFW‡B×†ÂFW‡BÖw&’ÓCföçBÖÖöæòÖ"Ó"Ö‚×r×†ÂsäWFöæöÖ÷W2Ö&¶WF–ærÆö÷2æB–ç7F—GWF–öæÂ–çfö–6–ærâvR'V–ÆB6öÖÖW&6RãÂ÷à¢ÆF—b6Æ73ÒvfÆW‚vÓbsà¢Æ‡&VcÒr÷&Vv—7FW"ç‡r6Æ73Òv&rÖ'&æBFW‡BÖ&Æ6²föçBÖ&Æ6²‚Ó"’ÓRWW&66RFW‡B×‡2&6¶–ær×v–FW7B†÷fW#¦&r×v†—FRG&ç6—F–öâÖÆÂ&÷VæFVB×6Òså7F'EôV&æ–æsÂöà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà¢ÂöF—cà ¢ÆF—b6Æ73Òv'6öÇWFR&÷GFöÒÓ"&–v‡BÓ"¢Ó3fÆW‚vÓ2sà¢Æ'WGFöâöæ6Æ–6³Òwv–æF÷rç7F÷'”Væv–æRçFòƒ’r6Æ73ÒwrÓ"‚Ó&r×v†—FRó#G&ç6—F–öâÖÆÂ†÷fW#¦&rÖ'&æBrFF×7F÷'’ÖæcÒssãÂö'WGFöãà¢Æ'WGFöâöæ6Æ–6³Òwv–æF÷rç7F÷'”Væv–æRçFòƒ’r6Æ73ÒwrÓ"‚Ó&r×v†—FRó#G&ç6—F–öâÖÆÂ†÷fW#¦&rÖ'&æBrFF×7F÷'’ÖæcÒssãÂö'WGFöãà¢Æ'WGFöâöæ6Æ–6³Òwv–æF÷rç7F÷'”Væv–æRçFòƒ"’r6Æ73ÒwrÓ"‚Ó&r×v†—FRó#G&ç6—F–öâÖÆÂ†÷fW#¦&rÖ'&æBrFF×7F÷'’ÖæcÒs"sãÂö'WGFöãà¢ÂöF—cà¢ÂöF—cà ¢Ç67&—Cà¢v–æF÷rç7F÷'”Væv–æRÒ°¢7W'&VçC¢À¢F÷FÃ¢2À¢Fó¢gVæ7F–öâ†–æFW‚’°¢F†—2æ7W'&VçBÒ–æFWƒ°¢Fö7VÖVçBçVW'•6VÆV7F÷$ÆÂ‚%¶FF×7F÷'’×6Æ–FUÒ"’æf÷$V6‚‚‡2Â’’Óâ°¢2æ6Æ74Æ—7BçFövvÆR‚v÷6—G’ÓrÂ’ÓÓÒ–æFW‚“°¢2æ6Æ74Æ—7BçFövvÆR‚v÷6—G’ÓrÂ’ÓÒ–æFW‚“°¢Ò“°¢Fö7VÖVçBçVW'•6VÆV7F÷$ÆÂ‚"ç7F÷'’Ö6öçFVçB"’æf÷$V6‚‚†2Â’’Óâ°¢2æ6Æ74Æ—7BçFövvÆR‚v&Æö6²rÂ’ÓÓÒ–æFW‚“°¢2æ6Æ74Æ—7BçFövvÆR‚v†–FFVârÂ’ÓÒ–æFW‚“°¢Ò“°¢Fö7VÖVçBçVW'•6VÆV7F÷$ÆÂ‚%¶FF×7F÷'’ÖæeÒ"’æf÷$V6‚‚†âÂ’’Óâ°¢âæ6Æ74Æ—7BçFövvÆR‚v&rÖ'&æBrÂ’ÓÓÒ–æFW‚“°¢âæ6Æ74Æ—7BçFövvÆR‚v&r×v†—FRó#rÂ’ÓÒ–æFW‚“°¢Ò“°¢ÒÀ¢æW‡C¢gVæ7F–öâ‚’²F†—2çFò‚‡F†—2æ7W'&VçB²’RF†—2çF÷FÂ“²Ð¢Ó°¢6WD–çFW'fÂ‚‚’Óâv–æF÷rç7F÷'”Væv–æRææW‡B‚’Âƒ“°¢Â÷67&—Cà 
+                    <img src='/lib/images/site/hero-revenue.jpg' class='w-full h-full object-cover' 
+                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1553729459-efe14ef6055d?auto=format&fit=crop&q=80&w=2000';">
+                </div>
+            </div>
+
+            <div class='relative z-20 p-12 lg:p-24 min-h[600px] flex items-center'>
+                <div class='max-w-3xl'>
+                    <div class='story-content transition-all duration-700 block' data-story-content='0'>
+                        <div class='inline-block px-3 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm'>The_Fusion</div>
+                        <h1 class='text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none'>SURGEONS OF <br><span class='text-brand italic'>SOUND</span></h1>
+                        <p class='text-xl text-gray-400 font-mono mb-12 max-w-xl'>NextGen Noise 2.0.3 is the definitive fusion of underground sound and pressurized tech.</p>
+                        <div class='flex gap-6'>
+                            <a href='/register.php' class='bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm'>Join_The_Fleet</a>
+                        </div>
+                    </div>
+                    <div class='story-content transition-all duration-700 hidden' data-story-content='1'>
+                        <div class='inline-block px-3 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm'>Sovereignty</div>
+                        <h1 class='text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none'>OWN YOUR <br><span class='text-brand italic'>INFRASTRUCTURE</span></h1>
+                        <p class='text-xl text-gray-400 font-mono mb-12 max-w-xl'>No more rented platforms. NGN 2.0.3 provides absolute sovereignty for artists and labels.</p>
+                        <div class='flex gap-6'>
+                            <a href='/register.php' class='bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm'>Get_A_Bunker</a>
+                        </div>
+                    </div>
+                    <div class='story-content transition-all duration-700 hidden' data-story-content='2'>
+                        <div class='inline-block px-3 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm'>Revenue</a>
+                        <h1 class='text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none'>ARTIST-FIRST <br><span class='text-brand italic'>REVENUE</span> ENGINES</h1>
+                        <p class='text-xl text-gray-400 font-mono mb-12 max-w-xl'>Autonomous marketing loops and institutional invoicing. We build commerce.</p>
+                        <div class='flex `igap-6'>
+                            <a href='/register.php' class='bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm'>Start_Earning</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class='absolute bottom-12 right-12 z-30 flex gap-3'>
+                <button onclick='window.storyEngine.to(0)' class='w-12 h-1 bg-white/20 transition-all hover:bg-brand' data-story-nav='0'></button>
+                <button onclick='window.storyEngine.to(1)' class='w-12 h-1 bg-white/20 transition-all hover:bg-brand' data-story-nav='1'></button>
+                <button onclick='window.storyEngine.to(2)' class='w-12 h-1 bg-white/20 transition-all hover:bg-brand' data-story-nav='2'></button>
+            </div>
+        </div>
+
+        <script>
+            window.storyEngine = {
+                current: 0,
+                total: 3,
+                to: function(index) {
+                    this.current = index;
+                    document.querySelectorAll("[data-story-slide]").forEach((s, i) => {
+                        s.classList.toggle('opacity-100', i === index);
+                        s.classList.toggle('opacity-0', i !== index);
+                    });
+                    document.querySelectorAll(".story-content").forEach((c, i) => {
+                        c.classList.toggle('block', i === index);
+                        c.classList.toggle('hidden', i !== index);
+                    });
+                    document.querySelectorAll("[data-story-nav]").forEach((n, i) => {
+                        n.classList.toggle('bg-brand', i === index);
+                        n.classList.toggle('bg-white/20', i !== index);
+                    });
+                },
+                next: function() { this.to((this.current + 1) % this.total); }
+            };
+            setInterval(() => window.storyEngine.next(), 8000);
+        </script>
