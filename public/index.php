@@ -316,7 +316,8 @@ if ($pdo) {
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_rankings_2025`.`artists` a ON ri.entity_id = a.id
-                                         WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'artist\')
+                                         WHERE ri.entity_type = \'artist\' 
+                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
                                          ORDER BY ri.rank ASC LIMIT 10');
                 $stmt->execute();
                 $data['artist_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -330,7 +331,8 @@ if ($pdo) {
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, l.name AS Name, ri.score AS Score, l.slug, l.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_2025`.`labels` l ON ri.entity_id = l.id
-                                         WHERE ri.entity_type = \'label\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'label\')
+                                         WHERE ri.entity_type = \'label\' 
+                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
                                          ORDER BY ri.rank ASC LIMIT 10');
                 $stmt->execute();
                 $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -430,7 +432,8 @@ if ($pdo) {
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_rankings_2025`.`artists` a ON ri.entity_id = a.id
-                                         WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'artist\')
+                                         WHERE ri.entity_type = \'artist\' 
+                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
                                          ORDER BY ri.rank ASC LIMIT 100');
                 $stmt->execute();
                 $data['artist_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -444,7 +447,8 @@ if ($pdo) {
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, l.name AS Name, ri.score AS Score, l.slug, l.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
                                          JOIN `ngn_2025`.`labels` l ON ri.entity_id = l.id
-                                         WHERE ri.entity_type = \'label\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'label\')
+                                         WHERE ri.entity_type = \'label\' 
+                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
                                          ORDER BY ri.rank ASC LIMIT 100');
                 $stmt->execute();
                 $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -1037,7 +1041,7 @@ if ($isNotFound) {
   <link rel="apple-touch-icon" href="/lib/images/site/apple-touch-icon.png">
 
   <script>
-    window.tailwind = { config: { darkMode: 'class', theme: { extend: { colors: { brand: { DEFAULT: '#1DB954', dark: '#169c45' } } } } } };
+    window.tailwind = { config: { darkMode: 'class', theme: { extend: { colors: { brand: { DEFAULT: '#FF5F1F', dark: '#E64A00' } } } } } };
     (function(){
       const saved = localStorage.getItem('ngn_theme');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
