@@ -1049,6 +1049,7 @@ if ($isNotFound) {
     })();
   </script>
   <script src="https://cdn.tailwindcss.com?v=<?= time() ?>"></script>
+  <script src="/js/toast.js?v=<?= time() ?>"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=<?= time() ?>">
   <script src="/js/pwa-setup.js?v=<?= \NGN\Lib\Env::get('APP_VERSION') ?>" defer></script>
   <style>
