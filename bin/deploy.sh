@@ -78,6 +78,7 @@ show_help() {
     echo "  status     Check remote server and service status"
     echo "  backup     Create a database backup on the remote server"
     echo "  deploy     Pull latest changes on the remote server via Git"
+    echo "  finalize   Run migrations and recompute rankings on server"
     echo "  help       Show this help menu"
 }
 
@@ -92,6 +93,13 @@ case "$1" in
         ;;
     deploy)
         deploy_git
+        ;;
+    finalize)
+        echo "--- Finalizing Server (Migrations + Rankings) ---"
+        remote_exec "cd $REMOTE_PROJECT_ROOT && php scripts/remote-finalize.php"
+        ;;
+    debug)
+        remote_exec "$2"
         ;;
     *)
         show_help
