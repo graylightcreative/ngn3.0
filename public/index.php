@@ -314,7 +314,7 @@ if ($pdo) {
                 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
-                                         JOIN `ngn_2025`.`artists` a ON ri.entity_id = a.id
+                                         JOIN `ngn_rankings_2025`.`artists` a ON ri.entity_id = a.id
                                          WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'artist\')
                                          ORDER BY ri.rank ASC LIMIT 10');
                 $stmt->execute();
@@ -428,7 +428,7 @@ if ($pdo) {
                 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
                 $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
                                          FROM `ngn_rankings_2025`.`ranking_items` ri
-                                         JOIN `ngn_2025`.`artists` a ON ri.entity_id = a.id
+                                         JOIN `ngn_rankings_2025`.`artists` a ON ri.entity_id = a.id
                                          WHERE ri.entity_type = \'artist\' AND ri.window_id = (SELECT MAX(window_id) FROM `ngn_rankings_2025`.`ranking_items` WHERE entity_type = \'artist\')
                                          ORDER BY ri.rank ASC LIMIT 100');
                 $stmt->execute();
@@ -1047,6 +1047,16 @@ if ($isNotFound) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=<?= time() ?>">
   <script src="/js/pwa-setup.js?v=<?= \NGN\Lib\Env::get('APP_VERSION') ?>" defer></script>
   <style>
+    :root { --primary: #FF5F1F; --charcoal: #0A0A0A; }
+    body { background-color: var(--charcoal) !important; color: white; }
+    .bg-brand { background-color: var(--primary) !important; }
+    .text-brand { color: var(--primary) !important; }
+    .border-brand { border-color: var(--primary) !important; }
+    .sp-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 95, 31, 0.1); }
+    .sp-card:hover { border-color: rgba(255, 95, 31, 0.4); background: rgba(255, 95, 31, 0.05); }
+    .btn-primary { background-color: var(--primary); color: black; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s; }
+    .btn-primary:hover { background-color: white; transform: translateY(-2px); }
+
     :root {
       --bg-base: #000000;
       --bg-surface: #121212;
@@ -1560,88 +1570,7 @@ if ($isNotFound) {
         <?php
         $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
         ?>
-        <!-- HERO -->
-        <div class="relative rounded-3xl overflow-hidden mb-12 group">
-            <?php if (!empty($featuredPosts)): ?>
-                <!-- Carousel Background -->
-                <div class="absolute inset-0">
-                    <?php foreach ($featuredPosts as $index => $post): ?>
-                        <?php 
-                            $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
-                        ?>
-                        <div class="absolute inset-0 transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'opacity-100' : 'opacity-0' ?>" data-carousel-item>
-                            <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" alt="<?= htmlspecialchars($post['title'] ?? '') ?>">
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
-            <!-- Overlay -->
-            <div class="absolute inset-0 bg-black/60"></div>
-
-            <!-- Content -->
-            <div class="relative p-12 lg:p-24 text-center text-white min-h-[400px] flex items-center justify-center">
-                <?php if (!empty($featuredPosts)): ?>
-                    <div class="max-w-4xl mx-auto">
-                        <?php foreach ($featuredPosts as $index => $post): ?>
-                            <div class="transition-opacity duration-1000 ease-in-out <?= $index === 0 ? 'block' : 'hidden' ?>" data-carousel-content>
-                                <h1 class="text-4xl lg:text-6xl font-black mb-6 tracking-tighter"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></h1>
-                                <div class="flex justify-center gap-4">
-                                    <a href="/post/<?= htmlspecialchars(($post['slug'] ?? $post['id']) ?? '') ?>" class="inline-block bg-white text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all uppercase tracking-widest text-sm">Read Story</a>
-                                    <?php
-                                    // If we have any tracks, let them listen
-                                    $anyTrack = $data['songs'][0] ?? null;
-                                    if ($anyTrack):
-                                    ?>
-                                    <button class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-sm"
-                                            data-play-track
-                                            data-track-url="<?= htmlspecialchars($anyTrack['mp3_url'] ?? '') ?>"
-                                            data-track-title="<?= htmlspecialchars($anyTrack['title'] ?? 'Unknown Track') ?>"
-                                            data-track-artist="<?= htmlspecialchars($anyTrack['artist_name'] ?? 'NGN Artist') ?>"
-                                            data-track-art="<?= htmlspecialchars($anyTrack['cover_url'] ?? DEFAULT_AVATAR) ?>">
-                                        <i class="bi-play-fill mr-2"></i> Listen Now
-                                    </button>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div>
-                        <h1 class="text-4xl lg:text-6xl font-black mb-4">Welcome to NGN 2.0</h1>
-                        <p class="text-lg lg:text-xl mb-8 font-bold text-zinc-400 uppercase tracking-widest">The command center for indie rock & metal</p>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </div>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const carouselItems = document.querySelectorAll('[data-carousel-item]');
-                const carouselContents = document.querySelectorAll('[data-carousel-content]');
-                let currentIndex = 0;
-
-                function showItem(index) {
-                    carouselItems.forEach((item, i) => {
-                        item.classList.toggle('opacity-100', i === index);
-                        item.classList.toggle('opacity-0', i !== index);
-                    });
-                    carouselContents.forEach((content, i) => {
-                        content.classList.toggle('block', i === index);
-                        content.classList.toggle('hidden', i !== index);
-                    });
-                }
-
-                function nextItem() {
-                    currentIndex = (currentIndex + 1) % carouselItems.length;
-                    showItem(currentIndex);
-                }
-
-                if (carouselItems.length > 1) {
-                    setInterval(nextItem, 5000);
-                }
-            });
-        </script>
+        <?php include 'hero_new.php'; ?>
         <!-- Stats Grid (Spotify-style cards) -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           <div class="sp-card border border-white/5">
