@@ -1052,204 +1052,64 @@ if ($isNotFound) {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=<?= time() ?>">
   <script src="/js/pwa-setup.js?v=<?= \NGN\Lib\Env::get('APP_VERSION') ?>" defer></script>
   <style>
-    :root { --primary: #FF5F1F; --charcoal: #0A0A0A; }
-    body { background-color: var(--charcoal) !important; color: white; }
-    .bg-brand { background-color: var(--primary) !important; }
-    .text-brand { color: var(--primary) !important; }
-    .border-brand { border-color: var(--primary) !important; }
-    .sp-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 95, 31, 0.1); }
-    .sp-card:hover { border-color: rgba(255, 95, 31, 0.4); background: rgba(255, 95, 31, 0.05); }
-    .btn-primary { background-color: var(--primary); color: black; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.3s; }
-    .btn-primary:hover { background-color: white; transform: translateY(-2px); }
-
-    :root {
-      --bg-base: #000000;
-      --bg-surface: #121212;
-      --bg-elevated: #181818;
-      --bg-highlight: #282828;
-      --text-main: #ffffff;
-      --text-sub: #b3b3b3;
-      --brand: #1DB954;
+    :root { 
+        --primary: #FF5F1F; 
+        --charcoal: #050505; 
+        --surface: #121212;
+        --highlight: #1a1a1a;
+        --text-main: #ffffff;
+        --text-sub: #a7a7a7;
     }
-
-    body {
-      background-color: var(--bg-base);
-      color: var(--text-main);
-      font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-    }
-
-    /* Loading Skeleton Animations */
-    @keyframes skeleton-shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
-    }
-    .skeleton {
-      background: linear-gradient(90deg, #181818 25%, #282828 50%, #181818 75%);
-      background-size: 200% 100%;
-      animation: skeleton-shimmer 1.5s ease-in-out infinite;
-      border-radius: 0.5rem;
-    }
-
-    /* Spotify-style scrollbar */
-    ::-webkit-scrollbar { width: 12px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: #5a5a5a; border-radius: 6px; border: 3px solid var(--bg-base); }
-    ::-webkit-scrollbar-thumb:hover { background: #b3b3b3; }
-
-    /* Bottom Nav for Mobile */
-    .mobile-bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-      background: rgba(0,0,0,0.8);
-      backdrop-filter: blur(20px);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
-      padding-bottom: env(safe-area-inset-bottom);
-      border-top: 1px solid rgba(255,255,255,0.05);
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      color: var(--text-sub);
-      text-decoration: none;
-      font-size: 10px;
-      font-weight: 700;
-      transition: color 0.2s;
-    }
-
-    .nav-item.active { color: var(--text-main); }
-    .nav-item i { font-size: 24px; }
-
-    /* Content Area Adjustment */
-    .content-container {
-      padding-bottom: 160px; /* Space for player bar (80px) + bottom nav (70px) + safety */
-    }
-
-    @media (min-width: 1024px) {
-      .mobile-bottom-nav { display: none; }
-      .content-container { padding-bottom: 90px; } /* Space for desktop player bar */
+    
+    body { 
+        background-color: var(--charcoal) !important; 
+        color: var(--text-main); 
+        font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+        overflow-x: hidden;
     }
 
     /* Spotify-style Card */
-    .sp-card {
-      background: var(--bg-surface);
-      padding: 16px;
-      border-radius: 8px;
-      transition: background 0.3s;
-      height: 100%;
+    .sp-card { 
+        background: var(--surface); 
+        padding: 16px; 
+        border-radius: 12px; 
+        transition: background 0.3s, transform 0.3s;
+        height: 100%;
+        border: 1px solid rgba(255,255,255,0.03);
     }
-    .sp-card:hover {
-      background: var(--bg-highlight);
+    .sp-card:hover { 
+        background: var(--highlight);
+        transform: translateY(-4px);
+        border-color: rgba(255, 95, 31, 0.2);
     }
 
-    /* Global Player Styles */
-    .player-bar {
-      position: fixed;
-      bottom: 70px; /* Above mobile bottom nav */
-      left: 0;
-      right: 0;
-      height: 80px;
-      background: #000;
-      border-top: 1px solid #282828;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      z-index: 90;
-      transition: transform 0.3s ease;
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    /* Layout Constraints */
+    .content-container {
+        padding-bottom: 100px;
     }
-    
     @media (min-width: 1024px) {
-      .player-bar { bottom: 0; padding: 0 32px; height: 90px; }
+        .content-container { 
+            margin-left: 280px;
+            padding-bottom: 40px;
+        }
     }
 
-    .player-btn {
-      color: #b3b3b3;
-      transition: all 0.2s;
-    }
-    .player-btn:hover { color: #fff; transform: scale(1.1); }
-    .player-btn.play { color: #fff; background: #fff; color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; items-center: center; justify-content: center; }
-    
-    .progress-bar {
-      height: 4px;
-      background: #4d4d4d;
-      border-radius: 2px;
-      position: relative;
-      cursor: pointer;
-    }
-    .progress-fill {
-      height: 100%;
-      background: var(--brand);
-      border-radius: 2px;
-      width: 0%;
-    }
-    .progress-bar:hover .progress-fill { background: #1fdf64; }
-
-    /* Hide player when not active */
-    .player-bar.hidden { transform: translateY(100%); }
-
-    /* Loading overlay for interactions */
-    .loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    .loading-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
+    /* Loading Spinner */
     .loading-spinner {
       width: 3rem;
       height: 3rem;
-      border: 3px solid rgba(255,255,255,0.3);
-      border-top-color: #1DB954;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--primary);
       border-radius: 50%;
-      animation: spin 0.8s linear infinite;
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Button loading state */
-    .btn-loading {
-      position: relative;
-      color: transparent !important;
-      pointer-events: none;
-    }
-    .btn-loading::after {
-      content: '';
-      position: absolute;
-      width: 1rem;
-      height: 1rem;
-      top: 50%;
-      left: 50%;
-      margin: -0.5rem 0 0 -0.5rem;
-      border: 2px solid currentColor;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
-    /* Page transition */
-    .page-loading {
-      opacity: 0.5;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="h-full selection:bg-brand/30 dark">
@@ -1257,45 +1117,10 @@ if ($isNotFound) {
 
     <?php include $root . 'lib/partials/navigation.php'; ?>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const trigger = document.getElementById('mobile-menu-trigger');
-            const close = document.getElementById('mobile-menu-close');
-            const menu = document.getElementById('mobile-full-menu');
-
-            if (trigger && menu) {
-                trigger.onclick = (e) => {
-                    e.preventDefault();
-                    menu.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                };
-                close.onclick = (e) => {
-                    e.preventDefault();
-                    menu.classList.add('hidden');
-                    document.body.style.overflow = '';
-                };
-            }
-        });
-    </script>
-
     <!-- Main Content Area -->
-    <main class="flex-1 lg:ml-[280px] content-container">
-      <!-- Mobile Top Bar -->
-      <header class="lg:hidden fixed top-0 left-0 right-0 z-[110] bg-black/95 backdrop-blur-xl px-4 py-3 flex items-center justify-between border-b border-white/5 h-[56px]">
-        <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-8">
-        <div class="flex items-center gap-4">
-          <form method="get" action="/" class="relative">
-            <input type="hidden" name="view" value="artists">
-            <button type="submit" class="text-white text-xl"><i class="bi-search"></i></button>
-          </form>
-          <a href="/dashboard/" class="text-white text-2xl"><i class="bi-person-circle"></i></a>
-        </div>
-      </header>
-
-      <div class="lg:hidden h-[56px]"></div> <!-- Spacer for fixed header -->
-
-      <!-- Desktop Header -->
-      <header class="hidden lg:flex items-center justify-between px-8 h-16 sticky top-0 z-20 bg-zinc-900/50 backdrop-blur-md">
+    <main class="flex-1 content-container">
+      <!-- Desktop Header (Floating) -->
+      <header class="hidden lg:flex items-center justify-between px-8 h-20 sticky top-0 z-40 bg-black/60 backdrop-blur-xl">
         <div class="flex items-center gap-4">
           <div class="flex gap-2">
             <button onclick="history.back()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-left"></i></button>
