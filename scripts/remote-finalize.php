@@ -1,6 +1,6 @@
 <?php
 /**
- * remote-finalize.php - Helper to run migrations and recompute on server
+ * remote-finalize.php - Helper to run all active migrations and recompute on server
  */
 require_once __DIR__ . '/../lib/bootstrap.php';
 use NGN\Lib\Config;
@@ -9,40 +9,38 @@ use NGN\Lib\DB\ConnectionFactory;
 $config = new Config();
 $pdo = ConnectionFactory::write($config);
 
-echo "🛠️ Server Finalization
-";
-echo "======================
-";
+echo "🛠️ Server Finalization\n";
+echo "======================\n";
 
 // 1. Run Migrations
-echo "Applying migrations...
-";
-$m1 = file_get_contents(__DIR__ . '/../migrations/active/047_profile_disputes.sql');
-$m2 = file_get_contents(__DIR__ . '/../migrations/active/048_royalty_integrity.sql');
-
-try {
-    $pdo->exec($m1);
-    echo "   [OK] 047 applied.
-";
-} catch (Exception $e) {
-    echo "   [INFO] 047 skip: " . $e->getMessage() . "
-";
+echo "Scanning for active migrations...\n";
+$migrationFiles = [];
+$iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__ . '/../migrations/active'));
+foreach ($iter as $file) {
+    if ($file->isFile() && $file->getExtension() === 'sql') {
+        $migrationFiles[] = $file->getPathname();
+    }
 }
+sort($migrationFiles);
 
-try {
-    $pdo->exec($m2);
-    echo "   [OK] 048 applied.
-";
-} catch (Exception $e) {
-    echo "   [INFO] 048 skip: " . $e->getMessage() . "
-";
+foreach ($migrationFiles as $mFile) {
+    $name = basename($mFile);
+    echo "Applying $name... ";
+    try {
+        $sql = file_get_contents($mFile);
+        $pdo->exec($sql);
+        echo "[OK]\n";
+    } catch (Exception $e) {
+        if (str_contains($e->getMessage(), 'already exists') || str_contains($e->getMessage(), 'Duplicate column')) {
+            echo "[SKIP] (Already applied)\n";
+        } else {
+            echo "[FAIL] " . $e->getMessage() . "\n";
+        }
+    }
 }
 
 // 2. Recalculate Rankings
-echo "Recalculating Rankings...
-";
+echo "\nRecalculating Rankings...\n";
 passthru('php ' . __DIR__ . '/recalculate-rankings.php --force');
 
-echo "
-✅ Server Finalization Complete.
-";
+echo "\n✅ Server Finalization Complete.\n";
