@@ -538,7 +538,7 @@ $router->post('/services/order', function (Request $request) use ($serviceOrderM
 });
 
 // GET /api/v1/search/suggest - Global search suggestions for autocomplete
-$router->get('/search/suggest', function (Request $request) use ($config) {
+$router->get('/search/suggest', function (Request $request) use ($config, $logger) {
     $queryParams = $request->query();
     $search = trim($queryParams['q'] ?? '');
     if (empty($search) || strlen($search) < 2) {
@@ -550,7 +550,7 @@ $router->get('/search/suggest', function (Request $request) use ($config) {
         $results = [];
 
         // 1. Artists
-        $stmt = $pdo->prepare("SELECT id, name, slug, image_url, 'artist' as type FROM `ngn_2025`.`artists` WHERE name LIKE ? ORDER BY name ASC LIMIT 3");
+        $stmt = $pdo->prepare("SELECT id, name, slug, image_url, 'artist' as type FROM `ngn_2025`.`artists` WHERE name LIKE ? AND status = 'active' ORDER BY name ASC LIMIT 3");
         $stmt->execute(['%'.$search.'%']);
         $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($artists as $a) {
@@ -561,7 +561,7 @@ $router->get('/search/suggest', function (Request $request) use ($config) {
         }
 
         // 2. Labels
-        $stmt = $pdo->prepare("SELECT id, name, slug, image_url, 'label' as type FROM `ngn_2025`.`labels` WHERE name LIKE ? ORDER BY name ASC LIMIT 3");
+        $stmt = $pdo->prepare("SELECT id, name, slug, image_url, 'label' as type FROM `ngn_2025`.`labels` WHERE name LIKE ? AND status = 'active' ORDER BY name ASC LIMIT 3");
         $stmt->execute(['%'.$search.'%']);
         $labels = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($labels as $l) {
@@ -587,7 +587,10 @@ $router->get('/search/suggest', function (Request $request) use ($config) {
 
         return new JsonResponse(['success' => true, 'data' => $results]);
     } catch (\Throwable $e) {
-        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+        if (isset($logger)) {
+            $logger->error("Autocomplete Search Suggest Error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+        }
+        return new JsonResponse(['success' => false, 'message' => 'Internal server error during search suggestion.'], 500);
     }
 });
 
