@@ -13,7 +13,16 @@ echo "🛠️ Server Finalization\n";
 echo "======================\n";
 
 // 1. Run Migrations
-echo "Scanning for active migrations...\n";
+echo "Applying migrations...\n";
+
+// Collation Fix for joins
+try {
+    $pdo->exec('ALTER TABLE smr_ingestions CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci');
+    echo "   [OK] smr_ingestions collation updated.\n";
+} catch (Exception $e) {
+    echo "   [INFO] Collation fix skip: " . $e->getMessage() . "\n";
+}
+
 $migrationFiles = [];
 $iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__ . '/../migrations/active'));
 foreach ($iter as $file) {
