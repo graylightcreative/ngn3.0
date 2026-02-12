@@ -11,6 +11,8 @@ require_once $root . 'lib/bootstrap.php';
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Commerce\ProductService;
+use NGN\Lib\Controllers\RankingController;
+use NGN\Services\FleetAuthService;
 
 // Default avatar for all entities
 define('DEFAULT_AVATAR', '/lib/images/user-default-avatar.jpg');
@@ -19,6 +21,7 @@ define('DEFAULT_AVATAR', '/lib/images/user-default-avatar.jpg');
 $pdo = null;
 $config = null;
 $productService = null;
+$rankingController = null;
 
 try {
     $config = new Config();
@@ -27,6 +30,7 @@ try {
     
     // Services
     $productService = new ProductService($config);
+    $rankingController = new RankingController($config);
 } catch (\Throwable $e) {
     // Log error or handle gracefully
     error_log("Failed to initialize database connections or services: " . $e->getMessage());
@@ -34,6 +38,24 @@ try {
 
 // Session & Auth
 if (session_status() !== PHP_SESSION_ACTIVE) { @session_start(); }
+
+// Fleet Identity Handshake (SSO)
+$fleetUser = FleetAuthService::checkHandshake();
+if ($fleetUser && empty($_SESSION['user_id'])) {
+    // Recognize as MASTER user instantly
+    // We would typically look up the user in ngn_2025 by email and set session
+    try {
+        $fstmt = $pdo->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+        $fstmt->execute([$fleetUser['email']]);
+        $fuid = $fstmt->fetchColumn();
+        if ($fuid) {
+            $_SESSION['user_id'] = $fuid;
+            $_SESSION['is_master'] = true;
+        }
+    } catch (\Throwable $fe) {
+        error_log("Fleet Handshake User Lookup Error: " . $fe->getMessage());
+    }
+}
 
 // Hardened User ID Extraction (Bible Ch. 41 compliant)
 $currentUserId = 0;
@@ -311,33 +333,9 @@ if ($pdo) {
             $data['label_rankings'] = [];
             
             // Get top 10 artist rankings (latest window available)
-            try {
-                $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
-                $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
-                                         FROM `ngn_rankings_2025`.`ranking_items` ri
-                                         JOIN `ngn_rankings_2025`.`artists` a ON ri.entity_id = a.id
-                                         WHERE ri.entity_type = \'artist\' 
-                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
-                                         ORDER BY ri.rank ASC LIMIT 10');
-                $stmt->execute();
-                $data['artist_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            } catch (\Throwable $e) {
-                error_log("Error fetching artist rankings: " . $e->getMessage());
-            }
-
-            // Get top 10 label rankings (latest window available)
-            try {
-                $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
-                $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, l.name AS Name, ri.score AS Score, l.slug, l.image_url 
-                                         FROM `ngn_rankings_2025`.`ranking_items` ri
-                                         JOIN `ngn_2025`.`labels` l ON ri.entity_id = l.id
-                                         WHERE ri.entity_type = \'label\' 
-                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
-                                         ORDER BY ri.rank ASC LIMIT 10');
-                $stmt->execute();
-                $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            } catch (\Throwable $e) {
-                error_log("Error fetching label rankings: " . $e->getMessage());
+            if ($rankingController) {
+                $data['artist_rankings'] = $rankingController->getTopRankings('artist', 10);
+                $data['label_rankings'] = $rankingController->getTopRankings('label', 10);
             }
 
             // SMR Chart data for home - Not currently configured (will be handled in smr-charts view)

@@ -100,58 +100,76 @@ class RankingService
                         throw new \RuntimeException('genres_not_supported_2025');
                     }
 
-                    // Latest window for interval
-                    $w = $this->pdo->prepare('SELECT id, window_start, window_end FROM `ngn_rankings_2025`.`ranking_windows` WHERE `interval` = :i ORDER BY window_start DESC LIMIT 1');
-                    $w->execute([':i' => $interval]);
+                    // Latest window for interval with Moat Filter (HAVING COUNT(*) > 100)
+                    $wSql = 'SELECT window_id 
+                             FROM `ngn_rankings_2025`.`ranking_items` 
+                             GROUP BY window_id 
+                             HAVING COUNT(*) > 100 
+                             ORDER BY window_id DESC 
+                             LIMIT 1';
+                    $w = $this->pdo->query($wSql);
                     $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
                     if ($win) {
-                        $wid = (int)$win['id'];
+                        $wid = (int)$win['window_id'];
                         $orderCol = (strtolower($sort) === 'score') ? 'score' : 'rank';
                         
-                        // Get total first (since FOUND_ROWS() is unreliable/deprecated)
+                        // Get total
                         $countSql = "SELECT COUNT(*) FROM `ngn_rankings_2025`.`ranking_items` WHERE window_id = :wid AND entity_type = :et";
                         $cstmt = $this->pdo->prepare($countSql);
                         $cstmt->execute([':wid' => $wid, ':et' => $entityType]);
                         $total = (int)$cstmt->fetchColumn();
 
-                        $sql = "SELECT entity_id AS id, `score`, `rank`, prev_rank
-                                FROM `ngn_rankings_2025`.`ranking_items`
-                                WHERE window_id = :wid AND entity_type = :et
-                                ORDER BY `{$orderCol}` {$dirSql}, entity_id ASC
-                                LIMIT :lim OFFSET :off";
+                        // Join with ngn_rankings_2025.artists (NOT ngn_2025.artists) as requested for the Moat
+                        if ($entityType === 'artist') {
+                            $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
+                                    FROM `ngn_rankings_2025`.`ranking_items` ri
+                                    JOIN `ngn_rankings_2025`.`artists` ra ON ri.entity_id = ra.ArtistId
+                                    WHERE ri.window_id = :wid AND ri.entity_type = 'artist'
+                                    ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
+                                    LIMIT :lim OFFSET :off";
+                        } else {
+                            $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
+                                    FROM `ngn_rankings_2025`.`ranking_items` ri
+                                    JOIN `ngn_rankings_2025`.`labels` rl ON ri.entity_id = rl.LabelId
+                                    WHERE ri.window_id = :wid AND ri.entity_type = 'label'
+                                    ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
+                                    LIMIT :lim OFFSET :off";
+                        }
+                        
                         $stmt = $this->pdo->prepare($sql);
                         $stmt->bindValue(':wid', $wid, PDO::PARAM_INT);
-                        $stmt->bindValue(':et', $entityType, PDO::PARAM_STR);
                         $stmt->bindValue(':lim', $perPage, PDO::PARAM_INT);
                         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
                         $stmt->execute();
                         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-                        // Best-effort join to ngn_2025 for display names
+                        // Best-effort join to ngn_2025 for display names (metadata)
                         $nameMap = [];
+                        $metaMap = [];
                         if ($this->config) {
                             try {
-                                $pdoPrimary = ConnectionFactory::read($this->config); // Use primary ngn_2025 connection
+                                $pdoPrimary = ConnectionFactory::read($this->config);
                                 $ids = array_values(array_unique(array_map('intval', array_column($rows, 'id'))));
                                 if (count($ids) > 0) {
                                     $placeholders = implode(',', array_fill(0, count($ids), '?'));
                                     if ($entityType === 'artist') {
-                                        $nsql = "SELECT id, name FROM `ngn_2025`.`artists` WHERE id IN ($placeholders)";
+                                        $nsql = "SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE id IN ($placeholders)";
                                     } else {
-                                        $nsql = "SELECT id, name FROM `ngn_2025`.`labels` WHERE id IN ($placeholders)";
+                                        $nsql = "SELECT id, name, slug, image_url FROM `ngn_2025`.`labels` WHERE id IN ($placeholders)";
                                     }
                                     $nstmt = $pdoPrimary->prepare($nsql);
-                                    foreach ($ids as $idx => $val) {
-                                        $nstmt->bindValue($idx + 1, $val, PDO::PARAM_INT);
-                                    }
+                                    foreach ($ids as $idx => $val) { $nstmt->bindValue($idx + 1, $val, PDO::PARAM_INT); }
                                     $nstmt->execute();
                                     $nameRows = $nstmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                                     foreach ($nameRows as $nr) {
                                         $nameMap[(int)$nr['id']] = (string)$nr['name'];
+                                        $metaMap[(int)$nr['id']] = [
+                                            'slug' => $nr['slug'],
+                                            'image_url' => $nr['image_url']
+                                        ];
                                     }
                                 }
                             } catch (\Throwable $eNames) {
-                                // ignore name lookup errors; fall back to ID labels
                                 error_log("Error in RankingService name lookup: " . $eNames->getMessage());
                             }
                         }
@@ -162,7 +180,12 @@ class RankingService
                             $name = $nameMap[$idVal] ?? ('ID '.$idVal);
                             $items[] = [
                                 'id' => $idVal,
+                                'entity_id' => $idVal,
+                                'Name' => $name,
                                 'name' => $name,
+                                'slug' => $metaMap[$idVal]['slug'] ?? $idVal,
+                                'image_url' => $metaMap[$idVal]['image_url'] ?? null,
+                                'Score' => isset($r['score']) ? (float)$r['score'] : 0.0,
                                 'score' => isset($r['score']) ? (float)$r['score'] : 0.0,
                                 'rank' => (int)($r['rank'] ?? 0),
                                 'delta' => isset($r['prev_rank']) && (int)$r['prev_rank'] > 0
