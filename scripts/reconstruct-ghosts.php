@@ -11,31 +11,38 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 
-echo "🧠 NGN Identity Reconstruction Engine (v1.0)
-";
-echo "===========================================
-";
+echo "🧠 NGN Identity Reconstruction Engine (v1.1)\n";
+echo "===========================================\n";
 
 $config = new Config();
 $pdo = ConnectionFactory::write($config); // ngn_2025
 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
 $smrPdo = ConnectionFactory::named($config, 'smr2025');
 
-// 1. Find missing Artist IDs
-echo "Identifying ghost artists...
-";
+// 1. Fetch current IDs to avoid joins
+echo "Fetching current artist IDs...\n";
+$currentArtistIds = $pdo->query("SELECT id FROM artists")->fetchAll(PDO::FETCH_COLUMN);
+$currentArtistIds = array_map('intval', $currentArtistIds);
+
+echo "Identifying ghost artists...\n";
 $stmt = $rankingsPdo->query("
     SELECT DISTINCT ri.entity_id, ri.score, ri.deltas, rw.window_start
     FROM ranking_items ri
     JOIN ranking_windows rw ON ri.window_id = rw.id
     WHERE ri.entity_type = 'artist'
-    AND ri.entity_id NOT IN (SELECT id FROM `ngn_2025`.`artists`)
-    LIMIT 500
+    ORDER BY rw.window_start DESC
+    LIMIT 2000
 ");
-$ghosts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$allRankings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-echo "Found " . count($ghosts) . " artist ghosts to reconstruct.
-";
+$ghosts = [];
+foreach ($allRankings as $r) {
+    if (!in_array((int)$r['entity_id'], $currentArtistIds, true)) {
+        $ghosts[] = $r;
+    }
+}
+
+echo "Found " . count($ghosts) . " artist ghosts to reconstruct.\n";
 
 $reconstructed = 0;
 foreach ($ghosts as $g) {
@@ -45,7 +52,6 @@ foreach ($ghosts as $g) {
     $spins = $deltas['spins'] ?? 0;
     
     // Try to find name in SMR Chart
-    // We match by spins (tws) and window_date (approximate)
     $matchStmt = $smrPdo->prepare("
         SELECT artist FROM smr_chart 
         WHERE tws = ? 
@@ -56,63 +62,46 @@ foreach ($ghosts as $g) {
     $name = $matchStmt->fetchColumn();
     
     if ($name) {
-        echo "   👻 [MATCH] ID $id => '$name'
-";
+        echo "   👻 [MATCH] ID $id => '$name'\n";
         $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $name)) . '-' . $id;
         try {
             $ins = $pdo->prepare("INSERT INTO artists (id, name, slug, status) VALUES (?, ?, ?, 'ghost') ON DUPLICATE KEY UPDATE name = VALUES(name)");
             $ins->execute([$id, $name, $slug]);
             $reconstructed++;
+            $currentArtistIds[] = $id; // Mark as done
         } catch (\Throwable $e) {
-            echo "      [FAIL] " . $e->getMessage() . "
-";
+            echo "      [FAIL] " . $e->getMessage() . "\n";
         }
-    } else {
-        echo "   ❔ [NONE] ID $id (Score: $score, Spins: $spins)
-";
     }
 }
 
-// 2. Find missing Label IDs
-echo "
-Identifying ghost labels...
-";
-$stmt = $rankingsPdo->query("
-    SELECT DISTINCT ri.entity_id
-    FROM ranking_items ri
-    WHERE ri.entity_type = 'label'
-    AND ri.entity_id NOT IN (SELECT id FROM `ngn_2025`.`labels`)
-");
-$labelGhosts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-echo "Found " . count($labelGhosts) . " label ghosts. (Attempting name recovery...)
-";
+// 2. Labels
+echo "\nFetching current label IDs...\n";
+$currentLabelIds = $pdo->query("SELECT id FROM labels")->fetchAll(PDO::FETCH_COLUMN);
+$currentLabelIds = array_map('intval', $currentLabelIds);
 
-foreach ($labelGhosts as $lg) {
-    $id = (int)$lg['entity_id'];
-    
-    // For labels, we try to find them by looking at artists that belong to them in SMR Chart
-    // This is harder, let's just create generic placeholders for now if we can't find them.
-    $matchStmt = $smrPdo->prepare("
-        SELECT label FROM smr_chart 
-        WHERE artist IN (SELECT name FROM `ngn_2025`.`artists` WHERE label_id = ?)
-        LIMIT 1
-    ");
-    // Wait, if label_id is not set in artists yet, this won't work.
-    
-    // Plan B: Match by total score in window
-    // This is complex. For now, let's just create "Ghost Label [ID]" placeholders to stop the error.
+echo "Identifying ghost labels...\n";
+$stmt = $rankingsPdo->query("SELECT DISTINCT entity_id FROM ranking_items WHERE entity_type = 'label'");
+$allLabelRankings = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+$labelGhosts = [];
+foreach ($allLabelRankings as $lid) {
+    if (!in_array((int)$lid, $currentLabelIds, true)) {
+        $labelGhosts[] = (int)$lid;
+    }
+}
+
+echo "Found " . count($labelGhosts) . " label ghosts. (Creating placeholders...)\n";
+
+foreach ($labelGhosts as $id) {
     $name = "Ghost Label $id";
     $slug = "ghost-label-$id";
-    
     try {
         $ins = $pdo->prepare("INSERT INTO labels (id, name, slug) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)");
         $ins->execute([$id, $name, $slug]);
     } catch (\Throwable $e) {}
 }
 
-echo "
-🏁 Reconstruction complete. ($reconstructed artists recovered)
-";
-echo "🔄 Triggering Moat Repressurization...
-";
+echo "\n🏁 Reconstruction complete. ($reconstructed artists recovered)\n";
+echo "🔄 Triggering Moat Repressurization...\n";
 include __DIR__ . '/repressurize-moat.php';
