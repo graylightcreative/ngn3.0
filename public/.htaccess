@@ -25,10 +25,9 @@ RewriteRule ^(.*)$ /help/$1 [L,QSA]
 RewriteCond %{HTTP_HOST} ^my\.nextgennoise\.com$ [NC]
 RewriteRule ^(.*)$ /dashboard/$1 [L,QSA]
 
-# Route beta.nextgennoise.com to beta.php
+# Route beta.nextgennoise.com to beta.php (Landing Page Only)
 RewriteCond %{HTTP_HOST} ^beta\.nextgennoise\.com$ [NC]
 RewriteRule ^$ beta.php [L]
-RewriteRule ^(.*)$ beta.php [L]
 
 # ============================================================================
 # HTTP CACHING & COMPRESSION
