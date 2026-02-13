@@ -1008,11 +1008,11 @@ if ($isNotFound) {
   <meta name="apple-mobile-web-app-title" content="NGN">
   <meta name="mobile-web-app-capable" content="yes">
 
-  <!-- Favicons -->
-  <link rel="icon" type="image/x-icon" href="/lib/images/site/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/lib/images/site/favicon-16x16.png">
-  <link rel="apple-touch-icon" href="/lib/images/site/apple-touch-icon.png">
+  <!-- Favicons (NGN 2026 Brand) -->
+  <link rel="icon" type="image/png" href="/lib/images/site/2026/NGN-ICON-DARK.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/2026/NGN-ICON-DARK.png">
+  <link rel="apple-touch-icon" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
+  <meta name="theme-color" content="#1a1a1a">
 
   <script>
     window.tailwind = { config: { darkMode: 'class', theme: { extend: { colors: { brand: { DEFAULT: '#FF5F1F', dark: '#E64A00' } } } } } };
@@ -1497,7 +1497,7 @@ if ($isNotFound) {
             </div>
             <div class="flex items-center justify-between pt-6 border-t border-white/5">
               <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-[10px] font-black text-brand">NGN</div>
+                <img src="/lib/images/site/2026/NGN-Emblem-Dark.png" alt="NGN" class="w-8 h-8 rounded-full object-cover">
                 <div class="text-[10px] font-black text-zinc-500 uppercase"><?= htmlspecialchars($post['author_name'] ?? 'Staff') ?></div>
               </div>
               <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"><?= ($post['published_at'] ?? null) ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>

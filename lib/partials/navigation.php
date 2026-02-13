@@ -29,7 +29,7 @@
 <aside class="hidden lg:flex flex-col w-[280px] bg-black fixed inset-y-0 left-0 z-50 border-r border-white/5">
     <div class="p-8">
         <a href="/" class="block mb-10">
-            <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-10">
+            <img src="/lib/images/site/2026/NGN-Logo-Full-Dark.png" alt="Next Generation Noise" class="h-10 object-contain">
         </a>
 
         <nav class="space-y-6">

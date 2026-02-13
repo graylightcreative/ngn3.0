@@ -64,6 +64,9 @@ Checklists, runbooks, and guides for deploying and managing the NGN 2.0 applicat
     - [Deployment Checklist](./DEPLOYMENT_CHECKLIST.md)
     - [Go-Live Checklist](./docs/GO_LIVE_CHECKLIST.md)
     - [Launch Day Master Checklist](./LAUNCH_DAY_MASTER_CHECKLIST.md)
+- **Automation & Deployment**
+    - [🤖 Automation Guide](./docs/AUTOMATION_GUIDE.md) ← **NEW: Orchestrate deployments automatically**
+    - [Automation Quick Reference](#-automation-quick-reference) ← **Quick command reference**
 - **Runbooks & Guides**
     - [Migration Plan](./MIGRATION_PLAN.md)
     - [Cutover Runbook](./docs/CutoverRunbook.md)
@@ -172,3 +175,54 @@ Deeper technical documentation and module-specific READMEs.
     - [Admin Panel README](./public/admin/README.md)
     - [Public API README](./public/api/README.md)
     - [Tests README](./tests/README.md)
+
+---
+
+## 🤖 Automation Quick Reference
+
+**Automate progress tracking, git commits, and deployments in one command**
+
+### Basic Usage
+
+```bash
+# Preview changes (no modifications)
+php bin/automate.php full --version=2.0.3 --dry-run
+
+# Execute full workflow
+php bin/automate.php full --version=2.0.3
+
+# Individual operations
+php bin/automate.php progress --version=2.0.3    # Update progress
+php bin/automate.php readme --version=2.0.3      # Regenerate README
+php bin/automate.php commit --version=2.0.3      # Create commit & push
+php bin/automate.php deploy --version=2.0.3      # Deploy via Fleet
+php bin/automate.php status                      # Show current status
+```
+
+### Workflow Steps
+
+The `full` command executes these steps automatically:
+
+1. **Validate State** - Check git, credentials, files
+2. **Update Progress** - Auto-detect completed tasks, update metrics
+3. **Regenerate README** - Update status banners with latest progress
+4. **Create Commit** - Stage files, generate structured commit message
+5. **Push to Remote** - Push to origin/main
+6. **Deploy** - Execute Graylight Fleet deployment
+
+### Features
+
+- ✅ **Auto-detection** - Automatically mark tasks complete based on file existence
+- ✅ **Dry-run mode** - Preview all changes without executing
+- ✅ **Structured commits** - Auto-generated messages with task summaries
+- ✅ **Audit logging** - Complete deployment history
+- ✅ **Safety checks** - Validates prerequisites before operations
+- ✅ **Rollback** - Rollback to previous commits
+
+### Configuration
+
+- **Settings**: `config/automation.json`
+- **Logs**: `storage/logs/automation/`
+- **History**: `storage/logs/automation/deploy-history.json`
+
+**Full Guide**: [📖 Automation Guide](./docs/AUTOMATION_GUIDE.md)

@@ -1,0 +1,74 @@
+{
+  "automation": {
+    "enabled": true,
+    "description": "NGN Automation System Configuration"
+  },
+  "git": {
+    "auto_push": true,
+    "remote": "origin",
+    "branch": "main",
+    "require_clean_status": true,
+    "staging_strategy": "selective"
+  },
+  "progress": {
+    "auto_detect_completions": true,
+    "file_checks": {
+      "blockchain_anchoring": [
+        "lib/Blockchain/BlockchainService.php",
+        "lib/Blockchain/SmartContractInterface.php"
+      ],
+      "nft_certificate_minting": [
+        "lib/NFT/NFTService.php",
+        "lib/NFT/ERC721Interface.php"
+      ],
+      "admin_ledger_dashboard": [
+        "public/admin-v2/src/pages/Ledger.tsx",
+        "public/admin-v2/src/pages/LedgerDashboard.tsx"
+      ]
+    }
+  },
+  "deployment": {
+    "enabled": true,
+    "default_environment": "beta",
+    "run_tests_before_deploy": false,
+    "rollback_on_failure": true,
+    "deployment_target": "beta.nextgennoise.com"
+  },
+  "logging": {
+    "enabled": true,
+    "level": "info",
+    "log_dir": "storage/logs/automation",
+    "max_log_size_mb": 100,
+    "retention_days": 30
+  },
+  "notifications": {
+    "enabled": false,
+    "email": null,
+    "slack_webhook": null
+  },
+  "safety_checks": {
+    "validate_git_status": true,
+    "validate_env_file": true,
+    "validate_credentials": true,
+    "require_dry_run_first": false,
+    "confirmation_required": false
+  },
+  "file_staging": {
+    "always_stage": [
+      "storage/plan/progress.json",
+      "storage/plan/progress-beta-*.json",
+      "README.md"
+    ],
+    "skip_stage": [
+      "node_modules/**",
+      ".git/**",
+      "vendor/**"
+    ]
+  },
+  "commit_template": {
+    "format": "NGN {version}: {summary}",
+    "include_completed_tasks": true,
+    "include_file_count": true,
+    "include_completion_percentage": true
+  }
+}

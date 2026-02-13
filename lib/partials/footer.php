@@ -46,8 +46,8 @@
 		<div class='row'>
 			<div class='col text-center'>
 				<a href="<?=$GLOBALS['Default']['Baseurl'];?>" title="<?= $GLOBALS['Default']['Title']; ?>"><img
-						src="<?=$GLOBALS['Default']['Baseurl'];?>lib/images/site/web-light-1.png"
-						alt="<?= $GLOBALS['Default']['Title']; ?>" class='img-fluid' width='200px;'></a>
+						src="<?=$GLOBALS['Default']['Baseurl'];?>lib/images/site/2026/NGN-Stacked-Full-Dark.png"
+						alt="<?= $GLOBALS['Default']['Title']; ?>" class='img-fluid' style='max-width: 200px; height: auto;'></a>
 				<ul class='nav justify-content-center'>
 
 				</ul>

@@ -163,7 +163,7 @@ $features = [
 
         <!-- Footer -->
         <footer class="mt-32 pt-12 border-t border-white/5 text-center">
-            <img src="/lib/images/site/web-light-1.png" alt="NGN" class="h-8 mx-auto mb-8 opacity-20">
+            <img src="/lib/images/site/2026/NGN-Logo-Full-Dark.png" alt="NGN" class="h-8 mx-auto mb-8 opacity-20 object-contain">
             <p class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.4em]">NextGenNoise // Sovereign Music Infrastructure</p>
         </footer>
 
