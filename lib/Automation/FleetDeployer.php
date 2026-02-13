@@ -161,7 +161,8 @@ class FleetDeployer
         }
 
         // Check if git is clean
-        $gitStatus = trim(shell_exec("cd {$this->projectRoot} && git status --porcelain 2>&1"));
+        $output = shell_exec("cd {$this->projectRoot} && git status --porcelain 2>&1");
+        $gitStatus = $output ? trim($output) : '';
         if (!empty($gitStatus)) {
             $issues[] = 'Uncommitted changes in git - commit before deploying';
         }

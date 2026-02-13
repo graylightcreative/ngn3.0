@@ -193,7 +193,8 @@ class GitCommitter
      */
     public function getCurrentCommitHash(): string
     {
-        $hash = trim(shell_exec("cd {$this->projectRoot} && git rev-parse HEAD 2>&1"));
+        $output = shell_exec("cd {$this->projectRoot} && git rev-parse HEAD 2>&1");
+        $hash = $output ? trim($output) : '';
         return strlen($hash) === 40 ? $hash : '';
     }
 
