@@ -111,7 +111,7 @@ class RankingService
                     $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
                     if ($win) {
                         $wid = (int)$win['window_id'];
-                        error_log("RankingService: Found Window ID $wid with Moat filter.");
+                        @file_put_contents("/www/wwwroot/nextgennoise/storage/logs/ranking_debug.log", "[" . date('Y-m-d H:i:s') . "] Found Window ID $wid\n", FILE_APPEND);
                         $orderCol = (strtolower($sort) === 'score') ? 'score' : 'rank';
                         
                         // Get total
@@ -119,7 +119,7 @@ class RankingService
                         $cstmt = $this->pdo->prepare($countSql);
                         $cstmt->execute([':wid' => $wid, ':et' => $entityType]);
                         $total = (int)$cstmt->fetchColumn();
-                        error_log("RankingService: Total items for window $wid ($entityType): $total");
+                        @file_put_contents("/www/wwwroot/nextgennoise/storage/logs/ranking_debug.log", "[" . date('Y-m-d H:i:s') . "] Total items: $total for type $entityType\n", FILE_APPEND);
 
                         // Join with ngn_rankings_2025.artists (NOT ngn_2025.artists) as requested for the Moat
                         if ($entityType === 'artist') {
@@ -144,7 +144,7 @@ class RankingService
                         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
                         $stmt->execute();
                         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                        error_log("RankingService: Fetched " . count($rows) . " rows for charts.");
+                        @file_put_contents("/www/wwwroot/nextgennoise/storage/logs/ranking_debug.log", "[" . date('Y-m-d H:i:s') . "] Fetched rows: " . count($rows) . "\n", FILE_APPEND);
 
                         // Best-effort join to ngn_2025 for display names (metadata)
                         $nameMap = [];
