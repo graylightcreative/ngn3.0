@@ -7,9 +7,9 @@ use PDO;
 
 class RankingService
 {
-    private PDO $pdo; // Renamed for clarity, now directly points to rankings2025
-    private bool $dbReady = false;
-    private Config $config; // Store Config for consistent access
+    private $pdo; 
+    private $dbReady = false;
+    private $config; 
 
     public function __construct(Config $config)
     {

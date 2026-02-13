@@ -13,8 +13,8 @@ use PDO;
  */
 class RankingController
 {
-    private Config $config;
-    private RankingService $rankingService;
+    private $config;
+    private $rankingService;
 
     public function __construct(Config $config)
     {
