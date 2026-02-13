@@ -1008,10 +1008,10 @@ if ($isNotFound) {
   <meta name="apple-mobile-web-app-title" content="NGN">
   <meta name="mobile-web-app-capable" content="yes">
 
-  <!-- Favicons (NGN 2026 Brand) -->
-  <link rel="icon" type="image/png" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
-  <link rel="apple-touch-icon" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
+  <!-- Favicons (NGN 2026 Brand - Emblem) -->
+  <link rel="icon" type="image/png" href="/lib/images/site/2026/NGN-Emblem-Light.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/2026/NGN-Emblem-Light.png">
+  <link rel="apple-touch-icon" href="/lib/images/site/2026/NGN-Emblem-Light.png">
   <meta name="theme-color" content="#1a1a1a">
 
   <script>
