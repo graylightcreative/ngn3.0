@@ -1009,8 +1009,8 @@ if ($isNotFound) {
   <meta name="mobile-web-app-capable" content="yes">
 
   <!-- Favicons (NGN 2026 Brand) -->
-  <link rel="icon" type="image/png" href="/lib/images/site/2026/NGN-ICON-DARK.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/2026/NGN-ICON-DARK.png">
+  <link rel="icon" type="image/png" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
   <link rel="apple-touch-icon" href="/lib/images/site/2026/NGN-ICON-LIGHT.png">
   <meta name="theme-color" content="#1a1a1a">
 
@@ -1497,7 +1497,7 @@ if ($isNotFound) {
             </div>
             <div class="flex items-center justify-between pt-6 border-t border-white/5">
               <div class="flex items-center gap-3">
-                <img src="/lib/images/site/2026/NGN-Emblem-Dark.png" alt="NGN" class="w-8 h-8 rounded-full object-cover">
+                <img src="/lib/images/site/2026/NGN-Emblem-Light.png" alt="NGN" class="w-8 h-8 rounded-full object-cover">
                 <div class="text-[10px] font-black text-zinc-500 uppercase"><?= htmlspecialchars($post['author_name'] ?? 'Staff') ?></div>
               </div>
               <div class="text-[10px] font-black text-zinc-600 uppercase tracking-widest"><?= ($post['published_at'] ?? null) ? date('M j, Y', strtotime($post['published_at'])) : '' ?></div>

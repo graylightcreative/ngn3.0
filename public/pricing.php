@@ -74,7 +74,7 @@ $billingCycle = $_GET['billing'] ?? 'monthly';
     <header class="py-4 px-6 border-b border-white/10">
         <div class="max-w-6xl mx-auto flex items-center justify-between">
             <a href="/" class="flex items-center gap-2">
-                <img src="/lib/images/site/2026/NGN-Logo-Full-Dark.png" alt="Next Generation Noise" class="h-8 object-contain">
+                <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" alt="Next Generation Noise" class="h-8 object-contain">
             </a>
             <nav class="flex items-center gap-4">
                 <a href="/frontend/" class="text-sm text-gray-400 hover:text-white">Home</a>

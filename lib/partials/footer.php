@@ -46,7 +46,7 @@
 		<div class='row'>
 			<div class='col text-center'>
 				<a href="<?=$GLOBALS['Default']['Baseurl'];?>" title="<?= $GLOBALS['Default']['Title']; ?>"><img
-						src="<?=$GLOBALS['Default']['Baseurl'];?>lib/images/site/2026/NGN-Stacked-Full-Dark.png"
+						src="<?=$GLOBALS['Default']['Baseurl'];?>lib/images/site/2026/NGN-Stacked-Full-Light.png"
 						alt="<?= $GLOBALS['Default']['Title']; ?>" class='img-fluid' style='max-width: 200px; height: auto;'></a>
 				<ul class='nav justify-content-center'>
 
