@@ -15,7 +15,7 @@ use NGN\Lib\Controllers\RankingController;
 use NGN\Lib\Services\FleetAuthService;
 
 // Default avatar for all entities (NGN Emblem 2026)
-define('DEFAULT_AVATAR', '/lib/images/site/2026/default-avatar.png');
+define('DEFAULT_AVATAR', '/lib/images/site/default-avatar.png');
 
 // Database connections
 $pdo = null;
@@ -1009,11 +1009,11 @@ if ($isNotFound) {
   <meta name="mobile-web-app-capable" content="yes">
 
   <!-- Favicons (NGN 2026 Brand - Emblem) -->
-  <link rel="icon" type="image/png" sizes="16x16" href="/lib/images/site/2026/favicon-16x16.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/2026/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="48x48" href="/lib/images/site/2026/favicon-48x48.png">
-  <link rel="icon" type="image/png" sizes="64x64" href="/lib/images/site/2026/favicon-64x64.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/lib/images/site/2026/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/lib/images/site/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/lib/images/site/favicon-48x48.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/lib/images/site/favicon-64x64.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/lib/images/site/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1a1a1a">
   <meta name="mobile-web-app-capable" content="yes">
