@@ -71,8 +71,8 @@ $fbLoginUrl = $fbAppId ? 'https://www.facebook.com/v22.0/dialog/oauth?client_id=
   <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
     <div class="sm:mx-auto sm:w-full sm:max-w-md">
       <a href="/" class="flex justify-center">
-        <img src="/lib/images/site/2026/NGN-Logo-Full-Dark.png" alt="Next Generation Noise" class="h-12 hidden dark:block object-contain">
-        <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" alt="Next Generation Noise" class="h-12 dark:hidden object-contain">
+        <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" alt="Next Generation Noise" class="h-12 hidden dark:block object-contain">
+        <img src="/lib/images/site/2026/NGN-Logo-Full-Dark.png" alt="Next Generation Noise" class="h-12 dark:hidden object-contain">
       </a>
       <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
         Sign in to your account
