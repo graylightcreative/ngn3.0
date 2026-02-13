@@ -12,7 +12,7 @@ use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Commerce\ProductService;
 use NGN\Lib\Controllers\RankingController;
-use NGN\Services\FleetAuthService;
+use NGN\Lib\Services\FleetAuthService;
 
 // Default avatar for all entities
 define('DEFAULT_AVATAR', '/lib/images/user-default-avatar.jpg');

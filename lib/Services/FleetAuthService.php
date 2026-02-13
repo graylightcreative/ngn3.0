@@ -1,5 +1,5 @@
 <?php
-namespace NGN\Services;
+namespace NGN\Lib\Services;
 
 class FleetAuthService {
     private const FLEET_DB_CONFIG = [
