@@ -20,7 +20,7 @@ $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
 
 // 1. Sync Artists
 echo "Syncing Artists to Rankings DB... ";
-$stmt = $pdo->query("SELECT id FROM `ngn_2025`.`artists` WHERE status = 'active'");
+$stmt = $pdo->query("SELECT id FROM `ngn_2025`.`artists` WHERE status IN ('active', 'ghost')");
 $artists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 try {
@@ -41,7 +41,7 @@ try {
 
 // 2. Sync Labels
 echo "Syncing Labels to Rankings DB... ";
-$stmt = $pdo->query("SELECT id FROM `ngn_2025`.`labels` WHERE status = 'active'");
+$stmt = $pdo->query("SELECT id FROM `ngn_2025`.`labels` WHERE status = 'active' OR name LIKE 'Ghost%'");
 $labels = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 try {
