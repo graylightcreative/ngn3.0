@@ -11,7 +11,7 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 
-echo "🧠 NGN Identity Reconstruction Engine (v1.1)\n";
+echo "🧠 NGN Identity Reconstruction Engine (v1.2)\n";
 echo "===========================================\n";
 
 $config = new Config();
@@ -19,43 +19,50 @@ $pdo = ConnectionFactory::write($config); // ngn_2025
 $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
 $smrPdo = ConnectionFactory::named($config, 'smr2025');
 
-// 1. Fetch current IDs to avoid joins
+// 1. Fetch current IDs
 echo "Fetching current artist IDs...\n";
 $currentArtistIds = $pdo->query("SELECT id FROM artists")->fetchAll(PDO::FETCH_COLUMN);
 $currentArtistIds = array_map('intval', $currentArtistIds);
 
 echo "Identifying ghost artists...\n";
+// Focus on specific recent windows if needed, or all
 $stmt = $rankingsPdo->query("
     SELECT DISTINCT ri.entity_id, ri.score, ri.deltas, rw.window_start
     FROM ranking_items ri
     JOIN ranking_windows rw ON ri.window_id = rw.id
     WHERE ri.entity_type = 'artist'
-    ORDER BY rw.window_start DESC
-    LIMIT 2000
+    AND rw.id >= 300
 ");
 $allRankings = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $ghosts = [];
 foreach ($allRankings as $r) {
-    if (!in_array((int)$r['entity_id'], $currentArtistIds, true)) {
-        $ghosts[] = $r;
+    $eid = (int)$r['entity_id'];
+    if (!in_array($eid, $currentArtistIds, true)) {
+        if (!isset($ghosts[$eid])) {
+            $ghosts[$eid] = $r;
+        }
     }
 }
 
-echo "Found " . count($ghosts) . " artist ghosts to reconstruct.\n";
+echo "Found " . count($ghosts) . " unique artist ghosts to reconstruct.\n";
 
 $reconstructed = 0;
-foreach ($ghosts as $g) {
-    $id = (int)$g['entity_id'];
+foreach ($ghosts as $id => $g) {
     $score = (float)$g['score'];
-    $deltas = json_decode($g['deltas'], true);
+    $deltas = json_decode((string)$g['deltas'], true);
     $spins = $deltas['spins'] ?? 0;
     
+    if ($spins <= 0) {
+        echo "   ❔ [SKIP] ID $id has no spins data in deltas.\n";
+        continue;
+    }
+
     // Try to find name in SMR Chart
     $matchStmt = $smrPdo->prepare("
         SELECT artist FROM smr_chart 
         WHERE tws = ? 
-        AND window_date BETWEEN DATE_SUB(?, INTERVAL 14 DAY) AND DATE_ADD(?, INTERVAL 14 DAY)
+        AND window_date BETWEEN DATE_SUB(?, INTERVAL 30 DAY) AND DATE_ADD(?, INTERVAL 30 DAY)
         LIMIT 1
     ");
     $matchStmt->execute([$spins, $g['window_start'], $g['window_start']]);
@@ -68,10 +75,11 @@ foreach ($ghosts as $g) {
             $ins = $pdo->prepare("INSERT INTO artists (id, name, slug, status) VALUES (?, ?, ?, 'ghost') ON DUPLICATE KEY UPDATE name = VALUES(name)");
             $ins->execute([$id, $name, $slug]);
             $reconstructed++;
-            $currentArtistIds[] = $id; // Mark as done
         } catch (\Throwable $e) {
             echo "      [FAIL] " . $e->getMessage() . "\n";
         }
+    } else {
+        echo "   ❔ [NONE] ID $id (Spins: $spins, Date: {$g['window_start']})\n";
     }
 }
 
