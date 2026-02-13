@@ -111,6 +111,7 @@ class RankingService
                     $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
                     if ($win) {
                         $wid = (int)$win['window_id'];
+                        error_log("RankingService: Found Window ID $wid with Moat filter.");
                         $orderCol = (strtolower($sort) === 'score') ? 'score' : 'rank';
                         
                         // Get total
@@ -118,19 +119,20 @@ class RankingService
                         $cstmt = $this->pdo->prepare($countSql);
                         $cstmt->execute([':wid' => $wid, ':et' => $entityType]);
                         $total = (int)$cstmt->fetchColumn();
+                        error_log("RankingService: Total items for window $wid ($entityType): $total");
 
                         // Join with ngn_rankings_2025.artists (NOT ngn_2025.artists) as requested for the Moat
                         if ($entityType === 'artist') {
                             $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
                                     FROM `ngn_rankings_2025`.`ranking_items` ri
-                                    JOIN `ngn_rankings_2025`.`artists` ra ON ri.entity_id = ra.ArtistId
+                                    LEFT JOIN `ngn_rankings_2025`.`artists` ra ON ri.entity_id = ra.ArtistId
                                     WHERE ri.window_id = :wid AND ri.entity_type = 'artist'
                                     ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
                                     LIMIT :lim OFFSET :off";
                         } else {
                             $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
                                     FROM `ngn_rankings_2025`.`ranking_items` ri
-                                    JOIN `ngn_rankings_2025`.`labels` rl ON ri.entity_id = rl.LabelId
+                                    LEFT JOIN `ngn_rankings_2025`.`labels` rl ON ri.entity_id = rl.LabelId
                                     WHERE ri.window_id = :wid AND ri.entity_type = 'label'
                                     ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
                                     LIMIT :lim OFFSET :off";
@@ -142,6 +144,7 @@ class RankingService
                         $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
                         $stmt->execute();
                         $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                        error_log("RankingService: Fetched " . count($rows) . " rows for charts.");
 
                         // Best-effort join to ngn_2025 for display names (metadata)
                         $nameMap = [];
