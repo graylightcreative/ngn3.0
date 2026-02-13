@@ -424,34 +424,10 @@ if ($pdo) {
             $data['artist_rankings'] = [];
             $data['label_rankings'] = [];
 
-            // Get top 100 artist rankings
-            try {
-                $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
-                $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, a.name AS Name, ri.score AS Score, a.slug, a.image_url 
-                                         FROM `ngn_rankings_2025`.`ranking_items` ri
-                                         JOIN `ngn_rankings_2025`.`artists` a ON ri.entity_id = a.id
-                                         WHERE ri.entity_type = \'artist\' 
-                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
-                                         ORDER BY ri.rank ASC LIMIT 100');
-                $stmt->execute();
-                $data['artist_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            } catch (\Throwable $e) {
-                error_log("Error fetching artist rankings: " . $e->getMessage());
-            }
-
-            // Get top 100 label rankings
-            try {
-                $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
-                $stmt = $rankingsPdo->prepare('SELECT ri.entity_id, l.name AS Name, ri.score AS Score, l.slug, l.image_url 
-                                         FROM `ngn_rankings_2025`.`ranking_items` ri
-                                         JOIN `ngn_2025`.`labels` l ON ri.entity_id = l.id
-                                         WHERE ri.entity_type = \'label\' 
-                                         AND ri.window_id = (SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1)
-                                         ORDER BY ri.rank ASC LIMIT 100');
-                $stmt->execute();
-                $data['label_rankings'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-            } catch (\Throwable $e) {
-                error_log("Error fetching label rankings: " . $e->getMessage());
+            // Get top 100 rankings using the RankingController (The Moat)
+            if ($rankingController) {
+                $data['artist_rankings'] = $rankingController->getTopRankings('artist', 100);
+                $data['label_rankings'] = $rankingController->getTopRankings('label', 100);
             }
         } elseif ($view === 'agreement' && isset($_GET['slug'])) {
             $templateSlug = trim($_GET['slug']);

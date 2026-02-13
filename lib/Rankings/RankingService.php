@@ -7,9 +7,9 @@ use PDO;
 
 class RankingService
 {
-    private $pdo; 
-    private $dbReady = false;
-    private $config; 
+    private PDO $pdo; 
+    private bool $dbReady = false;
+    private Config $config; 
 
     public function __construct(Config $config)
     {
@@ -81,7 +81,6 @@ class RankingService
         $type = strtolower($type);
         // Normalize supported inputs
         $resource = in_array($type, ['artists','labels','genres'], true) ? $type : 'artists';
-        $interval = in_array(strtolower($interval), ['daily','weekly','monthly'], true) ? strtolower($interval) : 'daily';
         $perPage = max(1, min($perPage, 100));
         $page = max(1, $page);
         $offset = ($page - 1) * $perPage;
@@ -89,120 +88,109 @@ class RankingService
 
         if ($this->dbReady && $this->pdo) {
             try {
-                // We are always on the 2025 rankings shard
-                $is2025 = true; // No need to probe anymore, we connected directly to rankings2025
+                // New 2025 schema: ranking_windows + ranking_items
+                $entityType = $resource === 'artists' ? 'artist' : ($resource === 'labels' ? 'label' : 'genre');
+                if ($entityType === 'genre') {
+                    throw new \RuntimeException('genres_not_supported_2025');
+                }
 
-                if ($is2025) {
-                    // New 2025 schema: ranking_windows + ranking_items
-                    $entityType = $resource === 'artists' ? 'artist' : ($resource === 'labels' ? 'label' : 'genre');
-                    if ($entityType === 'genre') {
-                        // No genre rankings yet in 2025 schema; fall back to mock
-                        throw new \RuntimeException('genres_not_supported_2025');
+                // Latest window for interval with Moat Filter (HAVING COUNT(*) > 100)
+                $wSql = 'SELECT window_id 
+                         FROM `ngn_rankings_2025`.`ranking_items` 
+                         GROUP BY window_id 
+                         HAVING COUNT(*) > 100 
+                         ORDER BY window_id DESC 
+                         LIMIT 1';
+                $w = $this->pdo->query($wSql);
+                $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
+                if ($win) {
+                    $wid = (int)$win['window_id'];
+                    $orderCol = (strtolower($sort) === 'score') ? 'score' : 'rank';
+                    
+                    // Get total
+                    $countSql = "SELECT COUNT(*) FROM `ngn_rankings_2025`.`ranking_items` WHERE window_id = :wid AND entity_type = :et";
+                    $cstmt = $this->pdo->prepare($countSql);
+                    $cstmt->execute([':wid' => $wid, ':et' => $entityType]);
+                    $total = (int)$cstmt->fetchColumn();
+
+                    // Join with ngn_rankings_2025.artists (NOT ngn_2025.artists) as requested for the Moat
+                    if ($entityType === 'artist') {
+                        $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
+                                FROM `ngn_rankings_2025`.`ranking_items` ri
+                                LEFT JOIN `ngn_rankings_2025`.`artists` ra ON ri.entity_id = ra.ArtistId
+                                WHERE ri.window_id = :wid AND ri.entity_type = 'artist'
+                                ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
+                                LIMIT :lim OFFSET :off";
+                    } else {
+                        $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
+                                FROM `ngn_rankings_2025`.`ranking_items` ri
+                                LEFT JOIN `ngn_rankings_2025`.`labels` rl ON ri.entity_id = rl.LabelId
+                                WHERE ri.window_id = :wid AND ri.entity_type = 'label'
+                                ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
+                                LIMIT :lim OFFSET :off";
                     }
+                    
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->bindValue(':wid', $wid, PDO::PARAM_INT);
+                    $stmt->bindValue(':lim', $perPage, PDO::PARAM_INT);
+                    $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
-                    // Latest window for interval with Moat Filter (HAVING COUNT(*) > 100)
-                    $wSql = 'SELECT window_id 
-                             FROM `ngn_rankings_2025`.`ranking_items` 
-                             GROUP BY window_id 
-                             HAVING COUNT(*) > 100 
-                             ORDER BY window_id DESC 
-                             LIMIT 1';
-                    $w = $this->pdo->query($wSql);
-                    $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
-                    if ($win) {
-                        $wid = (int)$win['window_id'];
-                        @file_put_contents("/www/wwwroot/nextgennoise/storage/logs/ranking_debug.log", "[" . date('Y-m-d H:i:s') . "] Found Window ID $wid\n", FILE_APPEND);
-                        $orderCol = (strtolower($sort) === 'score') ? 'score' : 'rank';
-                        
-                        // Get total
-                        $countSql = "SELECT COUNT(*) FROM `ngn_rankings_2025`.`ranking_items` WHERE window_id = :wid AND entity_type = :et";
-                        $cstmt = $this->pdo->prepare($countSql);
-                        $cstmt->execute([':wid' => $wid, ':et' => $entityType]);
-                        $total = (int)$cstmt->fetchColumn();
-                        @file_put_contents("/www/wwwroot/nextgennoise/storage/logs/ranking_debug.log", "[" . date('Y-m-d H:i:s') . "] Total items: $total for type $entityType\n", FILE_APPEND);
-
-                        // Join with ngn_rankings_2025.artists (NOT ngn_2025.artists) as requested for the Moat
-                        if ($entityType === 'artist') {
-                            $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
-                                    FROM `ngn_rankings_2025`.`ranking_items` ri
-                                    LEFT JOIN `ngn_rankings_2025`.`artists` ra ON ri.entity_id = ra.ArtistId
-                                    WHERE ri.window_id = :wid AND ri.entity_type = 'artist'
-                                    ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
-                                    LIMIT :lim OFFSET :off";
-                        } else {
-                            $sql = "SELECT ri.entity_id AS id, ri.score, ri.rank, ri.prev_rank
-                                    FROM `ngn_rankings_2025`.`ranking_items` ri
-                                    LEFT JOIN `ngn_rankings_2025`.`labels` rl ON ri.entity_id = rl.LabelId
-                                    WHERE ri.window_id = :wid AND ri.entity_type = 'label'
-                                    ORDER BY ri.{$orderCol} {$dirSql}, ri.entity_id ASC
-                                    LIMIT :lim OFFSET :off";
-                        }
-                        
-                        $stmt = $this->pdo->prepare($sql);
-                        $stmt->bindValue(':wid', $wid, PDO::PARAM_INT);
-                        $stmt->bindValue(':lim', $perPage, PDO::PARAM_INT);
-                        $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
-                        $stmt->execute();
-                        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                        @file_put_contents("/www/wwwroot/nextgennoise/storage/logs/ranking_debug.log", "[" . date('Y-m-d H:i:s') . "] Fetched rows: " . count($rows) . "\n", FILE_APPEND);
-
-                        // Best-effort join to ngn_2025 for display names (metadata)
-                        $nameMap = [];
-                        $metaMap = [];
-                        if ($this->config) {
-                            try {
-                                $pdoPrimary = ConnectionFactory::read($this->config);
-                                $ids = array_values(array_unique(array_map('intval', array_column($rows, 'id'))));
-                                if (count($ids) > 0) {
-                                    $placeholders = implode(',', array_fill(0, count($ids), '?'));
-                                    if ($entityType === 'artist') {
-                                        $nsql = "SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE id IN ($placeholders)";
-                                    } else {
-                                        $nsql = "SELECT id, name, slug, image_url FROM `ngn_2025`.`labels` WHERE id IN ($placeholders)";
-                                    }
-                                    $nstmt = $pdoPrimary->prepare($nsql);
-                                    foreach ($ids as $idx => $val) { $nstmt->bindValue($idx + 1, $val, PDO::PARAM_INT); }
-                                    $nstmt->execute();
-                                    $nameRows = $nstmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
-                                    foreach ($nameRows as $nr) {
-                                        $nameMap[(int)$nr['id']] = (string)$nr['name'];
-                                        $metaMap[(int)$nr['id']] = [
-                                            'slug' => $nr['slug'],
-                                            'image_url' => $nr['image_url']
-                                        ];
-                                    }
+                    // Best-effort join to ngn_2025 for display names (metadata)
+                    $nameMap = [];
+                    $metaMap = [];
+                    if ($this->config) {
+                        try {
+                            $pdoPrimary = ConnectionFactory::read($this->config);
+                            $ids = array_values(array_unique(array_map('intval', array_column($rows, 'id'))));
+                            if (count($ids) > 0) {
+                                $placeholders = implode(',', array_fill(0, count($ids), '?'));
+                                if ($entityType === 'artist') {
+                                    $nsql = "SELECT id, name, slug, image_url FROM `ngn_2025`.`artists` WHERE id IN ($placeholders)";
+                                } else {
+                                    $nsql = "SELECT id, name, slug, image_url FROM `ngn_2025`.`labels` WHERE id IN ($placeholders)";
                                 }
-                            } catch (\Throwable $eNames) {
-                                error_log("Error in RankingService name lookup: " . $eNames->getMessage());
+                                $nstmt = $pdoPrimary->prepare($nsql);
+                                foreach ($ids as $idx => $val) { $nstmt->bindValue($idx + 1, $val, PDO::PARAM_INT); }
+                                $nstmt->execute();
+                                $nameRows = $nstmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+                                foreach ($nameRows as $nr) {
+                                    $nameMap[(int)$nr['id']] = (string)$nr['name'];
+                                    $metaMap[(int)$nr['id']] = [
+                                        'slug' => $nr['slug'],
+                                        'image_url' => $nr['image_url']
+                                    ];
+                                }
                             }
+                        } catch (\Throwable $eNames) {
+                            error_log("Error in RankingService name lookup: " . $eNames->getMessage());
                         }
-
-                        $items = [];
-                        foreach ($rows as $r) {
-                            $idVal = (int)($r['id'] ?? 0);
-                            $name = $nameMap[$idVal] ?? ('ID '.$idVal);
-                            $items[] = [
-                                'id' => $idVal,
-                                'entity_id' => $idVal,
-                                'Name' => $name,
-                                'name' => $name,
-                                'slug' => $metaMap[$idVal]['slug'] ?? $idVal,
-                                'image_url' => $metaMap[$idVal]['image_url'] ?? null,
-                                'Score' => isset($r['score']) ? (float)$r['score'] : 0.0,
-                                'score' => isset($r['score']) ? (float)$r['score'] : 0.0,
-                                'rank' => (int)($r['rank'] ?? 0),
-                                'delta' => isset($r['prev_rank']) && (int)$r['prev_rank'] > 0
-                                    ? ((int)$r['prev_rank'] - (int)$r['rank'])
-                                    : 0,
-                            ];
-                        }
-                        return ['items' => $items, 'total' => $total];
                     }
-                    // If no window exists yet, fall through to mock
+
+                    $items = [];
+                    foreach ($rows as $r) {
+                        $idVal = (int)($r['id'] ?? 0);
+                        $name = $nameMap[$idVal] ?? ('ID '.$idVal);
+                        $items[] = [
+                            'id' => $idVal,
+                            'entity_id' => $idVal,
+                            'Name' => $name,
+                            'name' => $name,
+                            'slug' => $metaMap[$idVal]['slug'] ?? $idVal,
+                            'image_url' => $metaMap[$idVal]['image_url'] ?? null,
+                            'Score' => isset($r['score']) ? (float)$r['score'] : 0.0,
+                            'score' => isset($r['score']) ? (float)$r['score'] : 0.0,
+                            'rank' => (int)($r['rank'] ?? 0),
+                            'delta' => isset($r['prev_rank']) && (int)$r['prev_rank'] > 0
+                                ? ((int)$r['prev_rank'] - (int)$r['rank'])
+                                : 0,
+                        ];
+                    }
+                    return ['items' => $items, 'total' => $total];
                 }
             } catch (\Throwable $e) {
                 error_log("Error in RankingService list: " . $e->getMessage());
-                // On any DB error, fall back to mock
             }
         }
 
@@ -227,67 +215,56 @@ class RankingService
 
         if ($this->dbReady && $this->pdo && $id > 0) {
             try {
-                // We are always on the 2025 rankings shard
-                $is2025 = true; // No need to probe anymore, we connected directly to rankings2025
-
-                if ($is2025) {
-                    $entityType = $resource === 'artists' ? 'artist' : ($resource === 'labels' ? 'label' : 'genre');
-                    if ($entityType === 'genre') {
-                        throw new \RuntimeException('genres_not_supported_2025');
-                    }
-                    // Latest window for interval
-                    $w = $this->pdo->prepare('SELECT id FROM `ngn_rankings_2025`.`ranking_windows` WHERE `interval` = :i ORDER BY window_start DESC LIMIT 1');
-                    $w->execute([':i' => $interval]);
-                    $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
-                    if ($win) {
-                        $wid = (int)$win['id'];
-                        $sql = "SELECT entity_id AS id, score, rank, prev_rank
-                                FROM `ngn_rankings_2025`.`ranking_items`
-                                WHERE window_id = :wid AND entity_type = :et AND entity_id = :id
-                                LIMIT 1";
-                        $stmt = $this->pdo->prepare($sql);
-                        $stmt->bindValue(':wid', $wid, PDO::PARAM_INT);
-                        $stmt->bindValue(':et', $entityType, PDO::PARAM_STR);
-                        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-                        $stmt->execute();
-                        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
-                        if ($row) {
-                            $name = 'ID '.(int)($row['id'] ?? 0);
-                            if ($this->config) {
-                                try {
-                                    $pdoPrimary = ConnectionFactory::read($this->config); // Use primary ngn_2025 connection
-                                    if ($entityType === 'artist') {
-                                        $nsql = 'SELECT name FROM `ngn_2025`.`artists` WHERE id = :id LIMIT 1';
-                                    } else {
-                                        $nsql = 'SELECT name FROM `ngn_2025`.`labels` WHERE id = :id LIMIT 1';
-                                    }
-                                    $nstmt = $pdoPrimary->prepare($nsql);
-                                    $nstmt->bindValue(':id', $id, PDO::PARAM_INT);
-                                    $nstmt->execute();
-                                    $nrow = $nstmt->fetch(PDO::FETCH_ASSOC) ?: null;
-                                    if ($nrow && isset($nrow['name']) && $nrow['name'] !== '') {
-                                        $name = (string)$nrow['name'];
-                                    }
-                                } catch (\Throwable $eNames) {
-                                    // ignore name lookup errors
-                                    error_log("Error in RankingService name lookup: " . $eNames->getMessage());
+                // Latest window for interval with Moat Filter
+                $wSql = 'SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1';
+                $w = $this->pdo->query($wSql);
+                $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
+                if ($win) {
+                    $wid = (int)$win['window_id'];
+                    $sql = "SELECT entity_id AS id, score, rank, prev_rank
+                            FROM `ngn_rankings_2025`.`ranking_items`
+                            WHERE window_id = :wid AND entity_type = :et AND entity_id = :id
+                            LIMIT 1";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->bindValue(':wid', $wid, PDO::PARAM_INT);
+                    $stmt->bindValue(':et', $resource === 'artists' ? 'artist' : 'label', PDO::PARAM_STR);
+                    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                    if ($row) {
+                        $name = 'ID '.(int)($row['id'] ?? 0);
+                        if ($this->config) {
+                            try {
+                                $pdoPrimary = ConnectionFactory::read($this->config); // Use primary ngn_2025 connection
+                                if ($resource === 'artists') {
+                                    $nsql = 'SELECT name FROM `ngn_2025`.`artists` WHERE id = :id LIMIT 1';
+                                } else {
+                                    $nsql = 'SELECT name FROM `ngn_2025`.`labels` WHERE id = :id LIMIT 1';
                                 }
+                                $nstmt = $pdoPrimary->prepare($nsql);
+                                $nstmt->bindValue(':id', $id, PDO::PARAM_INT);
+                                $nstmt->execute();
+                                $nrow = $nstmt->fetch(PDO::FETCH_ASSOC) ?: null;
+                                if ($nrow && isset($nrow['name']) && $nrow['name'] !== '') {
+                                    $name = (string)$nrow['name'];
+                                }
+                            } catch (\Throwable $eNames) {
+                                error_log("Error in RankingService name lookup: " . $eNames->getMessage());
                             }
-                            return [
-                                'id' => (int)($row['id'] ?? 0),
-                                'name' => $name,
-                                'score' => isset($row['score']) ? (float)$row['score'] : 0.0,
-                                'rank' => (int)($row['rank'] ?? 0),
-                                'delta' => isset($row['prev_rank']) && (int)$row['prev_rank'] > 0
-                                    ? ((int)$row['prev_rank'] - (int)$row['rank'])
-                                    : 0,
-                            ];
                         }
+                        return [
+                            'id' => (int)($row['id'] ?? 0),
+                            'name' => $name,
+                            'score' => isset($row['score']) ? (float)$row['score'] : 0.0,
+                            'rank' => (int)($row['rank'] ?? 0),
+                            'delta' => isset($row['prev_rank']) && (int)$row['prev_rank'] > 0
+                                ? ((int)$row['prev_rank'] - (int)$row['rank'])
+                                : 0,
+                        ];
                     }
                 }
             } catch (\Throwable $e) {
                 error_log("Error in RankingService itemFor: " . $e->getMessage());
-                // fall through to mock
             }
         }
 
