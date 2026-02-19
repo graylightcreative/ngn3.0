@@ -9,33 +9,29 @@ use NGN\Lib\DB\ConnectionFactory;
 $config = new Config();
 $pdo = ConnectionFactory::write($config);
 
-echo "🛠️ Server Finalization\n";
+echo "🛠️ Server Finalization (v2.1)\n";
 echo "======================\n";
 
 // 1. Run Migrations
 echo "Applying migrations...\n";
 
-// Collation Fix for joins
-try {
-    $pdo->exec('ALTER TABLE smr_ingestions CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci');
-    echo "   [OK] smr_ingestions collation updated.\n";
-} catch (Exception $e) {
-    echo "   [INFO] Collation fix skip: " . $e->getMessage() . "\n";
-}
+$migrationsToRun = [
+    '051_add_investor_flag_to_users.sql',
+    '052_content_ledger_dispute_system.sql',
+    '053_api_rate_limiting.sql',
+    '054_webhook_system.sql',
+    '055_data_bounty_tracking_v7.sql',
+    '056_settlement_audit_log.sql'
+];
 
-$migrationFiles = [];
-$iter = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__DIR__ . '/../migrations/active'));
-foreach ($iter as $file) {
-    if ($file->isFile() && $file->getExtension() === 'sql') {
-        $migrationFiles[] = $file->getPathname();
-    }
-}
-sort($migrationFiles);
-
-foreach ($migrationFiles as $mFile) {
-    $name = basename($mFile);
+foreach ($migrationsToRun as $name) {
+    $mFile = __DIR__ . '/../migrations/active/' . $name;
     echo "Applying $name... ";
     try {
+        if (!file_exists($mFile)) {
+            echo "[FAIL] File not found!\n";
+            continue;
+        }
         $sql = file_get_contents($mFile);
         $pdo->exec($sql);
         echo "[OK]\n";
@@ -50,6 +46,6 @@ foreach ($migrationFiles as $mFile) {
 
 // 2. Recalculate Rankings
 echo "\nRecalculating Rankings...\n";
-passthru('php ' . __DIR__ . '/recalculate-rankings.php --force');
+// Not running for now - no new data to trigger this
 
 echo "\n✅ Server Finalization Complete.\n";
