@@ -3,6 +3,7 @@
 namespace NGN\Lib\Legal;
 
 use NGN\Lib\Config;
+use NGN\Lib\Services\Automation\WebhookService;
 use Monolog\Logger;
 use PDO;
 use RuntimeException;
@@ -26,6 +27,7 @@ class ContentLedgerService
     private PDO $pdo;
     private Logger $logger;
     private Config $config;
+    private ?WebhookService $webhookService = null;
     private const HASH_ALGORITHM = 'sha256';
     private const CERTIFICATE_ID_FORMAT = 'CRT-%Y%m%d-%s';
     private const HASH_REGEX = '/^[a-f0-9]{64}$/i';
@@ -35,6 +37,14 @@ class ContentLedgerService
         $this->pdo = $pdo;
         $this->config = $config;
         $this->logger = $logger;
+    }
+
+    /**
+     * Set WebhookService for event dispatching
+     */
+    public function setWebhookService(WebhookService $service): void
+    {
+        $this->webhookService = $service;
     }
 
     /**
@@ -139,6 +149,18 @@ class ContentLedgerService
                 'upload_source' => $uploadSource,
                 'file_size_bytes' => $fileInfo['size_bytes'] ?? 0
             ]);
+
+            // Dispatch Webhook
+            if ($this->webhookService) {
+                $this->webhookService->dispatch('content.registered', [
+                    'ledger_id' => $ledgerId,
+                    'certificate_id' => $certificateId,
+                    'content_hash' => $contentHash,
+                    'owner_id' => $ownerId,
+                    'registered_at' => date('c'),
+                    'metadata' => $metadata
+                ]);
+            }
 
             return [
                 'id' => $ledgerId,
@@ -447,6 +469,93 @@ class ContentLedgerService
                 'error' => $e->getMessage()
             ]);
             return [];
+        }
+    }
+
+    /**
+     * Create a new dispute for a ledger entry
+     * 
+     * @param int $ledgerId
+     * @param int $disputantUserId
+     * @param string $reason
+     * @param string $description
+     * @param array $evidenceLinks
+     * @return int Dispute ID
+     */
+    public function createDispute(
+        int $ledgerId,
+        int $disputantUserId,
+        string $reason,
+        string $description,
+        array $evidenceLinks = []
+    ): int {
+        try {
+            $stmt = $this->pdo->prepare("
+                INSERT INTO content_ledger_disputes (
+                    ledger_id, disputant_user_id, reason, description, evidence_links, created_at
+                ) VALUES (?, ?, ?, ?, ?, NOW())
+            ");
+
+            $stmt->execute([
+                $ledgerId,
+                $disputantUserId,
+                $reason,
+                $description,
+                json_encode($evidenceLinks)
+            ]);
+
+            $disputeId = (int)$this->pdo->lastInsertId();
+
+            // Mark ledger entry as disputed
+            $this->pdo->prepare("UPDATE content_ledger SET status = 'disputed' WHERE id = ?")
+                ->execute([$ledgerId]);
+
+            $this->logger->info('dispute_created', [
+                'dispute_id' => $disputeId,
+                'ledger_id' => $ledgerId,
+                'user_id' => $disputantUserId
+            ]);
+
+            return $disputeId;
+        } catch (\Exception $e) {
+            $this->logger->error('dispute_creation_failed', ['error' => $e->getMessage()]);
+            throw new RuntimeException("Failed to create dispute");
+        }
+    }
+
+    /**
+     * Resolve a content ledger dispute
+     */
+    public function resolveDispute(int $disputeId, int $resolvedBy, string $resolution, string $status = 'resolved'): void
+    {
+        try {
+            $this->pdo->beginTransaction();
+
+            $stmt = $this->pdo->prepare("SELECT ledger_id FROM content_ledger_disputes WHERE id = ? FOR UPDATE");
+            $stmt->execute([$disputeId]);
+            $dispute = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$dispute) throw new Exception("Dispute not found");
+
+            // Update dispute status
+            $upd = $this->pdo->prepare("
+                UPDATE content_ledger_disputes 
+                SET status = ?, resolution = ?, resolved_by = ?, resolved_at = NOW() 
+                WHERE id = ?
+            ");
+            $upd->execute([$status, $resolution, $resolvedBy, $disputeId]);
+
+            // If resolved, update ledger status
+            $ledgerStatus = ($status === 'resolved') ? 'active' : 'revoked';
+            $this->pdo->prepare("UPDATE content_ledger SET status = ? WHERE id = ?")
+                ->execute([$ledgerStatus, $dispute['ledger_id']]);
+
+            $this->pdo->commit();
+            $this->logger->info('dispute_resolved', ['id' => $disputeId, 'status' => $status]);
+        } catch (\Exception $e) {
+            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
+            $this->logger->error('dispute_resolution_failed', ['error' => $e->getMessage()]);
+            throw $e;
         }
     }
 

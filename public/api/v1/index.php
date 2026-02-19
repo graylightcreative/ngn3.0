@@ -249,6 +249,40 @@ function checkEditorialAccess(?array $user): array
 }
 }
 
+/**
+ * Boardroom Auth Middleware
+ * Validates X-GL-API-KEY and IP whitelist for the Sovereign Governance Terminal
+ */
+if (!function_exists('checkBoardroomAccess')) {
+function checkBoardroomAccess(Request $request, Config $config): array
+{
+    $boardroomIp = '209.59.156.82';
+    $clientIp = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '';
+    
+    // Resolve cloudflare/proxy IPs if necessary
+    if (strpos($clientIp, ',') !== false) {
+        $ips = array_map('trim', explode(',', $clientIp));
+        $clientIp = $ips[0];
+    }
+
+    $providedKey = $request->header('X-GL-API-KEY');
+    $expectedKey = Env::get('NGN_BOARDROOM_PUBLIC_KEY');
+
+    // Strict validation: IP + API Key
+    if ($clientIp !== $boardroomIp) {
+        error_log("BOARDROOM_AUTH_FAIL: IP Mismatch. Got: " . $clientIp);
+        return ['success' => false, 'message' => 'Forbidden: IP not whitelisted.', 'statusCode' => 403];
+    }
+
+    if (!$providedKey || $providedKey !== $expectedKey) {
+        error_log("BOARDROOM_AUTH_FAIL: Invalid or missing X-GL-API-KEY from " . $clientIp);
+        return ['success' => false, 'message' => 'Forbidden: Invalid API Key.', 'statusCode' => 403];
+    }
+
+    return ['success' => true];
+}
+}
+
 
 // --- API Routes ---
 
@@ -263,6 +297,74 @@ $router->get('/health', function (Request $request) use ($config) {
             'env' => Env::get('APP_ENV', 'production')
         ]
     ], 200);
+});
+
+// GET /api/v1/admin/health - Redirect/Wrap for Boardroom Telemetry
+$router->get('/admin/health', function (Request $request) use ($config, $tokenSvc) {
+    // Dual Auth: Allow if Boardroom OR if Admin JWT
+    $boardroomAuth = checkBoardroomAccess($request, $config);
+    if (!$boardroomAuth['success']) {
+        $currentUser = getCurrentUser($tokenSvc, $request);
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+    }
+
+    try {
+        $pdo = ConnectionFactory::write($config);
+        $service = new \NGN\Lib\Services\SystemHealthService($pdo);
+        return new JsonResponse([
+            'success' => true,
+            'data' => $service->getHealthStatus()
+        ]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+});
+
+// GET /api/v1/admin/analytics/summary
+$router->get('/admin/analytics/summary', function (Request $request) use ($config, $tokenSvc) {
+    $boardroomAuth = checkBoardroomAccess($request, $config);
+    if (!$boardroomAuth['success']) {
+        $currentUser = getCurrentUser($tokenSvc, $request);
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+    }
+
+    try {
+        $pdo = ConnectionFactory::write($config);
+        $service = new \NGN\Lib\Services\AnalyticsService($pdo);
+        return new JsonResponse(['success' => true, 'data' => $service->getSummary()]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+    }
+});
+
+// GET /api/v1/admin/analytics/trends
+$router->get('/admin/analytics/trends', function (Request $request) use ($config, $tokenSvc) {
+    $boardroomAuth = checkBoardroomAccess($request, $config);
+    if (!$boardroomAuth['success']) {
+        $currentUser = getCurrentUser($tokenSvc, $request);
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+    }
+
+    try {
+        $days = (int)($request->query('days') ?? 30);
+        $pdo = ConnectionFactory::write($config);
+        $service = new \NGN\Lib\Services\AnalyticsService($pdo);
+        return new JsonResponse([
+            'success' => true, 
+            'data' => [
+                'revenue' => $service->getRevenueTrends($days), 
+                'engagement' => $service->getEngagementTrends($days)
+            ]
+        ]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
+    }
 });
 
 // GET /api/v1/openapi.json - OpenAPI specification

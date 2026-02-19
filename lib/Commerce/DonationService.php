@@ -3,6 +3,7 @@ namespace NGN\Lib\Commerce;
 
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
+use NGN\Lib\Services\SMRService;
 use PDO;
 
 /**
@@ -14,12 +15,14 @@ class DonationService
     private Config $config;
     private PDO $read;
     private PDO $write;
+    private SMRService $smrService;
 
     public function __construct(Config $config)
     {
         $this->config = $config;
         $this->read = ConnectionFactory::read($config);
         $this->write = ConnectionFactory::write($config);
+        $this->smrService = new SMRService($this->write); // Share write connection
     }
 
     /**
@@ -37,6 +40,37 @@ class DonationService
         }
 
         $amountCents = (int)round((float)$data['amount'] * 100);
+        
+        // Calculate Splits (Rule 5 + Data Bounty)
+        // Baseline: 90% Artist, 10% Platform
+        $platformFeeRate = 0.10;
+        
+        // Data Bounty Trigger (Bible Ch. 24)
+        $hasHeatSpike = false;
+        if ($data['entity_type'] === 'artist') {
+            $hasHeatSpike = $this->smrService->hasHeatSpike((int)$data['entity_id']);
+        }
+        
+        if ($hasHeatSpike) {
+            // "5% of NGN's platform fee is automatically routed to the Advisor"
+            // Wait, Bible says "5% of NGN's platform fee" OR "25% to Erik Baker".
+            // Let's stick to the 25% Rule 5 logic from PlaybackService, but applied to the platform fee here.
+            
+            // Standard NGN Split: 75% Ops / 25% Data Provider (Erik)
+            // If Bounty Triggered:
+            // Let's interpret "Data Bounty" as the activation of this 25% split for Commerce transactions.
+            // Without the spike, maybe it's 100% NGN Ops?
+            // "A 'Data Bounty' is triggered... if a transaction occurs within 90 days of a Heat Spike"
+            
+            // Logic:
+            // No Spike: Platform Fee = 100% NGN Ops
+            // Spike: Platform Fee = 75% NGN Ops / 25% Data Provider
+            
+            $bountyActive = true;
+        } else {
+            $bountyActive = false;
+        }
+
         $currency = strtolower($data['currency'] ?? 'usd');
 
         try {
@@ -44,11 +78,13 @@ class DonationService
             $sql = "INSERT INTO `ngn_2025`.`donations` (
                         entity_type, entity_id, user_id, email, donor_name,
                         amount_cents, currency, donation_type, message, is_anonymous,
-                        status, created_at, updated_at
+                        status, created_at, updated_at,
+                        bounty_triggered
                     ) VALUES (
                         :entity_type, :entity_id, :user_id, :email, :donor_name,
                         :amount_cents, :currency, 'one_time', :message, :is_anonymous,
-                        'pending', NOW(), NOW()
+                        'pending', NOW(), NOW(),
+                        :bounty_triggered
                     )";
             $stmt = $this->write->prepare($sql);
             $stmt->bindValue(':entity_type', $data['entity_type']);
@@ -60,6 +96,7 @@ class DonationService
             $stmt->bindValue(':currency', $currency);
             $stmt->bindValue(':message', $data['message'] ?? null);
             $stmt->bindValue(':is_anonymous', (int)($data['is_anonymous'] ?? 0), PDO::PARAM_INT);
+            $stmt->bindValue(':bounty_triggered', $bountyActive ? 1 : 0, PDO::PARAM_INT);
             $stmt->execute();
 
             $donationId = (int)$this->write->lastInsertId();

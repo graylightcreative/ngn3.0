@@ -36,20 +36,23 @@ $matchedCount = 0;
 $ghostCount = 0;
 $labelCount = 0;
 
+// Performance Hardening: Preload Identity Cache
+echo "Preloading Identity Cache...\n";
+$artistCache = $pdo->query("SELECT name, id FROM artists")->fetchAll(PDO::FETCH_KEY_PAIR);
+$labelCache = $pdo->query("SELECT name, id FROM labels")->fetchAll(PDO::FETCH_KEY_PAIR);
+
+$recordUpdates = [];
+
 foreach ($records as $row) {
     $recordId = $row['id'];
-    $rawArtist = $row['artist_name'];
-    $rawLabel = $row['label_name'];
+    $rawArtist = trim($row['artist_name']);
+    $rawLabel = trim($row['label_name'] ?? '');
     $artistId = $row['cdm_artist_id'];
     
-    // A. Artist Matching (if not already matched)
+    // A. Artist Matching
     if (!$artistId) {
-        $matchStmt = $pdo->prepare("SELECT id FROM artists WHERE name = ? LIMIT 1");
-        $matchStmt->execute([$rawArtist]);
-        $artist = $matchStmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($artist) {
-            $artistId = $artist['id'];
+        if (isset($artistCache[$rawArtist])) {
+            $artistId = $artistCache[$rawArtist];
         } else {
             // Create Ghost Profile
             echo "   👻 Creating Ghost Artist: '$rawArtist'\n";
@@ -57,6 +60,7 @@ foreach ($records as $row) {
             $ghostStmt = $pdo->prepare("INSERT INTO artists (name, slug, status) VALUES (?, ?, 'ghost')");
             $ghostStmt->execute([$rawArtist, $slug]);
             $artistId = $pdo->lastInsertId();
+            $artistCache[$rawArtist] = $artistId;
             $ghostCount++;
         }
     }
@@ -64,37 +68,43 @@ foreach ($records as $row) {
     // B. Label Matching & Linking
     $labelId = null;
     if (!empty($rawLabel)) {
-        $lMatchStmt = $pdo->prepare("SELECT id FROM labels WHERE name = ? LIMIT 1");
-        $lMatchStmt->execute([$rawLabel]);
-        $label = $lMatchStmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($label) {
-            $labelId = $label['id'];
+        if (isset($labelCache[$rawLabel])) {
+            $labelId = $labelCache[$rawLabel];
         } else {
             // Create Ghost Label
             echo "   🏷️ Creating Ghost Label: '$rawLabel'\n";
             $lSlug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $rawLabel)) . '-' . rand(100, 999);
-            // Labels table doesn't have status
             $lGhostStmt = $pdo->prepare("INSERT INTO labels (name, slug) VALUES (?, ?)");
             $lGhostStmt->execute([$rawLabel, $lSlug]);
             $labelId = $pdo->lastInsertId();
+            $labelCache[$rawLabel] = $labelId;
             $labelCount++;
         }
         
-        // Link Artist to Label if not already linked
+        // Link Artist to Label if not already linked (best-effort)
         $linkStmt = $pdo->prepare("UPDATE artists SET label_id = ? WHERE id = ? AND label_id IS NULL");
         $linkStmt->execute([$labelId, $artistId]);
     }
 
-    // C. Update Record Status
-    $updateStmt = $pdo->prepare("
-        UPDATE smr_records 
-        SET cdm_artist_id = ?, status = 'mapped' 
-        WHERE id = ?
-    ");
-    $updateStmt->execute([$artistId, $recordId]);
+    // C. Queue Status Update for Bulk Execution
+    $recordUpdates[] = [
+        'artist_id' => $artistId,
+        'record_id' => $recordId
+    ];
     
     $matchedCount++;
+}
+
+// D. Execute Bulk Status Updates (Chunks of 500)
+echo "Executing Bulk Status Updates...\n";
+$chunks = array_chunk($recordUpdates, 500);
+foreach ($chunks as $chunk) {
+    $pdo->beginTransaction();
+    $updateStmt = $pdo->prepare("UPDATE smr_records SET cdm_artist_id = ?, status = 'mapped' WHERE id = ?");
+    foreach ($chunk as $update) {
+        $updateStmt->execute([$update['artist_id'], $update['record_id']]);
+    }
+    $pdo->commit();
 }
 
 echo "\n========================================\n";

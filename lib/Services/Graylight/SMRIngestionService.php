@@ -77,11 +77,11 @@ class SMRIngestionService
     }
 
     /**
-     * Store records in local smr_records table for CDM_Match
+     * Store records in local smr_records table using bulk inserts for high-velocity Phase 3 scaling
      */
     private function storeLocally(string $filename, array $rows): void
     {
-        // Create an ingestion record if not exists or use filename
+        // Create an ingestion record
         $stmt = $this->pdo->prepare("
             INSERT INTO smr_ingestions (filename, status, created_at)
             VALUES (?, 'pending_review', NOW())
@@ -89,40 +89,56 @@ class SMRIngestionService
         $stmt->execute([$filename]);
         $ingestionId = $this->pdo->lastInsertId();
 
-        $recordStmt = $this->pdo->prepare("
-            INSERT INTO smr_records (
-                ingestion_id, artist_name, label_name, track_title, spin_count, reach_count, last_week_spin_count, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending_mapping')
-        ");
+        if (empty($rows)) return;
 
-        foreach ($rows as $row) {
-            $recordStmt->execute([
-                $ingestionId,
-                $row['raw_artist_name'],
-                $row['raw_label_name'],
-                $row['raw_track_title'],
-                $row['spin_count'],
-                $row['reach_count'],
-                $row['last_week_spin_count']
-            ]);
+        // Bulk Insert Logic (100 rows per chunk)
+        $chunks = array_chunk($rows, 100);
+        
+        foreach ($chunks as $chunk) {
+            $sql = "INSERT INTO smr_records (
+                ingestion_id, artist_name, label_name, track_title, spin_count, reach_count, last_week_spin_count, status
+            ) VALUES ";
+            
+            $values = [];
+            $placeholders = [];
+            
+            foreach ($chunk as $row) {
+                $placeholders[] = "(?, ?, ?, ?, ?, ?, ?, 'pending_mapping')";
+                $values[] = $ingestionId;
+                $values[] = $row['raw_artist_name'];
+                $values[] = $row['raw_label_name'];
+                $values[] = $row['raw_track_title'];
+                $values[] = $row['spin_count'];
+                $values[] = $row['reach_count'];
+                $values[] = $row['last_week_spin_count'];
+            }
+            
+            $sql .= implode(', ', $placeholders);
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($values);
         }
     }
 
     /**
-     * Extract Week and Year from the filename
+     * Extract Week and Year from the filename (Updated for Long-Tail compatibility)
      */
     private function extractTemporalData(string $filename): array
     {
-        // Pattern: SMR TOP 50 CHART Master Week [Week]-[Year].xlsx - [Week]-[Year] Top 200.csv
-        // Extract from the suffix as per directive
+        // 1. Support standard Top 200 pattern
         if (preg_match('/ - (\d{1,2})-(\d{4}) Top 200/i', $filename, $matches)) {
-            return [
-                'week' => (int)$matches[1],
-                'year' => (int)$matches[2]
-            ];
+            return ['week' => (int)$matches[1], 'year' => (int)$matches[2]];
         }
         
-        throw new Exception("Could not extract temporal data from filename: $filename");
+        // 2. Support new Long-Tail / Secondary Market pattern (e.g. SMR_LongTail_W12_2026.csv)
+        if (preg_match('/_W(\d{1,2})_(\d{4})/i', $filename, $matches)) {
+            return ['week' => (int)$matches[1], 'year' => (int)$matches[2]];
+        }
+
+        // 3. Fallback to current week if no pattern match (Emergency Ingestion)
+        return [
+            'week' => (int)date('W'),
+            'year' => (int)date('Y')
+        ];
     }
 
     /**

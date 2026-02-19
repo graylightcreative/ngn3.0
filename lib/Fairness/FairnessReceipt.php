@@ -42,20 +42,23 @@ class FairnessReceipt
     public function generateArtistReceipt(int $artistId, int $windowId, bool $detailed = false): array
     {
         try {
-            // Get ranking window info
-            $windowStmt = $this->pdo->prepare(
-                'SELECT interval, window_start, window_end FROM `ngn_rankings_2025`.`ranking_windows` WHERE id = ?'
+            $config = new \NGN\Lib\Config();
+            $pdoRankings = \NGN\Lib\DB\ConnectionFactory::named($config, 'rankings2025');
+
+            // Get ranking window info from rankings shard
+            $windowStmt = $pdoRankings->prepare(
+                'SELECT `interval`, window_start, window_end FROM `ranking_windows` WHERE id = ?'
             );
             $windowStmt->execute([$windowId]);
             $window = $windowStmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$window) {
-                return ['error' => 'Window not found'];
+                return ['error' => 'Window not found in rankings shard'];
             }
 
-            // Get ranking item
-            $rankStmt = $this->pdo->prepare(
-                'SELECT rank, score, deltas FROM `ngn_rankings_2025`.`ranking_items`
+            // Get ranking item from rankings shard
+            $rankStmt = $pdoRankings->prepare(
+                'SELECT `rank`, score, deltas FROM `ranking_items`
                 WHERE window_id = ? AND entity_type = ? AND entity_id = ?'
             );
             $rankStmt->execute([$windowId, 'artist', $artistId]);
@@ -65,12 +68,15 @@ class FairnessReceipt
                 return ['error' => 'Artist not ranked in this window'];
             }
 
-            // Get artist info
+            // Get artist info from primary shard
             $artistStmt = $this->pdo->prepare(
-                'SELECT name, is_claimed FROM `ngn_2025`.`artists` WHERE id = ?'
+                'SELECT name, claimed FROM `ngn_2025`.`artists` WHERE id = ?'
             );
             $artistStmt->execute([$artistId]);
             $artist = $artistStmt->fetch(PDO::FETCH_ASSOC);
+
+            // Factors breakdown (calculated for audit)
+            $factors = $this->calculateFactorBreakdown('artist', $artistId, $windowId, $window);
 
             // Build receipt
             $receipt = [
@@ -99,7 +105,7 @@ class FairnessReceipt
             $receipt['signature'] = $this->signReceipt($receipt);
             $receipt['verification_token'] = $this->generateVerificationToken($receipt);
 
-            // Log the receipt
+            // Log the receipt to primary shard
             $this->logReceipt($receipt);
 
             return $receipt;
@@ -127,13 +133,13 @@ class FairnessReceipt
 
         if ($entityType === 'artist') {
             // 1. Claimed profile bonus
-            $stmt = $this->pdo->prepare('SELECT is_claimed FROM `ngn_2025`.`artists` WHERE id = ?');
+            $stmt = $this->pdo->prepare('SELECT claimed FROM `ngn_2025`.`artists` WHERE id = ?');
             $stmt->execute([$entityId]);
             $artist = $stmt->fetch(PDO::FETCH_ASSOC);
             $factors['claimed_profile'] = [
-                'weight' => $artist['is_claimed'] ? 1000 : 0,
+                'weight' => $artist['claimed'] ? 1000 : 0,
                 'description' => 'Verified artist profile bonus',
-                'formula' => 'is_claimed ? 1000 : 0'
+                'formula' => 'claimed ? 1000 : 0'
             ];
 
             // 2. Radio spins (from legacy data)
@@ -269,7 +275,9 @@ class FairnessReceipt
         $receiptCopy = $receipt;
         unset($receiptCopy['signature'], $receiptCopy['verification_token']);
 
-        $signableData = json_encode($receiptCopy, JSON_UNESCAPED_SLASHES | JSON_SORT_KEYS);
+        // Canonical Sort: PHP doesn't have JSON_SORT_KEYS, must ksort manually
+        ksort($receiptCopy);
+        $signableData = json_encode($receiptCopy, \JSON_UNESCAPED_SLASHES);
 
         // Generate HMAC signature
         $signature = hash_hmac(self::HASH_ALGORITHM, $signableData, $this->secretKey);
@@ -294,7 +302,10 @@ class FairnessReceipt
         // Recalculate signature
         $receiptCopy = $receipt;
         unset($receiptCopy['signature'], $receiptCopy['verification_token']);
-        $signableData = json_encode($receiptCopy, JSON_UNESCAPED_SLASHES | JSON_SORT_KEYS);
+        
+        // Canonical Sort
+        ksort($receiptCopy);
+        $signableData = json_encode($receiptCopy, \JSON_UNESCAPED_SLASHES);
         $calculatedSignature = hash_hmac(self::HASH_ALGORITHM, $signableData, $this->secretKey);
 
         // Constant-time comparison to prevent timing attacks
@@ -345,24 +356,25 @@ class FairnessReceipt
     {
         try {
             $stmt = $this->pdo->prepare(
-                'INSERT INTO `ngn_2025`.`fairness_receipt_log`
-                (receipt_id, entity_type, entity_id, window_id, score, rank, signature, created_at)
+                'INSERT INTO `ngn_2025`.`ngn_score_audit`
+                (window_id, entity_type, entity_id, raw_score, weighted_score, factors, fairness_receipt, created_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, NOW())'
             );
 
             $stmt->execute([
-                $receipt['receipt_id'],
+                $receipt['window_id'] ?? 0,
                 $receipt['entity_type'],
                 $receipt['entity_id'],
-                // Extract window_id if available
-                null,
-                $receipt['score'],
-                $receipt['rank'],
-                $receipt['signature']
+                $receipt['score'], // assuming raw_score = score for this version
+                $receipt['score'], // weighted_score
+                json_encode($receipt['factors'] ?? []),
+                $receipt['signature'] // fairness_receipt hash
             ]);
 
         } catch (Exception $e) {
-            error_log("FairnessReceipt::logReceipt error: " . $e->getMessage());
+            error_log("CRITICAL_AUDIT_ERROR: FairnessReceipt::logReceipt failed: " . $e->getMessage());
+            // Force error to stderr for CLI debugging
+            fwrite(STDERR, "CRITICAL_AUDIT_ERROR: " . $e->getMessage() . "\n");
         }
     }
 
@@ -376,8 +388,8 @@ class FairnessReceipt
     {
         try {
             $stmt = $this->pdo->prepare(
-                'SELECT * FROM `ngn_2025`.`fairness_receipt_log`
-                WHERE receipt_id = ?'
+                'SELECT * FROM `ngn_2025`.`ngn_score_audit`
+                WHERE fairness_receipt = ?'
             );
             $stmt->execute([$receiptId]);
             return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -399,7 +411,7 @@ class FairnessReceipt
     {
         try {
             $stmt = $this->pdo->prepare(
-                'SELECT * FROM `ngn_2025`.`fairness_receipt_log`
+                'SELECT * FROM `ngn_2025`.`ngn_score_audit`
                 WHERE entity_type = ? AND entity_id = ?
                 ORDER BY created_at DESC'
             );

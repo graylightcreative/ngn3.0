@@ -298,7 +298,7 @@ class PlaybackService
      */
     public function recordQualifiedListen(array $data): int
     {
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->db->prepare("
             INSERT INTO `ngn_2025`.`playback_events` (
                 user_id,
                 track_id,
@@ -341,7 +341,7 @@ class PlaybackService
             ':metadata' => json_encode($data['metadata'] ?? [])
         ]);
 
-        return (int)$this->pdo->lastInsertId();
+        return (int)$this->db->lastInsertId();
     }
 
     /**
@@ -359,7 +359,7 @@ class PlaybackService
         ?int $userId,
         int $windowSeconds = 300
     ): bool {
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->db->prepare("
             SELECT COUNT(*) as count
             FROM `ngn_2025`.`playback_events`
             WHERE track_id = :track_id
@@ -401,20 +401,20 @@ class PlaybackService
      */
     public function getRoyaltySplits(int $trackId): array
     {
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->db->prepare("
             SELECT
-                rs.user_id,
+                rs.contributor_id as user_id,
                 rs.role,
                 rs.percentage,
                 u.email,
                 u.username
             FROM `ngn_2025`.`cdm_rights_ledger` rl
-            JOIN `ngn_2025`.`cdm_rights_splits` rs ON rl.id = rs.ledger_id
-            JOIN `ngn_2025`.`users` u ON rs.user_id = u.id
+            JOIN `ngn_2025`.`cdm_rights_splits` rs ON rl.id = rs.right_id
+            JOIN `ngn_2025`.`users` u ON rs.contributor_id = u.id
             WHERE rl.track_id = :track_id
-              AND rl.status = 'active'
+              AND rl.status = 'verified'
               AND rl.is_royalty_eligible = TRUE
-              AND rs.accepted_at IS NOT NULL
+              AND rs.verified = 1
             ORDER BY rs.percentage DESC
         ");
 
@@ -438,7 +438,7 @@ class PlaybackService
         ];
 
         // Fetch unprocessed qualified listens
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->db->prepare("
             SELECT
                 pe.id,
                 pe.track_id,
@@ -458,7 +458,8 @@ class PlaybackService
             LIMIT :limit
         ");
 
-        $stmt->execute([':limit' => $limit]);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
         $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($events as $event) {
@@ -545,6 +546,14 @@ class PlaybackService
      */
     private function createRoyaltyTransaction(array $data): int
     {
+        // 90/10 Artist Mandate: 90% Artist, 10% Platform Fee
+        $platformFeeTotal = $data['amount'] * 0.10;
+        $artistNet = $data['amount'] * 0.90;
+
+        // Rule 5: Platform fee split (75% NGN, 25% Data Provider Erik Baker)
+        $ngnShare = $platformFeeTotal * 0.75;
+        $dataProviderShare = $platformFeeTotal * 0.25;
+
         $stmt = $this->pdo->prepare("
             INSERT INTO `ngn_2025`.`cdm_royalty_transactions` (
                 transaction_id,
@@ -564,9 +573,9 @@ class PlaybackService
                 :to_user_id,
                 'track',
                 :track_id,
-                :amount,
-                0.00,
-                :amount,
+                :amount_gross,
+                :platform_fee,
+                :amount_net,
                 'pending',
                 :metadata,
                 NOW()
@@ -576,22 +585,28 @@ class PlaybackService
         $transactionId = 'RP-' . strtoupper(bin2hex(random_bytes(8)));
 
         $stmt->execute([
-            ':transaction_id' => $transactionId,
-            ':to_user_id' => $data['to_user_id'],
-            ':track_id' => $data['track_id'],
-            ':amount' => $data['amount'],
-            ':metadata' => json_encode([
+            'transaction_id' => $transactionId,
+            'to_user_id'      => $data['to_user_id'],
+            'track_id'       => $data['track_id'],
+            'amount_gross'   => $data['amount'],
+            'platform_fee'   => $platformFeeTotal,
+            'amount_net'     => $artistNet,
+            'metadata'       => json_encode([
                 'playback_event_id' => $data['playback_event_id'],
-                'role' => $data['role'],
-                'percentage' => $data['percentage'],
-                'source_type' => $data['source_type'],
-                'track_title' => $data['metadata']['track_title'] ?? null,
-                'artist_name' => $data['metadata']['artist_name'] ?? null,
-                'played_at' => $data['metadata']['played_at'] ?? null
+                'role'              => $data['role'],
+                'percentage'        => $data['percentage'],
+                'source_type'       => $data['source_type'],
+                'rule_5_split'      => [
+                    'ngn_ops' => $ngnShare,
+                    'data_provider' => $dataProviderShare
+                ],
+                'track_title'       => $data['metadata']['track_title'] ?? null,
+                'artist_name'       => $data['metadata']['artist_name'] ?? null,
+                'played_at'         => $data['metadata']['played_at'] ?? null
             ])
         ]);
 
-        return (int)$this->pdo->lastInsertId();
+        return (int)$this->db->lastInsertId();
     }
 
     /**
@@ -599,7 +614,7 @@ class PlaybackService
      */
     private function markEventProcessed(int $eventId): void
     {
-        $stmt = $this->pdo->prepare("
+        $stmt = $this->db->prepare("
             UPDATE `ngn_2025`.`playback_events`
             SET royalty_processed = TRUE,
                 royalty_processed_at = NOW()

@@ -218,6 +218,37 @@ class SMRService
     }
 
     /**
+     * Check if an artist has a "Heat Spike" in SMR logs within the last 90 days.
+     * Used for triggering the Data Bounty.
+     *
+     * @param int $artistId The CDM Artist ID
+     * @param int $days Lookback window (default 90)
+     * @return bool True if spike detected
+     */
+    public function hasHeatSpike(int $artistId, int $days = 90): bool
+    {
+        // Definition of "Heat Spike": 
+        // 1. Total spins > 50 in window OR
+        // 2. Week-over-week growth > 20%
+        
+        $stmt = $this->pdo->prepare("
+            SELECT SUM(spin_count) as total_spins, MAX(spin_count) as peak_spins
+            FROM cdm_chart_entries
+            WHERE artist_id = ? 
+            AND week_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY)
+        ");
+        
+        $stmt->execute([$artistId, $days]);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (($stats['total_spins'] ?? 0) > 50) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
      * Finalize ingestion - commit records to chart entries
      */
     public function finalize(int $ingestionId): array

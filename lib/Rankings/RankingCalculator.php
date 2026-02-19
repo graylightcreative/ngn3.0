@@ -181,7 +181,7 @@ class RankingCalculator
     {
         // Get all artists from ngn_2025
         $artists = $this->pdoCore->query(
-            'SELECT id, slug, name, is_claimed FROM `ngn_2025`.`artists` WHERE status = "active" ORDER BY id'
+            'SELECT id, slug, name, claimed FROM `ngn_2025`.`artists` WHERE status = "active" ORDER BY id'
         )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$artists) return 0;
@@ -201,10 +201,12 @@ class RankingCalculator
 
         // Calculate scores for each artist
         $scores = [];
+        $factorHistory = [];
         foreach ($artists as $artist) {
             $artistId = (int)$artist['id'];
-            $score = $this->calculateArtistScore($artistId, $artist);
-            $scores[$artistId] = $score;
+            $result = $this->calculateArtistScore($artistId, $artist);
+            $scores[$artistId] = $result['score'];
+            $factorHistory[$artistId] = $result['factors'];
         }
 
         // Sort by score descending
@@ -224,6 +226,8 @@ class RankingCalculator
              VALUES (:wid, "artist", :eid, :rank, :score, :prev_rank, :deltas)'
         );
 
+        $receiptService = new \NGN\Lib\Fairness\FairnessReceipt($this->pdoPrimary);
+
         $rank = 1;
         foreach ($scores as $artistId => $score) {
             $prevRank = $prevRanks[$artistId] ?? null;
@@ -232,6 +236,7 @@ class RankingCalculator
             // Get User ID to check for investor status
             $userId = $this->getUserIdFromEntityId('artist', $artistId);
             $isInvestor = false;
+            $investorMultiplier = 1.0;
             if ($userId !== null) {
                 $isInvestor = $this->isInvestor($userId);
             }
@@ -239,6 +244,7 @@ class RankingCalculator
             // Apply community funding multiplier if user is an investor
             if ($isInvestor) {
                 $score *= 1.05; // Community Funding Multiplier (BFL 1.1)
+                $investorMultiplier = 1.05;
             }
 
             $ins->execute([
@@ -249,6 +255,14 @@ class RankingCalculator
                 ':prev_rank' => $prevRank,
                 ':deltas' => $deltas,
             ]);
+
+            // NGN 2.0.3: Generate Fairness Receipt for Audit Shard
+            try {
+                $receiptService->generateArtistReceipt($artistId, $windowId, true);
+            } catch (\Throwable $e) {
+                error_log("Failed to log fairness receipt for artist {$artistId}: " . $e->getMessage());
+            }
+
             $rank++;
         }
 
@@ -259,7 +273,7 @@ class RankingCalculator
     {
         // Get all labels from ngn_2025
         $labels = $this->pdoCore->query(
-            'SELECT id, slug, name, is_claimed FROM `ngn_2025`.`labels` WHERE status = "active" ORDER BY id'
+            'SELECT id, slug, name, claimed FROM `ngn_2025`.`labels` WHERE status = "active" ORDER BY id'
         )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$labels) return 0;
@@ -281,8 +295,8 @@ class RankingCalculator
         $scores = [];
         foreach ($labels as $label) {
             $labelId = (int)$label['id'];
-            $score = $this->calculateLabelScore($labelId, $label);
-            $scores[$labelId] = $score;
+            $result = $this->calculateLabelScore($labelId, $label);
+            $scores[$labelId] = $result['score'];
         }
 
         // Sort by score descending
@@ -335,80 +349,86 @@ class RankingCalculator
 
     /**
      * Calculate artist score based on multiple factors.
-     * Weights from environment or defaults.
+     * Returns both total score and factor breakdown for audit.
      */
-    private function calculateArtistScore(int $artistId, array $artist): float
+    private function calculateArtistScore(int $artistId, array $artist): array
     {
+        $factors = [];
         $score = 0.0;
 
         // Base score for claimed profiles
-        if (!empty($artist['is_claimed'])) { // Changed from 'claimed' to 'is_claimed'
-            $score += 1000;
-        }
+        $factors['claimed_profile'] = !empty($artist['claimed']) ? 1000.0 : 0.0;
+        $score += $factors['claimed_profile'];
 
         // Radio spins score
-        $spinsScore = $this->getSpinsScore($artistId);
-        $score += $spinsScore;
+        $factors['radio_spins'] = $this->getSpinsScore($artistId);
+        $score += $factors['radio_spins'];
 
         // SMR chart spins score
-        $smrScore = $this->getSmrSpinsScore($artistId); // Changed to use artistId
-        $score += $smrScore;
+        $factors['smr_chart_spins'] = $this->getSmrSpinsScore($artistId);
+        $score += $factors['smr_chart_spins'];
 
         // Social media score
-        $socialScore = $this->getSocialScore($artistId);
-        $score += $socialScore;
+        $factors['social_media'] = $this->getSocialScore($artistId);
+        $score += $factors['social_media'];
 
         // Releases score
-        $releasesScore = $this->getReleasesScore($artistId);
-        $score += $releasesScore;
+        $factors['releases'] = $this->getReleasesScore($artistId);
+        $score += $factors['releases'];
 
         // Videos score
-        $videosScore = $this->getVideosScore($artistId);
-        $score += $videosScore;
+        $factors['videos'] = $this->getVideosScore($artistId);
+        $score += $factors['videos'];
 
         // Mentions score
-        $mentionsScore = $this->getMentionsScore($artistId);
-        $score += $mentionsScore;
+        $factors['mentions'] = $this->getMentionsScore($artistId);
+        $score += $factors['mentions'];
 
         // Views score
-        $viewsScore = $this->getViewsScore($artistId);
-        $score += $viewsScore;
+        $factors['views'] = $this->getViewsScore($artistId);
+        $score += $factors['views'];
 
         // Engagement Quality Score (EQS)
-        $eqsScore = $this->getEngagementScore('artist', $artistId);
-        $score += $eqsScore;
+        $factors['engagement_quality'] = $this->getEngagementScore('artist', $artistId);
+        $score += $factors['engagement_quality'];
 
-        return round($score, 4);
+        return [
+            'score' => round($score, 4),
+            'factors' => $factors
+        ];
     }
 
     /**
      * Calculate label score based on roster performance.
      */
-    private function calculateLabelScore(int $labelId, array $label): float
+    private function calculateLabelScore(int $labelId, array $label): array
     {
+        $factors = [];
         $score = 0.0;
 
         // Base score for claimed profiles
-        if (!empty($label['is_claimed'])) { // Changed from 'claimed' to 'is_claimed'
-            $score += 500;
-        }
+        $factors['claimed_profile'] = !empty($label['claimed']) ? 500.0 : 0.0;
+        $score += $factors['claimed_profile'];
 
         // Get roster artists and sum their scores
-        $rosterScore = $this->getRosterScore($labelId);
-        $score += $rosterScore;
+        $factors['roster_performance'] = $this->getRosterScore($labelId);
+        $score += $factors['roster_performance'];
 
         // Label's own social/views
-        $socialScore = $this->getSocialScore($labelId);
-        $score += $socialScore * 0.5;
+        $factors['social_media'] = $this->getSocialScore($labelId) * 0.5;
+        $score += $factors['social_media'];
 
-        $viewsScore = $this->getViewsScore($labelId);
-        $score += $viewsScore * 0.5;
+        $factors['views'] = $this->getViewsScore($labelId) * 0.5;
+        $score += $factors['views'];
 
         // Engagement Quality Score (EQS) - likes, shares, comments, sparks
-        $eqsScore = $this->getEngagementScore('label', $labelId);
-        $score += $eqsScore * 0.5; // Weighted lower than artist engagement
+        $factors['engagement_quality'] = $this->getEngagementScore('label', $labelId) * 0.5;
+        $score += $factors['engagement_quality'];
 
-        return round($score, 4);
+        return [
+            'score' => round($score, 4),
+            'factors' => $factors
+        ];
     }
 
 

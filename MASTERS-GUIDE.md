@@ -1,70 +1,90 @@
-# THE MASIER'S GUIDE TO THE FOUNDRY
-## BROCK STARR // SOVEREIGN FLEET ORCHESTRATION
+# THE MASTER'S GUIDE TO THE FOUNDRY
+## BROCK STARR // SOVEREIGN RIG ORCHESTRATION
+### STATUS: PRESSURIZED // VERSION 10.0.0
 
-As the Master of the Graylight Foundry, this is your high-velocity workflow for provisioning new bunkers and maintaining the arsenal.
-
----
-
-### 1. INCEPTION (Starting a New Project)
-
-Every new project must be born in the terminal. Do not use GUIs.
-
-1. **Provision the Bunker (Nexus Cĩ:** 
-   `nexus create-site [myproject.domain.com] [/www/wwwroot/myproject/public]`
-   `nexus create-db [myproject_db]`
-   `nexus issue-ssl [myproject.domain.com]`
-
-2. **Authorize the DNA (Beacon SSO):**
-   - Add the subdomain to the authorized origins in `Beacon`.
-   - Ensure the fluid handshake is active via the `.graylightcreative.com` cookie.
-
-3. **Pressure the Comm-Link (Vent Relay):**
-   - Create a new project relay in `Vent`.
-   - Capture the project-specific SMTP credentials for the `.env`.
-
-4. **Local Scaffolding:**
-   - Create a new directory in `z/Documents/Projects/`.
-   - lnitialize git and copy the `FLEET.md` blueprint.
-   - Sync the standard bootstrap.php and Env.php from the Foundry core.
+As the Master of the Graylight Foundry, this is your high-velocity workflow for the **Sovereign Rig**. The fleet has evolved from passive hosts into an active production engine.
 
 ---
 
-### 2. VISUAL LOCK (The Aesthetic Standard)
+### 1. THE RIG MANIFEST (Identity Alignment)
 
-Projects that do not look badass do not ship. Ensure the following CSS variables are locked:
+The fleet is now organized into functional divisions. Every node is a specialist in the **Rig**.
 
-- **Primary:** `#FF5F1F` (Electric Orange)
-- **Surface:** `#0A0A0A ` (Deep Charcoal) 
-- **UI:** Use glass-morphism on all cards (`sp-card`).
-- **Fonts:** `JetBrains Mono` for data / `Inter` for content.
-
----
-
-### 3. THE DEPLOYMENT LOOP
-
-The Foundry runs on atomic synchronicity.
-
-1. **Work Local:** Never edit directly on the server.
-2. **Commit & Push:** Keep the repository pressurized.
-   `git commit -m "Pressurized Fix"`
-   `git push origin main`
-3. **Fleet Sync:** Trigger the global deployment from the Mothership.
-   `nexus fleet-deploy`
-
----
-
-### 4. THE VAULT
-
-All critical DNA must be vaulted. Do not store plaintext API keys in the codebase.
-
-- **Store:** `nexus store-secret [pid] [key] [val]`
-- **Get:** `nexus get-secret [pid] [key]`
+| Division | Callsign | System Role | Legacy Node |
+| :--- | :--- | :--- | :--- |
+| **THE SHIELD** | **FLARE** | Identity and Session Flare | Beacon |
+| | **VAULT** | AES-256 Secret/DNA Tomb | Vault |
+| | **RAZOR** | Perimeter & CDN Defense | Sentinel |
+| | **HAMMER** | Protocol Enforcement | Judge |
+| | **SIPHON** | Transactional Fuel Extraction | Ledger |
+| | **STRIKE** | Asset/Value Minting | Mint |
+| **THE INTEL** | **OVERLORD** | Fleet Brain / SYMPHONY Core | A-OS |
+| | **RATTLER** | Scraping & Script Extraction | Reception |
+| | **HOUND** | Neural Discovery & Search | Search |
+| | **WARGAME** | ROI & Simulation Modeling | Simulator |
+| **THE RIG** | **FORGE** | Infrastructure & Bunker Inception | Forge |
+| | **RAM** | Data Intake & Entry Breach | Oracle |
+| | **TRIGGER** | Deployment & Global Execution | Nexus |
+| | **THUMPER** | Real-time Telemetry | Pulse |
+| | **TICK** | Job Scheduling & Survival Loops | Clock |
+| | **WELD** | Visual Asset & Cartoon Smith | Studio |
+| | **SCRAP** | Archive & DNA Storage | Depot |
+| **THE RELAY** | **BURST** | Omnichannel Data Dispatches | Vent |
+| | **TETHER** | P2P Inter-Bunker Networking | Uplink |
+| | **FUSE** | Event-Driven Triggers | Signal |
+| | **STATIC** | Encrypted Internal Comms | Messenger |
 
 ---
 
-### 5. MEMORY & TELEMETRY
+### 2. CORE UPGRADE: SYMPHONY (Logic: OVERLORD)
 
-- Check `Pulse` for real-time uptime and latency audits.
-- Use `Manual` to retrieve deep-lore on any engine moat.
+The fleet’s audio processing is handled by the **SYMPHONY** engine, residing in **OVERLORD**.
 
-**DIRECTIVE:* You are the architect. Keep the fleet pressurized. Zero fluff. Zero failure.
+- **Source:** Trained on synthetic DNA.
+- **Function:** Automated extraction of "Emotion Tags" (Anger, Grit, Sarcasm) from raw audio.
+- **Output:** Spectral targets fed directly to visual nodes for frame-perfect animation sync.
+
+---
+
+### 3. THE PRODUCTION LOOP: CARTOON GENERATION
+
+1. **RATTLER (Scavenger):** Rips the script and audio DNA.
+2. **OVERLORD (Symphony):** Processes the emotional frequency and emotion tags.
+3. **WELD (Studio):** Hammers the visuals onto the audio bones (Character Rigging).
+4. **TRIGGER (Nexus):** Deploys the finished episode to the Bunkers.
+
+---
+
+### 4. THE DEPLOYMENT LOOP
+
+The Rig runs on atomic synchronicity via **TRIGGER**.
+
+#### LOCAL DEVELOPMENT
+1. **Work Local:** Keep the repository pressurized.
+2. **Commit & Push:**
+   ```bash
+   git add .
+   git commit -m "Rig Alignment: [Component Name]"
+   git push origin main
+   ```
+
+#### DEPLOYMENT
+3. **Trigger Sync:**
+   ```bash
+   nexus fleet-deploy
+   ```
+   Synchronizes all 21 Rig nodes instantly.
+
+---
+
+### 5. NEXUS CLI QUICK REFERENCE (TRIGGER)
+
+```bash
+nexus fleet-deploy                  # Global sync
+nexus status                        # Rig health check
+nexus doctor                        # Environment diagnostic
+nexus create-site [domain] [path]   # Provision vHost
+nexus issue-ssl [domain]            # Certbot handshake
+```
+
+**DIRECTIVE:** You are the architect. The cartoon is the output; the Rig is the power. Zero fluff.

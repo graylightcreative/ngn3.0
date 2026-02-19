@@ -21,8 +21,7 @@ use NGN\Lib\Services\Royalties\PlaybackService;
 
 try {
     $config = new Config();
-    $pdo = ConnectionFactory::write($config);
-    $playbackService = new PlaybackService($pdo);
+    $playbackService = new PlaybackService($config);
 
     error_log("=== Process Qualified Listens Started ===");
 

@@ -10,26 +10,6 @@ if (!isset($router) || !isset($config)) {
     return;
 }
 
-// GET /api/v1/admin/health - Admin system health check
-$router->get('/admin/health', function (Request $request) use ($config) {
-    try {
-        $pdo = $config->getDatabase();
-        $service = new \NGN\Lib\Services\SystemHealthService($pdo);
-        return new JsonResponse([
-            'success' => true,
-            'data' => [
-                'services' => $service->getHealthStatus()
-            ],
-            'meta' => [
-                'time' => date('c')
-            ],
-            'errors' => []
-        ], 200);
-    } catch (Exception $e) {
-        return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);
-    }
-});
-
 // GET /api/v1/admin/upgrade/checks
 $router->get('/admin/upgrade/checks', function (Request $request) use ($config) {
     try {
@@ -90,7 +70,16 @@ $router->get('/admin/progress', function (Request $request) use ($config) {
 
 // ===== SMR PIPELINE ROUTES =====
 // GET /api/v1/admin/smr/pending - Get pending SMR ingestions
-$router->get('/admin/smr/pending', function (Request $request) use ($config) {
+$router->get('/admin/smr/pending', function (Request $request) use ($config, $tokenSvc) {
+    // Dual Auth: Allow if Boardroom OR if Admin JWT
+    $boardroomAuth = checkBoardroomAccess($request, $config);
+    if (!$boardroomAuth['success']) {
+        $currentUser = getCurrentUser($tokenSvc, $request);
+        if (!$currentUser || $currentUser['role'] !== 'admin') {
+            return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+        }
+    }
+
     try {
         $pdo = $config->getDatabase();
         $smrService = new \NGN\Lib\Services\SMRService($pdo);
@@ -646,46 +635,3 @@ $router->get('/admin/system/health', function (Request $request) use ($config) {
     }
 });
 
-// ===== ANALYTICS ROUTES =====
-
-$router->get('/admin/analytics/summary', function (Request $request) use ($config) {
-
-    try {
-
-        $pdo = $config->getDatabase();
-
-        $service = new \NGN\Lib\Services\AnalyticsService($pdo);
-
-        return new JsonResponse(['success' => true, 'data' => $service->getSummary()]);
-
-    } catch (Exception $e) {
-
-        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
-
-    }
-
-});
-
-
-
-$router->get('/admin/analytics/trends', function (Request $request) use ($config) {
-
-    try {
-
-        $queryParams = $request->query();
-
-        $days = (int)($queryParams['days'] ?? 30);
-
-        $pdo = $config->getDatabase();
-
-        $service = new \NGN\Lib\Services\AnalyticsService($pdo);
-
-        return new JsonResponse(['success' => true, 'data' => ['revenue' => $service->getRevenueTrends($days), 'engagement' => $service->getEngagementTrends($days)]]);
-
-    } catch (Exception $e) {
-
-        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
-
-    }
-
-});

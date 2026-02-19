@@ -119,6 +119,53 @@ class RightsLedgerService
     }
 
     /**
+     * Verify an ownership split (Double-Opt-In)
+     */
+    public function verifySplit(int $splitId): void
+    {
+        $stmt = $this->pdo->prepare("
+            UPDATE cdm_rights_splits
+            SET verified = 1, verified_at = NOW()
+            WHERE id = ?
+        ");
+
+        $stmt->execute([$splitId]);
+
+        // Auto-verify ledger if all splits are now verified and total 100%
+        $this->checkAndFinalizeLedger($splitId);
+    }
+
+    /**
+     * Check if all splits for a right are verified and sum to 100%
+     */
+    private function checkAndFinalizeLedger(int $splitId): void
+    {
+        // Get right_id from split
+        $stmt = $this->pdo->prepare("SELECT right_id FROM cdm_rights_splits WHERE id = ?");
+        $stmt->execute([$splitId]);
+        $rightId = $stmt->fetchColumn();
+
+        if (!$rightId) return;
+
+        // Get total percentage of verified splits
+        $stmt = $this->pdo->prepare("
+            SELECT SUM(percentage) as total, COUNT(*) as count, SUM(verified) as verified_count 
+            FROM cdm_rights_splits 
+            WHERE right_id = ?
+        ");
+        $stmt->execute([$rightId]);
+        $stats = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($stats['total'] == 100.00 && $stats['count'] == $stats['verified_count']) {
+            $this->verify((int)$rightId);
+            
+            // Mark as royalty eligible once fully verified
+            $this->pdo->prepare("UPDATE cdm_rights_ledger SET is_royalty_eligible = 1 WHERE id = ?")
+                ->execute([$rightId]);
+        }
+    }
+
+    /**
      * Verify a rights registration (mark as verified)
      */
     public function verify(int $rightId): void
