@@ -1,8 +1,8 @@
 {
     "project": "Next Generation Noise (NGN) Platform",
-    "current_version": "beta-2.0.3",
+    "current_version": "beta-2.1.0",
     "overall_status": "IN_ACTIVE_DEVELOPMENT",
-    "last_updated": "2026-02-13T18:13:26Z",
+    "last_updated": "2026-02-20T00:58:05Z",
     "description": "Master progress tracking file. See version-specific progress files for detailed task tracking.",
     "versions": [
         {
@@ -41,6 +41,13 @@
                 "Multi-party rights management"
             ],
             "active_team": "Backend Lead + Blockchain Specialist + Full-Stack Engineer"
+        },
+        {
+            "version": "beta-2.1.0",
+            "file": "progress-beta-2.1.0.json",
+            "status": "PENDING",
+            "completion": 0,
+            "start_date": "2026-02-20"
         }
     ],
     "deployment_roadmap": [
