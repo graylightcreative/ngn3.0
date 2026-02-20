@@ -41,8 +41,11 @@ require_once __DIR__ . '/../lib/bootstrap.php';
             font-family: 'Space Grotesk', sans-serif;
             background-image: 
                 linear-gradient(rgba(255, 95, 31, 0.03) 1px, transparent 1px),
-                linear-gradient(90(rgba(255, 95, 31, 0.03) 1px, transparent 1px);
+                linear-gradient(90deg, rgba(255, 95, 31, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         .glow-brand { text-shadow: 0 0 20px rgba(255, 95, 31, 0.5); }
         .border-brand-glow { border-color: rgba(255, 95, 31, 0.3); box-shadow: 0 0 15px rgba(255, 95, 31, 0.1); }
