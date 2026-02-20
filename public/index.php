@@ -81,7 +81,7 @@ if (!empty($_SESSION['User']['role_id'])) {
 
 // Router
 $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
-$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', '404'];
+$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
 // Agreement Guard (Bible Ch. 41)
@@ -1424,7 +1424,10 @@ if ($isNotFound) {
               <?php elseif ($view === 'smr-charts'): ?>
                 <?php include $root . 'lib/partials/view-smr-charts.php'; ?>
 
-              <?php elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])): ?>
+              <?php elseif ($view === 'investors'): ?>
+        <?php include $root . 'invest/index.php'; ?>
+
+      <?php elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])): ?>
         <!-- ENTITY LIST VIEW -->
         <div class="flex items-center justify-between mb-8">
           <div>
