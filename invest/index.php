@@ -247,13 +247,13 @@ $minimumInvestment = 50;
         </div>
     </section>
 
-    <!-- THE 21 SOVEREIGN NODES (THE RIG) -->
+    <!-- THE 21 SOVEREIGN NODES (THE GRAYLIGHT RIG) -->
     <section id="moats" class="py-32 px-6 bg-surface">
         <div class="container mx-auto text-center">
             <div class="mb-20">
-                <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">02 // The Backbone</h2>
-                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 uppercase text-white">21 Sovereign Nodes.</h3>
-                <p class="text-zinc-500 max-w-2xl mx-auto">A multi-layered ecosystem pressurized for speed and scale. No single point of failure.</p>
+                <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">02 // The Infrastructure</h2>
+                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 uppercase text-white">The Graylight Foundry.</h3>
+                <p class="text-zinc-500 max-w-2xl mx-auto">NGN is a premier tenant of the <span class="text-white font-bold">Graylight Creative</span> infrastructure ecosystem. 21 specialized nodes pressurized for institutional scale.</p>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
@@ -270,10 +270,13 @@ $minimumInvestment = 50;
                 foreach ($nodes as $node):
                 ?>
                 <div class="glass p-4 rounded-xl hover:border-brand/50 transition-all group text-left">
-                    <div class="text-[10px] font-black text-zinc-600 group-hover:text-brand uppercase mb-1 font-mono"><?= $node['role'] ?></div>
+                    <div class="text-[10px] font-black text-zinc-600 group-hover:text-brand uppercase mb-1 font-mono">Graylight_<?= $node['role'] ?></div>
                     <div class="font-mono font-bold text-sm text-white"><?= $node['name'] ?></div>
                 </div>
                 <?php endforeach; ?>
+            </div>
+            <div class="mt-16 text-center">
+                <p class="text-[10px] font-black text-zinc-700 uppercase tracking-[0.4em]">Proprietary IP // Graylight Creative ecosystem</p>
             </div>
         </div>
     </section>
