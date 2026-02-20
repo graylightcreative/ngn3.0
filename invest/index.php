@@ -17,7 +17,19 @@ $minimumInvestment = 50;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGN // INVESTOR TERMINAL</title>
+    <title>NGN // INVESTOR TERMINAL // Series A</title>
+    <meta name="description" content="Institutional capital routes for the independent music monopoly. High-yield Sovereign Notes providing 8% APY target returns. Built for sovereignty, pressurized for exit.">
+    
+    <!-- SOVEREIGN SEO PROTOCOL -->
+    <meta property="og:site_name" content="NextGenNoise">
+    <meta property="og:title" content="NGN // INVESTOR TERMINAL // Series A">
+    <meta property="og:description" content="Secure your entry into the first platform providing cryptographic source of truth for the $28.6B music industry.">
+    <meta property="og:image" content="https://nextgennoise.com/lib/images/site/og-image-investors.jpg">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="NGN // INVESTOR TERMINAL // Series A">
+    <meta name="twitter:description" content="Institutional capital routes for the independent music monopoly. 8% APY Sovereign Notes active.">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">

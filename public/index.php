@@ -948,48 +948,32 @@ if ($pdo) {
 
 $totalPages = $total > 0 ? ceil($total / $perPage) : 1;
 
-// SEO Meta
-$seoTitle = 'NextGenNoise - Metal & Rock Music Platform';
-$seoDesc = 'Discover the best in metal and rock music. Charts, artists, labels, stations, venues, and more.';
-$seoImage = '/lib/images/site/og-image.jpg';
-$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+// SEO Meta Overhaul (Bible Ch. 18 - Discovery Engine Compliance)
+$seoTitle = 'NextGenNoise // The Sovereign Music Infrastructure';
+$seoDesc = 'Own your sound. NextGenNoise provides the cryptographic source of truth for independent metal and rock. 90/10 revenue model, verified charts, and direct fan tipping.';
+$seoImage = $baseUrl . '/lib/images/site/og-image-2026.jpg';
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
 $baseUrl = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'nextgennoise.com');
-$seoUrl = $baseUrl . '/';
+$seoUrl = $baseUrl . ($_SERVER['REQUEST_URI'] ?? '/');
 
 if ($view === 'post' && !empty($data['post'])) {
-    $seoTitle = htmlspecialchars($data['post']['title'] ?? '') . ' | NextGenNoise';
+    $title = $data['post']['title'] ?? 'Newswire';
+    $seoTitle = "{$title} // NGN Newswire";
     $seoDesc = htmlspecialchars(substr(strip_tags($data['post']['excerpt'] ?? $data['post']['content'] ?? ''), 0, 160));
-    $seoImage = $data['post']['featured_image_url'] ?? $seoImage;
-    $postSlug = $data['post']['slug'] ?? $data['post']['id'];
-    $seoUrl = "{$baseUrl}/post/{$postSlug}";
+    if (!empty($data['post']['featured_image_url'])) $seoImage = $data['post']['featured_image_url'];
 } elseif (in_array($view, ['artist', 'label', 'station', 'venue']) && $entity) {
     $entityName = $entity['name'] ?? ucfirst($view);
-    $seoTitle = htmlspecialchars($entityName) . ' | NextGenNoise';
-    $seoDesc = htmlspecialchars(substr(strip_tags($entity['bio'] ?? ''), 0, 160)) ?: "Discover {$entityName} on NextGenNoise.";
-    $entitySlug = $entity['slug'] ?? '';
+    $seoTitle = "{$entityName} // NGN Verified Profile";
+    $seoDesc = htmlspecialchars(substr(strip_tags($entity['bio'] ?? ''), 0, 160)) ?: "Discover {$entityName} on the NGN Sovereign Fleet.";
     if (!empty($entity['image_url'])) $seoImage = $entity['image_url'];
-    $seoUrl = "{$baseUrl}/{$view}/{$entitySlug}";
 } elseif ($view === 'charts') {
-    $seoTitle = 'NGN Charts | NextGenNoise';
-    $seoDesc = 'Top ranked metal and rock artists and labels on NextGenNoise.';
-    $seoUrl = "{$baseUrl}/charts";
-} elseif ($view === 'smr-charts') {
-    $seoTitle = 'SMR Charts | NextGenNoise';
-    $seoDesc = 'Spins Music Radio chart rankings for metal and rock.';
-    $seoUrl = "{$baseUrl}/smr-charts";
-} elseif ($view === 'pricing') {
-    $seoTitle = 'Pricing | NextGenNoise';
-    $seoDesc = 'Affordable plans for artists, labels, venues, and stations. Start free or upgrade for pro features.';
-    $seoUrl = "{$baseUrl}/pricing";
-} elseif (in_array($view, ['artists', 'labels', 'stations', 'venues', 'posts', 'videos', 'releases', 'songs'])) {
-    $seoTitle = ucfirst($view) . ' | NextGenNoise';
-    $seoUrl = "{$baseUrl}/{$view}";
-}
-
-// Final 404 check before HTML output (Bible Ch. 12 - P95 Robustness)
-$isNotFound = ($view === '404' || (in_array($view, ['post', 'video', 'release', 'song', 'agreement']) && empty($data[$view === 'song' ? 'track' : ($view === 'agreement' ? 'agreement_template' : $view)])));
-if ($isNotFound) {
-    http_response_code(404);
+    $seoTitle = 'NGN Sovereign Charts // Real-Time Intelligence';
+    $seoDesc = 'The only music charts backed by a 100-item signaling moat and cryptographic integrity checks.';
+} elseif ($view === 'investors') {
+    $seoTitle = 'NGN // Investor Terminal // Series A';
+    $seoDesc = 'Institutional capital routes for the independent music monopoly. 8% APY Sovereign Notes active.';
+} elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])) {
+    $seoTitle = "Browse " . ucfirst($view) . " // NGN Sovereign Fleet";
 }
 ?>
 <!doctype html>
@@ -999,16 +983,21 @@ if ($isNotFound) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= $seoTitle ?></title>
   <meta name="description" content="<?= $seoDesc ?>">
+  
+  <!-- SOVEREIGN SEO PROTOCOL -->
+  <link rel="canonical" href="<?= $seoUrl ?>">
+  <meta property="og:site_name" content="NextGenNoise">
   <meta property="og:title" content="<?= $seoTitle ?>">
   <meta property="og:description" content="<?= $seoDesc ?>">
   <meta property="og:image" content="<?= $seoImage ?>">
   <meta property="og:url" content="<?= $seoUrl ?>">
   <meta property="og:type" content="website">
+  
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@NextGenNoise">
   <meta name="twitter:title" content="<?= $seoTitle ?>">
   <meta name="twitter:description" content="<?= $seoDesc ?>">
   <meta name="twitter:image" content="<?= $seoImage ?>">
-  <link rel="canonical" href="<?= $seoUrl ?>">
 
   <!-- PWA Meta Tags -->
   <link rel="manifest" href="/lib/images/site/site.webmanifest">
