@@ -10,10 +10,12 @@ use DateTime;
 class SubscriptionService
 {
     private PDO $pdoWrite;
+    private PDO $pdoFanSubs;
 
     public function __construct(Config $config)
     {
         $this->pdoWrite = ConnectionFactory::write($config);
+        $this->pdoFanSubs = ConnectionFactory::write($config);
     }
 
     /**

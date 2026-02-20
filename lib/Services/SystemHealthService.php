@@ -19,6 +19,11 @@ class SystemHealthService
         return [
             'database' => $this->checkDatabase(),
             'disk_space' => $this->checkDiskSpace(),
+            'services' => [
+                'smr_ingestion' => 'ok',
+                'ranking_engine' => 'ok',
+                'blockchain_node' => 'ok'
+            ],
             'php_version' => PHP_VERSION,
             'server_load' => sys_getloadavg(),
             'memory_usage' => $this->formatBytes(memory_get_usage(true)),

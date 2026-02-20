@@ -111,7 +111,7 @@ class LedgerAnalyticsService
         $stats['total_qualified_listens'] = $this->db->query("SELECT COUNT(*) FROM playback_events WHERE is_qualified_listen = 1")->fetchColumn();
 
         // 4. SMR Coverage
-        $stats['smr_stations_monitored'] = $this->db->query("SELECT COUNT(DISTINCT station_id) FROM smr_ingestions")->fetchColumn(); // Approx
+        $stats['smr_stations_monitored'] = $this->db->query("SELECT COUNT(DISTINCT station_id) FROM smr_records")->fetchColumn(); // Approx
 
         return $stats;
     }

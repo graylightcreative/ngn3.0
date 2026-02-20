@@ -18,7 +18,7 @@ class AdminRoutesSmokeTest extends TestCase
     {
         $config = new Config();
         $svc = new TokenService($config);
-        $issued = $svc->issueAccessToken(['sub' => 'admin@example.com', 'role' => 'admin']);
+        $issued = $svc->issueAccessToken(['sub' => '1', 'role' => 'admin']);
         $_SERVER['HTTP_AUTHORIZATION'] = 'Bearer ' . $issued['token'];
     }
 
@@ -34,6 +34,7 @@ class AdminRoutesSmokeTest extends TestCase
         include $index;
         $out = ob_get_clean();
         $json = json_decode($out, true);
+        if (!isset($json['meta'])) { echo "\nDEBUG JSON: " . $out . "\n"; }
         $this->assertArrayHasKey('data', $json, "Response missing 'data' key. Output: " . $out);
         $this->assertArrayHasKey('meta', $json);
         $this->assertArrayHasKey('errors', $json);

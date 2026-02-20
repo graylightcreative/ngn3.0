@@ -315,7 +315,12 @@ $router->get('/admin/health', function (Request $request) use ($config, $tokenSv
         $service = new \NGN\Lib\Services\SystemHealthService($pdo);
         return new JsonResponse([
             'success' => true,
-            'data' => $service->getHealthStatus()
+            'data' => $service->getHealthStatus(),
+            'meta' => [
+                'server_time' => date('c'),
+                'version' => '2.1.0'
+            ],
+            'errors' => []
         ]);
     } catch (Exception $e) {
         return new JsonResponse(['success' => false, 'message' => $e->getMessage()], 500);

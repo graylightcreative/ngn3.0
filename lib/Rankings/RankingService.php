@@ -95,13 +95,16 @@ class RankingService
                 }
 
                 // Latest window for interval with Moat Filter (HAVING COUNT(*) > 100)
-                $wSql = 'SELECT window_id 
-                         FROM `ngn_rankings_2025`.`ranking_items` 
-                         GROUP BY window_id 
+                $wSql = 'SELECT ri.window_id 
+                         FROM `ngn_rankings_2025`.`ranking_items` ri
+                         JOIN `ngn_rankings_2025`.`ranking_windows` rw ON ri.window_id = rw.id
+                         WHERE rw.interval = :interval
+                         GROUP BY ri.window_id 
                          HAVING COUNT(*) > 100 
-                         ORDER BY window_id DESC 
+                         ORDER BY ri.window_id DESC 
                          LIMIT 1';
-                $w = $this->pdo->query($wSql);
+                $w = $this->pdo->prepare($wSql);
+                $w->execute([':interval' => $interval]);
                 $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
                 if ($win) {
                     $wid = (int)$win['window_id'];
@@ -216,8 +219,16 @@ class RankingService
         if ($this->dbReady && $this->pdo && $id > 0) {
             try {
                 // Latest window for interval with Moat Filter
-                $wSql = 'SELECT window_id FROM `ngn_rankings_2025`.`ranking_items` GROUP BY window_id HAVING COUNT(*) > 100 ORDER BY window_id DESC LIMIT 1';
-                $w = $this->pdo->query($wSql);
+                $wSql = 'SELECT ri.window_id 
+                         FROM `ngn_rankings_2025`.`ranking_items` ri
+                         JOIN `ngn_rankings_2025`.`ranking_windows` rw ON ri.window_id = rw.id
+                         WHERE rw.interval = :interval
+                         GROUP BY ri.window_id 
+                         HAVING COUNT(*) > 100 
+                         ORDER BY ri.window_id DESC 
+                         LIMIT 1';
+                $w = $this->pdo->prepare($wSql);
+                $w->execute([':interval' => $interval]);
                 $win = $w->fetch(PDO::FETCH_ASSOC) ?: null;
                 if ($win) {
                     $wid = (int)$win['window_id'];

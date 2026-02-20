@@ -41,16 +41,17 @@ class RateLimiterService
             // 2. Increment or create window
             $stmt = $this->pdo->prepare("
                 INSERT INTO api_rate_limits (ip_address, endpoint, request_count, window_start)
-                VALUES (:ip, :endpoint, 1, NOW())
+                VALUES (?, ?, 1, NOW())
                 ON DUPLICATE KEY UPDATE
-                    request_count = IF(window_start < NOW() - INTERVAL :window SECOND, 1, request_count + 1),
-                    window_start = IF(window_start < NOW() - INTERVAL :window SECOND, NOW(), window_start)
+                    request_count = IF(window_start < NOW() - INTERVAL ? SECOND, 1, request_count + 1),
+                    window_start = IF(window_start < NOW() - INTERVAL ? SECOND, NOW(), window_start)
             ");
 
             $stmt->execute([
-                ':ip' => $ip,
-                ':endpoint' => $endpoint,
-                ':window' => $windowSeconds
+                $ip,
+                $endpoint,
+                $windowSeconds,
+                $windowSeconds
             ]);
 
             // 3. Check current count
