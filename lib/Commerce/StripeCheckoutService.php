@@ -107,6 +107,11 @@ class StripeCheckoutService
                 'enabled' => true,
             ];
 
+            // Explicitly enable payment request button support if needed
+            $params['payment_method_types'] = ['card']; 
+            unset($params['automatic_payment_methods']); // Use manual types for more control if required, or keep automatic
+            $params['automatic_payment_methods'] = ['enabled' => true];
+
             // Add statement descriptor (max 22 chars)
             $params['statement_descriptor_suffix'] = 'NGN ' . substr($order['order_number'], -8);
 
