@@ -49,6 +49,10 @@ LOG_DIR_CRON=$NGN_ROOT/storage/cron_logs
 #    Fetches and ingests SMR (Sound Music Report) data.
 */15 * * * * "$PHP_BIN" "$NGN_ROOT/jobs/ingestion/ingest_smr.php" >> "$LOG_DIR_LEGACY/cron-ingest-smr.log" 2>&1
 
+# 4. Generate Sitemap: Every Sunday at 02:00
+#    Updates sitemap.xml for SEO optimization.
+0 2 * * 0 "$PHP_BIN" "$NGN_ROOT/bin/generate_sitemap.php" >> "$LOG_DIR_LEGACY/cron-sitemap.log" 2>&1
+
 # ------------------------------------------------------------------------------
 # Section 2: Governance Cron Jobs (from aapanel guide)
 # ------------------------------------------------------------------------------
