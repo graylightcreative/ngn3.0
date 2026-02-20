@@ -42,7 +42,7 @@
                             "id": "automated_equity_ledger",
                             "description": "Automated Shareholder Equity Ledger",
                             "sub_tasks": [
-                                "Integrate GoSiggy for document hashing (BFL 3.1)",
+                                "Integrate SovereignSign for document hashing (BFL 3.1)",
                                 "Immutable cap table tracking in Content Ledger",
                                 "Liquidity Event trigger simulation logic"
                             ],

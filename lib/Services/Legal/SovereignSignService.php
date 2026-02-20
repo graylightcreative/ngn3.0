@@ -2,16 +2,16 @@
 namespace NGN\Lib\Services\Legal;
 
 /**
- * GoSiggy Service - Sovereign Digital Signatures
- * Handles SHA-256 document hashing and integrity verification.
- * Bible Ref: Chapter 52 (GoSiggy Node)
+ * Sovereign Sign Service - Digital Signatures
+ * Handles SHA-256 document hashing and integrity verification for the NGN Empire.
+ * Bible Ref: Chapter 41 (Digital Agreements and Signatures)
  */
 
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use PDO;
 
-class GoSiggyService
+class SovereignSignService
 {
     private $config;
     private $pdo;
@@ -31,14 +31,14 @@ class GoSiggyService
     }
 
     /**
-     * Register a digital signature in the GoSiggy ledger
+     * Register a digital signature in the Sovereign ledger
      */
     public function registerSignature(int $userId, string $docHash, array $metadata = []): string
     {
         $signatureId = bin2hex(random_bytes(16));
         
         $stmt = $this->pdo->prepare("
-            INSERT INTO gosiggy_signatures (signature_id, user_id, doc_hash, metadata, created_at)
+            INSERT INTO sovereign_signatures (signature_id, user_id, doc_hash, metadata, created_at)
             VALUES (?, ?, ?, ?, NOW())
         ");
         
@@ -57,7 +57,7 @@ class GoSiggyService
      */
     public function verifySignature(string $signatureId): ?array
     {
-        $stmt = $this->pdo->prepare("SELECT * FROM gosiggy_signatures WHERE signature_id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM sovereign_signatures WHERE signature_id = ?");
         $stmt->execute([$signatureId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
