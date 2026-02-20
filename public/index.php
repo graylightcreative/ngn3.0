@@ -81,6 +81,13 @@ if (!empty($_SESSION['User']['role_id'])) {
 
 // Router
 $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
+
+// Host-based Routing (Subdomain Detection)
+$host = $_SERVER['HTTP_HOST'] ?? '';
+if (str_starts_with($host, 'investors.')) {
+    $view = 'investors';
+}
+
 $validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
