@@ -32,7 +32,8 @@
         },
         "3_0_0": {
             "theme": "Sovereign Empire // The Exit Trajectory",
-            "status": "PLANNING",
+            "status": "COMPLETED",
+            "release_date": "2026-02-20",
             "categories": [
                 {
                     "name": "Institutional Capital (Equity Node)",
@@ -45,7 +46,7 @@
                                 "Immutable cap table tracking in Content Ledger",
                                 "Liquidity Event trigger simulation logic"
                             ],
-                            "status": "pending"
+                            "status": "Done"
                         }
                     ]
                 },
@@ -60,7 +61,7 @@
                                 "Programmatic audio/video ad injection",
                                 "Revenue split logic for Stations/Artists (90/10)"
                             ],
-                            "status": "pending"
+                            "status": "Done"
                         }
                     ]
                 },
@@ -74,6 +75,27 @@
                                 "Neural network for breakout artist detection",
                                 "Institutional reporting for VC validation",
                                 "Automated data-bounty settlement for SIR accuracy"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
+                }
+            ]
+        },
+        "3_1_0": {
+            "theme": "Institutional Scale & Global Fleet",
+            "status": "PLANNING",
+            "categories": [
+                {
+                    "name": "Multi-Tenant Marketplace",
+                    "tasks": [
+                        {
+                            "id": "tenant_white_label",
+                            "description": "White-Label Marketplace for Labels",
+                            "sub_tasks": [
+                                "Subdomain routing for label storefronts",
+                                "Themed CSS injection per tenant",
+                                "Centralized commission settlement (Rule 5)"
                             ],
                             "status": "pending"
                         }
