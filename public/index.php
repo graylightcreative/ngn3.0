@@ -91,7 +91,7 @@ if (str_starts_with($host, 'investors.')) {
     exit;
 }
 
-$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', '404'];
+$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', 'integrations', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
 // Agreement Guard (Bible Ch. 41)
@@ -972,6 +972,9 @@ if ($view === 'post' && !empty($data['post'])) {
 } elseif ($view === 'investors') {
     $seoTitle = 'NGN // Investor Terminal // Series A';
     $seoDesc = 'Institutional capital routes for the independent music monopoly. 8% APY Sovereign Notes active.';
+} elseif ($view === 'integrations') {
+    $seoTitle = 'NGN Sovereign Integrations // Fleet Ecosystem';
+    $seoDesc = 'Manage your connection to the Graylight Fleet. Connect Spotify, Apple Music, and institutional data routes.';
 } elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])) {
     $seoTitle = "Browse " . ucfirst($view) . " // NGN Sovereign Fleet";
 }
@@ -1435,6 +1438,9 @@ if ($view === 'post' && !empty($data['post'])) {
 
               <?php elseif ($view === 'investors'): ?>
         <?php include $root . 'invest/index.php'; ?>
+
+              <?php elseif ($view === 'integrations'): ?>
+                <?php include $root . 'lib/partials/view-integrations.php'; ?>
 
       <?php elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])): ?>
         <!-- ENTITY LIST VIEW -->

@@ -47,6 +47,12 @@ class FleetAuthService {
     public static function checkHandshake(): ?array {
         self::init();
 
+        // Prevent recursive handshake loops (AH00124)
+        // If this request already contains a Fleet API Key, it is an internal node-to-node call.
+        if (isset($_SERVER['HTTP_X_GL_API_KEY'])) {
+            return null;
+        }
+
         $token = $_COOKIE['fleet_token'] ?? null;
         if (!$token) return null;
 
