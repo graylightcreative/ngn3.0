@@ -4,145 +4,78 @@ namespace NGN\Lib\Commerce;
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Env;
+use NGN\Lib\Services\Graylight\ChancellorHandshakeService;
 use PDO;
 
 /**
- * StripeCheckoutService - Handles Stripe payment processing for NGN shops
+ * StripeCheckoutService - Handles Stripe payment processing via Chancellor Node
  */
 class StripeCheckoutService
 {
     private Config $config;
     private PDO $read;
     private PDO $write;
-    private string $secretKey;
+    private ChancellorHandshakeService $chancellor;
     private string $publishableKey;
-    private string $webhookSecret;
     private float $platformFeePercent;
     private string $currency;
-    
-    // Stripe API version
-    private const API_VERSION = '2023-10-16';
 
     public function __construct(Config $config)
     {
         $this->config = $config;
         $this->read = ConnectionFactory::read($config);
         $this->write = ConnectionFactory::write($config);
+        $this->chancellor = new ChancellorHandshakeService($config);
         
-        // Load Stripe keys from environment via NGN Env service
-        $this->secretKey = (string)Env::get('STRIPE_SECRET_KEY', '');
         $this->publishableKey = (string)Env::get('STRIPE_PUBLISHABLE_KEY', '');
-        $this->webhookSecret = (string)Env::get('STRIPE_WEBHOOK_SECRET', '');
         $this->platformFeePercent = (float)Env::get('STRIPE_PLATFORM_FEE_PERCENT', '5.0');
         $this->currency = strtolower((string)Env::get('STRIPE_CURRENCY', 'usd'));
-        
-        // Initialize Stripe
-        if ($this->secretKey && class_exists('\Stripe\Stripe')) {
-            \Stripe\Stripe::setApiKey($this->secretKey);
-            \Stripe\Stripe::setApiVersion(self::API_VERSION);
-        }
     }
 
     /**
-     * Check if Stripe is properly configured
+     * Check if system is configured for payments
      */
     public function isConfigured(): bool
     {
-        return $this->secretKey !== '' && class_exists('\Stripe\Stripe');
+        return !empty($this->publishableKey);
     }
 
     /**
-     * Get publishable key for frontend
-     */
-    public function getPublishableKey(): string
-    {
-        return $this->publishableKey;
-    }
-
-    /**
-     * Create a Payment Intent for an order
-     * 
-     * @param int $orderId NGN order ID
-     * @param array<string,mixed> $options Additional options
-     * @return array{success: bool, payment_intent_id?: string, client_secret?: string, error?: string}
+     * Create a Payment Intent for an order via Chancellor
      */
     public function createPaymentIntent(int $orderId, array $options = []): array
     {
-        if (!$this->isConfigured()) {
-            return ['success' => false, 'error' => 'Stripe not configured'];
-        }
-
-        // Fetch order details
         $order = $this->getOrder($orderId);
-        if (!$order) {
-            return ['success' => false, 'error' => 'Order not found'];
-        }
-
-        if ($order['status'] !== 'pending') {
-            return ['success' => false, 'error' => 'Order is not in pending status'];
-        }
+        if (!$order) return ['success' => false, 'error' => 'Order not found'];
 
         try {
-            $amountCents = (int)round($order['total'] * 100);
-            
-            $params = [
-                'amount' => $amountCents,
+            $payload = [
+                'type' => 'PAYMENT_INTENT',
+                'user_id' => $order['user_id'] ?? null,
+                'amount' => (int)round($order['total'] * 100),
                 'currency' => $this->currency,
-                'metadata' => [
-                    'order_id' => $orderId,
-                    'order_number' => $order['order_number'],
-                    'email' => $order['email'],
-                ],
                 'description' => "NGN Order #{$order['order_number']}",
                 'receipt_email' => $order['email'],
+                'metadata' => array_merge($options['metadata'] ?? [], [
+                    'order_id' => $orderId,
+                    'order_number' => $order['order_number']
+                ])
             ];
 
-            // Add customer if we have one
-            if (!empty($options['customer_id'])) {
-                $params['customer'] = $options['customer_id'];
+            $result = $this->chancellor->authorizeCheckout($payload);
+
+            if ($result['success']) {
+                $this->updateOrderPaymentIntent($orderId, $result['payment_intent_id']);
             }
 
-            // Automatic payment methods
-            $params['automatic_payment_methods'] = [
-                'enabled' => true,
-            ];
-
-            // Explicitly enable payment request button support if needed
-            $params['payment_method_types'] = ['card']; 
-            unset($params['automatic_payment_methods']); // Use manual types for more control if required, or keep automatic
-            $params['automatic_payment_methods'] = ['enabled' => true];
-
-            // Add statement descriptor (max 22 chars)
-            $params['statement_descriptor_suffix'] = 'NGN ' . substr($order['order_number'], -8);
-
-            // Create the Payment Intent
-            $intent = \Stripe\PaymentIntent::create($params);
-
-            // Update order with Payment Intent ID
-            $this->updateOrderPaymentIntent($orderId, $intent->id);
-
-            return [
-                'success' => true,
-                'payment_intent_id' => $intent->id,
-                'client_secret' => $intent->client_secret,
-                'amount' => $amountCents,
-                'currency' => $this->currency,
-            ];
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            return $result;
         } catch (\Throwable $e) {
-            return ['success' => false, 'error' => 'Payment processing error: ' . $e->getMessage()];
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
     /**
-     * Create a Checkout Session for hosted checkout
-     * 
-     * @param int $orderId NGN order ID
-     * @param string $successUrl URL to redirect on success
-     * @param string $cancelUrl URL to redirect on cancel
-     * @param array<string,mixed> $options Additional options
-     * @return array{success: bool, session_id?: string, url?: string, error?: string}
+     * Create a Checkout Session for hosted checkout via Chancellor
      */
     public function createCheckoutSession(
         int $orderId,
@@ -150,108 +83,46 @@ class StripeCheckoutService
         string $cancelUrl,
         array $options = []
     ): array {
-        if (!$this->isConfigured()) {
-            return ['success' => false, 'error' => 'Stripe not configured'];
-        }
-
-        // Fetch order with items
         $order = $this->getOrder($orderId);
-        if (!$order) {
-            return ['success' => false, 'error' => 'Order not found'];
-        }
+        if (!$order) return ['success' => false, 'error' => 'Order not found'];
 
         $items = $this->getOrderItems($orderId);
-        if (empty($items)) {
-            return ['success' => false, 'error' => 'Order has no items'];
-        }
+        if (empty($items)) return ['success' => false, 'error' => 'Order has no items'];
 
         try {
-            // Build line items for Stripe
             $lineItems = [];
             foreach ($items as $item) {
                 $lineItems[] = [
                     'price_data' => [
                         'currency' => $this->currency,
                         'unit_amount' => (int)round($item['price'] * 100),
-                        'product_data' => [
-                            'name' => $item['name'],
-                            'metadata' => [
-                                'product_id' => $item['product_id'] ?? '',
-                                'variant_id' => $item['variant_id'] ?? '',
-                                'sku' => $item['sku'] ?? '',
-                            ],
-                        ],
+                        'product_data' => ['name' => $item['name']],
                     ],
                     'quantity' => (int)$item['quantity'],
                 ];
             }
 
-            // Add shipping as a line item if applicable
-            if ($order['shipping_amount'] > 0) {
-                $lineItems[] = [
-                    'price_data' => [
-                        'currency' => $this->currency,
-                        'unit_amount' => (int)round($order['shipping_amount'] * 100),
-                        'product_data' => [
-                            'name' => 'Shipping',
-                        ],
-                    ],
-                    'quantity' => 1,
-                ];
-            }
-
-            // Build session params
-            $sessionParams = [
-                'mode' => 'payment',
+            $payload = [
+                'type' => 'CHECKOUT_SESSION',
+                'user_id' => $order['user_id'] ?? null,
                 'line_items' => $lineItems,
-                'success_url' => $successUrl . (strpos($successUrl, '?') !== false ? '&' : '?') . 'session_id={CHECKOUT_SESSION_ID}',
+                'success_url' => $successUrl,
                 'cancel_url' => $cancelUrl,
-                'customer_email' => $order['email'],
                 'metadata' => [
                     'order_id' => $orderId,
-                    'order_number' => $order['order_number'],
-                ],
-                'payment_intent_data' => [
-                    'metadata' => [
-                        'order_id' => $orderId,
-                        'order_number' => $order['order_number'],
-                    ],
-                ],
+                    'order_number' => $order['order_number']
+                ]
             ];
 
-            // Add shipping address collection if physical items
-            if ($this->hasPhysicalItems($items)) {
-                $sessionParams['shipping_address_collection'] = [
-                    'allowed_countries' => ['US', 'CA', 'GB', 'AU', 'DE', 'FR', 'NL', 'BE', 'AT', 'CH'],
-                ];
+            $result = $this->chancellor->authorizeCheckout($payload);
+
+            if ($result['success']) {
+                $this->updateOrderCheckoutSession($orderId, $result['session_id']);
             }
 
-            // Allow promotion codes
-            if (!empty($options['allow_promotion_codes'])) {
-                $sessionParams['allow_promotion_codes'] = true;
-            }
-
-            // Existing customer
-            if (!empty($options['customer_id'])) {
-                unset($sessionParams['customer_email']);
-                $sessionParams['customer'] = $options['customer_id'];
-            }
-
-            // Create session
-            $session = \Stripe\Checkout\Session::create($sessionParams);
-
-            // Update order with session ID
-            $this->updateOrderCheckoutSession($orderId, $session->id);
-
-            return [
-                'success' => true,
-                'session_id' => $session->id,
-                'url' => $session->url,
-            ];
-        } catch (\Stripe\Exception\ApiErrorException $e) {
-            return ['success' => false, 'error' => $e->getMessage()];
+            return $result;
         } catch (\Throwable $e) {
-            return ['success' => false, 'error' => 'Checkout error: ' . $e->getMessage()];
+            return ['success' => false, 'error' => $e->getMessage()];
         }
     }
 
