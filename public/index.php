@@ -984,6 +984,16 @@ if ($view === 'post' && !empty($data['post'])) {
   <title><?= $seoTitle ?></title>
   <meta name="description" content="<?= $seoDesc ?>">
   
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHGQG7HXKH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LHGQG7HXKH');
+  </script>
+
   <!-- SOVEREIGN SEO PROTOCOL -->
   <link rel="canonical" href="<?= $seoUrl ?>">
   <meta property="og:site_name" content="NextGenNoise">

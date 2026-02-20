@@ -20,6 +20,16 @@ $minimumInvestment = 50;
     <title>NGN // INVESTOR TERMINAL // Series A</title>
     <meta name="description" content="Institutional capital routes for the independent music monopoly. High-yield Sovereign Notes providing 8% APY target returns. Built for sovereignty, pressurized for exit.">
     
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHGQG7HXKH"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-LHGQG7HXKH');
+    </script>
+
     <!-- SOVEREIGN SEO PROTOCOL -->
     <meta property="og:site_name" content="NextGenNoise">
     <meta property="og:title" content="NGN // INVESTOR TERMINAL // Series A">
