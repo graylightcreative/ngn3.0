@@ -104,11 +104,67 @@
         "2_3_0": {
             "theme": "Physical Monopoly & Market Saturation",
             "status": "PLANNING",
-            "focus": [
-                "Full Shredder Mixer UI Implementation",
-                "Mobile PWA Push Notification Engine",
-                "Venue PPV Livestream Infrastructure",
-                "Automated Artist Royalty Payout (BFL 2.4)"
+            "categories": [
+                {
+                    "name": "Audio Engineering (Shredder UI)",
+                    "tasks": [
+                        {
+                            "id": "shredder_mixer_ui",
+                            "description": "Interactive 4-Channel Stem Mixer",
+                            "sub_tasks": [
+                                "Web Audio API integration for real-time volume/solo/mute",
+                                "Waveform visualization per stem",
+                                "Mobile-optimized fader interface"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
+                },
+                {
+                    "name": "Network & Retention",
+                    "tasks": [
+                        {
+                            "id": "pwa_push_engine",
+                            "description": "Mobile PWA Push Notification Engine",
+                            "sub_tasks": [
+                                "Service Worker integration for Web Push",
+                                "Notification preference center in User Settings",
+                                "Triggered alerts for Artist Signal anomalies"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
+                },
+                {
+                    "name": "Venue Infrastructure (Node 48)",
+                    "tasks": [
+                        {
+                            "id": "venue_ppv_livestream",
+                            "description": "Venue PPV Livestream Infrastructure",
+                            "sub_tasks": [
+                                "RTMP ingestion endpoint for hardware encoders",
+                                "Token-gated HLS playback for PPV ticket holders",
+                                "Low-latency chat integration for live events"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
+                },
+                {
+                    "name": "Automated Royalties",
+                    "tasks": [
+                        {
+                            "id": "automated_royalty_payouts",
+                            "description": "Automated Artist Royalty Payout (BFL 2.4)",
+                            "sub_tasks": [
+                                "Stripe Connect Payout integration",
+                                "Automated Rule 5 split execution",
+                                "Institutional invoicing for Label/Station settlements"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
+                }
             ]
         }
     },

@@ -9,10 +9,15 @@
  * - Queue display
  */
 
+import { ShredderMixer } from './ShredderMixer.js';
+
 export class PlayerUI {
   constructor(player, container) {
     this.player = player;
     this.container = document.querySelector(container) || document.getElementById(container);
+    
+    // Initialize Mixer
+    this.mixer = new ShredderMixer();
 
     if (!this.container) {
       console.warn('[PlayerUI] Container not found:', container);
@@ -77,10 +82,57 @@ export class PlayerUI {
 
         <!-- Queue Toggle -->
         <div class="ngn-player-right">
+          <button class="ngn-btn ngn-btn-shredder" title="Shredder Mode (Stem Isolation)">
+            <i class="bi bi-layers-half"></i>
+            <span class="text-[8px] block font-black">SHREDDER</span>
+          </button>
           <button class="ngn-btn ngn-btn-queue" title="Show queue">
             <i class="fa fa-list"></i>
             <span class="ngn-queue-count">0</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Shredder Mixer Panel (Overlay) -->
+      <div class="ngn-shredder-panel" style="display: none;">
+        <div class="ngn-shredder-header">
+          <h3 class="font-black tracking-tighter uppercase text-brand">Shredder_Node // v1.0</h3>
+          <button class="ngn-btn ngn-btn-close-shredder">&times;</button>
+        </div>
+        
+        <div class="ngn-shredder-grid">
+          <div class="ngn-stem-control" data-stem="vocals">
+            <label>Vocals</label>
+            <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
+            <div class="ngn-stem-btns">
+              <button class="ngn-stem-mute">M</button>
+              <button class="ngn-stem-solo">S</button>
+            </div>
+          </div>
+          <div class="ngn-stem-control" data-stem="drums">
+            <label>Drums</label>
+            <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
+            <div class="ngn-stem-btns">
+              <button class="ngn-stem-mute">M</button>
+              <button class="ngn-stem-solo">S</button>
+            </div>
+          </div>
+          <div class="ngn-stem-control" data-stem="bass">
+            <label>Bass</label>
+            <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
+            <div class="ngn-stem-btns">
+              <button class="ngn-stem-mute">M</button>
+              <button class="ngn-stem-solo">S</button>
+            </div>
+          </div>
+          <div class="ngn-stem-control" data-stem="other">
+            <label>Other</label>
+            <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
+            <div class="ngn-stem-btns">
+              <button class="ngn-stem-mute">M</button>
+              <button class="ngn-stem-solo">S</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -120,6 +172,12 @@ export class PlayerUI {
     this.queueItems = this.container.querySelector('.ngn-queue-items');
     this.queueCount = this.container.querySelector('.ngn-queue-count');
     this.btnCloseQueue = this.container.querySelector('.ngn-btn-close-queue');
+
+    // Shredder Elements
+    this.btnShredder = this.container.querySelector('.ngn-btn-shredder');
+    this.shredderPanel = this.container.querySelector('.ngn-shredder-panel');
+    this.btnCloseShredder = this.container.querySelector('.ngn-btn-close-shredder');
+    this.stemFaders = this.container.querySelectorAll('.ngn-stem-fader');
   }
 
   /**
@@ -193,6 +251,27 @@ export class PlayerUI {
     // Close queue panel
     this.btnCloseQueue.addEventListener('click', () => {
       this.queuePanel.style.display = 'none';
+    });
+
+    // Shredder Listeners
+    this.btnShredder.addEventListener('click', () => {
+      this.shredderPanel.style.display = this.shredderPanel.style.display === 'none' ? 'block' : 'none';
+      if (this.shredderPanel.style.display === 'block') {
+        this.queuePanel.style.display = 'none';
+        this.loadShredderStems();
+      }
+    });
+
+    this.btnCloseShredder.addEventListener('click', () => {
+      this.shredderPanel.style.display = 'none';
+    });
+
+    this.stemFaders.forEach(fader => {
+      fader.addEventListener('input', (e) => {
+        const stem = e.target.closest('.ngn-stem-control').dataset.stem;
+        const vol = e.target.value / 100;
+        this.mixer.setStemVolume(stem, vol);
+      });
     });
 
     // Prevent seeking while loading
@@ -318,6 +397,42 @@ export class PlayerUI {
     setTimeout(() => {
       this.artist.style.color = '';
     }, 3000);
+  }
+
+  /**
+   * Fetch stem URLs and load into mixer
+   */
+  async loadShredderStems() {
+    const track = this.player.currentTrack;
+    if (!track) return;
+
+    console.log('[PlayerUI] Initializing Shredder for track:', track.id);
+    
+    try {
+      const response = await fetch(`${this.player.config.apiBaseUrl}/shredder?track_id=${track.id}`);
+      const data = await response.json();
+
+      if (data.status === 'complete' && data.stems) {
+        // Pause standard audio if playing
+        const wasPlaying = this.player.state.isPlaying;
+        if (wasPlaying) this.player.pause();
+
+        await this.mixer.loadStems({
+          vocals: data.stems.vocals_url,
+          drums: data.stems.drums_url,
+          bass: data.stems.bass_url,
+          other: data.stems.other_url
+        });
+
+        // Sync seek time
+        this.mixer.seek(this.player.audio.currentTime);
+        if (wasPlaying) this.mixer.play();
+      } else {
+        console.warn('[PlayerUI] Stems not yet processed for this track.');
+      }
+    } catch (e) {
+      console.error('[PlayerUI] Shredder handshake failed:', e);
+    }
   }
 
   /**

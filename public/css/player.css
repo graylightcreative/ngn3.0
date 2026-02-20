@@ -507,6 +507,107 @@
   }
 }
 
+/* Shredder Mixer Panel */
+.ngn-shredder-panel {
+  position: fixed;
+  bottom: 70px;
+  left: 0;
+  right: 0;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 95, 31, 0.2);
+  z-index: 998;
+  padding: 24px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.ngn-shredder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.ngn-shredder-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.ngn-stem-control {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 20px;
+  border-radius: 16px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ngn-stem-control label {
+  display: block;
+  font-[JetBrains Mono] !important;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  color: #888;
+}
+
+.ngn-stem-fader {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: #333;
+  border-radius: 2px;
+  outline: none;
+  margin-bottom: 20px;
+}
+
+.ngn-stem-fader::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #FF5F1F;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 95, 31, 0.5);
+}
+
+.ngn-stem-btns {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.ngn-stem-btns button {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ngn-stem-btns button.active {
+  background: #FF5F1F;
+  color: #000;
+  border-color: #FF5F1F;
+}
+
+@media (max-width: 768px) {
+  .ngn-shredder-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Accessibility */
 .ngn-btn:focus {
   outline: 2px solid #4CAF50;
