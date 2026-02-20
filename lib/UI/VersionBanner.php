@@ -3,77 +3,87 @@ namespace NGN\Lib\UI;
 
 /**
  * Version Banner Component
- * Displays version and environment information in fixed header bar
+ * Displays version and environment information in a vertical side tab
+ * Ref: Bible Ch. 4 (Visual DNA)
  */
 class VersionBanner
 {
     /**
      * Render version banner HTML
      *
-     * @param string $version e.g., "2.0.1", "2.0.2"
+     * @param string $version e.g., "2.1.0"
      * @param string $environment e.g., "production", "beta", "staging"
-     * @param string $releaseDate e.g., "2026-01-30"
+     * @param string $releaseDate e.g., "2026-02-19"
      * @return string HTML snippet
      */
     public static function render(string $version, string $environment, string $releaseDate): string
     {
-        $colors = [
-            'production' => ['bg' => '#10b981', 'text' => '#ffffff'],  // Green
-            'beta' => ['bg' => '#f59e0b', 'text' => '#000000'],        // Orange
-            'staging' => ['bg' => '#3b82f6', 'text' => '#ffffff'],     // Blue
-            'dev' => ['bg' => '#8b5cf6', 'text' => '#ffffff'],         // Purple
-        ];
-
-        $color = $colors[$environment] ?? $colors['dev'];
         $envLabel = strtoupper($environment);
+        $brandColor = '#FF5F1F'; // Electric Orange (Foundry Standard)
 
         return <<<HTML
-<div class="ngn-version-banner" style="
+<div class="ngn-version-tab" onclick="this.classList.toggle('expanded')" style="
     position: fixed;
-    top: 0;
-    left: 0;
     right: 0;
-    z-index: 99999;
-    background: {$color['bg']};
-    color: {$color['text']};
-    padding: 8px 16px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid rgba(0,0,0,0.1);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 999999;
+    background: #0A0A0A;
+    color: #ffffff;
+    padding: 12px 6px;
+    border: 1px solid rgba(255, 95, 31, 0.3);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.1em;
+    user-select: none;
 ">
-    <span style="opacity: 0.9;">NGN {$version}</span>
-    <span style="
-        display: inline-block;
-        margin: 0 12px;
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: currentColor;
-        opacity: 0.6;
-        vertical-align: middle;
-    "></span>
-    <span style="opacity: 0.8;">{$envLabel}</span>
-    <span style="
-        display: inline-block;
-        margin: 0 12px;
-        width: 4px;
-        height: 4px;
-        border-radius: 50%;
-        background: currentColor;
-        opacity: 0.6;
-        vertical-align: middle;
-    "></span>
-    <span style="opacity: 0.7; font-size: 11px;">Released {$releaseDate}</span>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: {$brandColor};">NGN v{$version}</span>
+        <span style="width: 4px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 50%;"></span>
+        <span style="opacity: 0.6;">{$envLabel}</span>
+    </div>
+    
+    <div class="details" style="
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+        font-size: 9px;
+        color: #888;
+        padding-top: 0;
+    ">
+        RELEASED: {$releaseDate}
+    </div>
 </div>
+
 <style>
-    body { margin-top: 40px !important; }
+    .ngn-version-tab:hover {
+        background: #111;
+        border-color: #FF5F1F;
+        padding-right: 10px;
+    }
+    .ngn-version-tab.expanded {
+        padding-left: 15px;
+    }
+    .ngn-version-tab.expanded .details {
+        max-height: 100px;
+        opacity: 1;
+        padding-top: 10px;
+    }
     @media print {
-        .ngn-version-banner { display: none !important; }
-        body { margin-top: 0 !important; }
+        .ngn-version-tab { display: none !important; }
     }
 </style>
 HTML;
