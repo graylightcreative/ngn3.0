@@ -103,6 +103,7 @@ export class PlayerUI {
         <div class="ngn-shredder-grid">
           <div class="ngn-stem-control" data-stem="vocals">
             <label>Vocals</label>
+            <canvas class="ngn-stem-viz" width="100" height="40"></canvas>
             <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
             <div class="ngn-stem-btns">
               <button class="ngn-stem-mute">M</button>
@@ -111,6 +112,7 @@ export class PlayerUI {
           </div>
           <div class="ngn-stem-control" data-stem="drums">
             <label>Drums</label>
+            <canvas class="ngn-stem-viz" width="100" height="40"></canvas>
             <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
             <div class="ngn-stem-btns">
               <button class="ngn-stem-mute">M</button>
@@ -119,6 +121,7 @@ export class PlayerUI {
           </div>
           <div class="ngn-stem-control" data-stem="bass">
             <label>Bass</label>
+            <canvas class="ngn-stem-viz" width="100" height="40"></canvas>
             <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
             <div class="ngn-stem-btns">
               <button class="ngn-stem-mute">M</button>
@@ -127,6 +130,7 @@ export class PlayerUI {
           </div>
           <div class="ngn-stem-control" data-stem="other">
             <label>Other</label>
+            <canvas class="ngn-stem-viz" width="100" height="40"></canvas>
             <input type="range" class="ngn-stem-fader" min="0" max="100" value="100">
             <div class="ngn-stem-btns">
               <button class="ngn-stem-mute">M</button>
@@ -178,6 +182,45 @@ export class PlayerUI {
     this.shredderPanel = this.container.querySelector('.ngn-shredder-panel');
     this.btnCloseShredder = this.container.querySelector('.ngn-btn-close-shredder');
     this.stemFaders = this.container.querySelectorAll('.ngn-stem-fader');
+    this.stemCanvases = this.container.querySelectorAll('.ngn-stem-viz');
+  }
+
+  /**
+   * Start real-time visualization loop
+   */
+  startVisualizer() {
+    if (this.vizLoopActive) return;
+    this.vizLoopActive = true;
+
+    const draw = () => {
+      if (!this.vizLoopActive) return;
+
+      this.stemCanvases.forEach(canvas => {
+        const stem = canvas.closest('.ngn-stem-control').dataset.stem;
+        const data = this.mixer.getStemData(stem);
+        if (!data) return;
+
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#FF5F1F';
+        
+        const barWidth = (w / data.length) * 2.5;
+        let x = 0;
+
+        for (let i = 0; i < data.length; i++) {
+          const barHeight = (data[i] / 255) * h;
+          ctx.fillRect(x, h - barHeight, barWidth, barHeight);
+          x += barWidth + 1;
+        }
+      });
+
+      requestAnimationFrame(draw);
+    };
+
+    draw();
   }
 
   /**
@@ -259,11 +302,15 @@ export class PlayerUI {
       if (this.shredderPanel.style.display === 'block') {
         this.queuePanel.style.display = 'none';
         this.loadShredderStems();
+        this.startVisualizer();
+      } else {
+        this.vizLoopActive = false;
       }
     });
 
     this.btnCloseShredder.addEventListener('click', () => {
       this.shredderPanel.style.display = 'none';
+      this.vizLoopActive = false;
     });
 
     this.stemFaders.forEach(fader => {

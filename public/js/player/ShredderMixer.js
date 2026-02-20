@@ -45,9 +45,12 @@ export class ShredderMixer {
       stem.element = audio;
       stem.source = this.ctx.createMediaElementSource(audio);
       stem.gain = this.ctx.createGain();
+      stem.analyser = this.ctx.createAnalyser();
+      stem.analyser.fftSize = 256;
       
       stem.source.connect(stem.gain);
-      stem.gain.connect(this.masterGain);
+      stem.gain.connect(stem.analyser);
+      stem.analyser.connect(this.masterGain);
       
       stem.status = 'ready';
     });
@@ -88,6 +91,18 @@ export class ShredderMixer {
     if (this.stems[key] && this.stems[key].gain) {
       this.stems[key].gain.gain.setTargetAtTime(value, this.ctx.currentTime, 0.05);
     }
+  }
+
+  /**
+   * Get frequency data for a stem
+   */
+  getStemData(key) {
+    if (this.stems[key] && this.stems[key].analyser) {
+      const dataArray = new Uint8Array(this.stems[key].analyser.frequencyBinCount);
+      this.stems[key].analyser.getByteFrequencyData(dataArray);
+      return dataArray;
+    }
+    return null;
   }
 
   /**
