@@ -86,6 +86,9 @@ $view = isset($_GET['view']) ? strtolower(trim($_GET['view'])) : 'home';
 $host = $_SERVER['HTTP_HOST'] ?? '';
 if (str_starts_with($host, 'investors.')) {
     $view = 'investors';
+    // Serve the investor terminal directly and bypass the main app shell
+    include $root . 'invest/index.php';
+    exit;
 }
 
 $validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', '404'];
