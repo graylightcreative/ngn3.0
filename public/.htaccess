@@ -158,6 +158,7 @@ RewriteRule ^venue/([a-z0-9-]+)/?$ index.php?view=venue&slug=$1 [L,QSA]
 RewriteRule ^station/([a-z0-9-]+)/?$ index.php?view=station&slug=$1 [L,QSA]
 
 # Clean URLs for index.php content pages
+RewriteRule ^dashboard/integrations/?$ index.php?view=integrations [L,QSA]
 RewriteRule ^agreement/([a-z0-9-]+)/?$ index.php?view=agreement&slug=$1 [L,QSA]
 RewriteRule ^post/([a-z0-9-]+)/?$ index.php?view=post&slug=$1 [L,QSA]
 RewriteRule ^show/([a-z0-9-]+)/?$ index.php?view=show&slug=$1 [L,QSA]

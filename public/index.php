@@ -91,7 +91,7 @@ if (str_starts_with($host, 'investors.')) {
     exit;
 }
 
-$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', 'integrations', '404'];
+$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', 'integrations', 'dashboard', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
 
 // Agreement Guard (Bible Ch. 41)
