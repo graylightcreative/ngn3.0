@@ -976,6 +976,15 @@ if ($view === 'post' && !empty($data['post'])) {
 } elseif ($view === 'integrations') {
     $seoTitle = 'NGN Sovereign Integrations // Fleet Ecosystem';
     $seoDesc = 'Manage your connection to the Graylight Fleet. Connect Spotify, Apple Music, and institutional data routes.';
+    
+    // Fetch Oracle Data Pipeline (GA4 / Search Console)
+    try {
+        $oracle = new \NGN\Lib\Services\Analytics\OracleAnalyticsService($config);
+        $data['oracle_ga'] = $oracle->getWeeklyOverview();
+        $data['oracle_seo'] = $oracle->getSearchPerformance();
+    } catch (\Throwable $e) {
+        $data['oracle_error'] = $e->getMessage();
+    }
 } elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])) {
     $seoTitle = "Browse " . ucfirst($view) . " // NGN Sovereign Fleet";
 }

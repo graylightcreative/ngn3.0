@@ -20,6 +20,12 @@ class ConnectionFactory
         return self::connect($db['host'], $db['port'], $db['name'], $db['user'], $db['pass']);
     }
 
+    public static function nexus(Config $config): PDO
+    {
+        $db = $config->dbNexus();
+        return self::connect($db['host'], $db['port'], $db['name'], $db['user'], $db['pass']);
+    }
+
     /**
      * Connect to a named database using env keys DB_{NAME}_{HOST,PORT,NAME,USER,PASS}.
      * Example: DB_LEGACY_HOST, DB_LEGACY_NAME, etc. Name is case-insensitive.

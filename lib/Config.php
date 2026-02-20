@@ -209,6 +209,17 @@ class Config
         ];
     }
 
+    public function dbNexus(): array
+    {
+        return [
+            'host' => Env::get('DB_NEXUS_HOST', 'server.starrship1.com'),
+            'port' => (int)(Env::get('DB_NEXUS_PORT', '3306') ?? '3306'),
+            'name' => Env::get('DB_NEXUS_NAME', 'graylight_nexus'),
+            'user' => Env::get('DB_NEXUS_USER', 'ngn_2025'),
+            'pass' => Env::get('DB_NEXUS_PASS', 'NextGenNoise!1'),
+        ];
+    }
+
     public function dbRead(): array
     {
         return [

@@ -3,6 +3,8 @@
  * NGN Sovereign Integrations Dashboard
  * Foundry Standard: Deep Charcoal / Electric Orange
  */
+$ga = $data['oracle_ga'] ?? null;
+$seo = $data['oracle_seo'] ?? null;
 ?>
 
 <div class="max-w-6xl mx-auto py-12">
@@ -13,11 +15,68 @@
         </div>
         <div class="px-4 py-2 rounded-full glass border-brand/20">
             <span class="w-2 h-2 rounded-full bg-brand inline-block mr-2 animate-pulse"></span>
-            <span class="text-[9px] font-black uppercase tracking-widest text-brand">System_Online</span>
+            <span class="text-[9px] font-black uppercase tracking-widest text-brand">Oracle_Pipeline_Active</span>
+        </div>
+    </div>
+
+    <!-- ORACLE DATA PIPELINE (GA4 / SEO) -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
+        
+        <!-- Traffic Truth -->
+        <div class="lg:col-span-2 glass p-8 rounded-[2rem] border-brand/10 relative overflow-hidden">
+            <div class="absolute -top-4 -right-4 w-32 h-32 bg-brand/5 rounded-full blur-3xl"></div>
+            <div class="flex items-center justify-between mb-10">
+                <h3 class="text-xs font-black text-zinc-500 uppercase tracking-[0.4em] font-mono">Live_Traffic_Verified (7D)</h3>
+                <div class="text-[9px] font-mono text-zinc-600 uppercase">Last_Sync: <?= ($ga['verified_at'] ?? 'N/A') ?></div>
+            </div>
+
+            <?php if ($ga && $ga['status'] === 'success'): ?>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div>
+                        <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Active_Users</div>
+                        <div class="text-3xl font-black text-white"><?= number_format($ga['data']['active_users'] ?? 0) ?></div>
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Sessions</div>
+                        <div class="text-3xl font-black text-white"><?= number_format($ga['data']['sessions'] ?? 0) ?></div>
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Eng_Rate</div>
+                        <div class="text-3xl font-black text-brand"><?= ($ga['data']['engagement_rate'] ?? '0%') ?></div>
+                    </div>
+                    <div>
+                        <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Conversions</div>
+                        <div class="text-3xl font-black text-white"><?= number_format($ga['data']['conversions'] ?? 0) ?></div>
+                    </div>
+                </div>
+            <?php else: ?>
+                <div class="py-12 text-center border border-dashed border-white/5 rounded-2xl">
+                    <p class="text-zinc-600 text-xs font-mono uppercase tracking-widest">Waiting for data handshake...</p>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <!-- SEO Truth -->
+        <div class="glass p-8 rounded-[2rem] border-white/5">
+            <h3 class="text-xs font-black text-zinc-500 uppercase tracking-[0.4em] font-mono mb-8">Top_Search_Queries</h3>
+            
+            <?php if ($seo && $seo['status'] === 'success' && !empty($seo['data']['queries'])): ?>
+                <div class="space-y-4">
+                    <?php foreach (array_slice($seo['data']['queries'], 0, 5) as $q): ?>
+                        <div class="flex justify-between items-center group">
+                            <span class="text-xs font-bold text-zinc-400 group-hover:text-white transition-colors"><?= htmlspecialchars($q['query']) ?></span>
+                            <span class="text-[10px] font-mono text-zinc-600"><?= number_format($q['clicks']) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p class="text-zinc-700 text-[10px] font-mono uppercase tracking-widest mt-12 text-center italic">Processing SEO signals...</p>
+            <?php endif; ?>
         </div>
     </div>
 
     <!-- CORE FLEET NODES -->
+    <h2 class="text-xs font-black text-zinc-600 uppercase tracking-[0.4em] mb-10 pl-2 font-mono">Infrastructure_Nodes</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         <div class="glass p-8 rounded-[2rem] border-brand/10 relative overflow-hidden group">
             <div class="absolute -top-4 -right-4 w-20 h-20 bg-brand/5 rounded-full blur-2xl"></div>
