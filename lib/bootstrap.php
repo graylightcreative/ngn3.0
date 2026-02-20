@@ -222,7 +222,8 @@ try {
 // Version Banner (inject early for visibility)
 if (!defined('NGN_VERSION_BANNER_RENDERED')) {
     try {
-        if (php_sapi_name() !== 'cli' && !str_contains($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
+        $hideBanner = \NGN\Lib\Env::bool('NGN_HIDE_VERSION_BANNER', false);
+        if (!$hideBanner && php_sapi_name() !== 'cli' && !str_contains($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
             // Read from $_ENV (loaded by Env::load above) or use defaults
             $version = $_ENV['NGN_VERSION'] ?? getenv('NGN_VERSION') ?? '2.0.1';
             $environment = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'dev';
