@@ -50,8 +50,10 @@ $minimumInvestment = 50;
                 linear-gradient(90deg, rgba(255, 95, 31, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
             min-height: 100vh;
+            margin: 0;
             display: flex;
             flex-direction: column;
+            overflow-x: hidden;
         }
         .glow-brand { text-shadow: 0 0 20px rgba(255, 95, 31, 0.5); }
         .border-brand-glow { border-color: rgba(255, 95, 31, 0.3); box-shadow: 0 0 15px rgba(255, 95, 31, 0.1); }
@@ -72,9 +74,11 @@ $minimumInvestment = 50;
             -webkit-appearance: none;
             margin: 0;
         }
+
+        .chart-wrap { position: relative; width: 100%; height: 100%; }
     </style>
 </head>
-<body class="min-h-screen selection:bg-brand selection:text-white">
+<body class="selection:bg-brand selection:text-white">
 
 <!-- HUD / NAVIGATION -->
 <nav class="sticky top-0 z-50 glass border-b border-white/5 px-6 h-20 flex items-center justify-between">
@@ -103,220 +107,224 @@ $minimumInvestment = 50;
     </div>
 </nav>
 
-<!-- HERO SECTION -->
-<header class="relative pt-24 pb-20 px-6 overflow-hidden">
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl aspect-square bg-brand/5 rounded-full blur-[120px] -z-10"></div>
-    <div class="container mx-auto text-center">
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-brand/20 mb-8">
-            <span class="phase-dot active-dot"></span>
-            <span class="text-[10px] font-black uppercase tracking-[0.3em] text-brand">Institutional Capital Routes Active</span>
+<div class="flex-grow">
+    <!-- HERO SECTION -->
+    <header class="relative pt-24 pb-20 px-6 overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl aspect-square bg-brand/5 rounded-full blur-[120px] -z-10"></div>
+        <div class="container mx-auto text-center">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-brand/20 mb-8">
+                <span class="phase-dot active-dot"></span>
+                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-brand">Institutional Capital Routes Active</span>
+            </div>
+            <h1 class="text-6xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-12 uppercase">
+                Invest in <br>
+                <span class="text-brand glow-brand">The Truth.</span>
+            </h1>
+            <p class="text-xl text-zinc-400 max-w-3xl mx-auto font-medium leading-relaxed mb-16 italic font-mono">
+                "Institutional capital routes allowing fans to invest in artists with 8% APY target returns."
+            </p>
         </div>
-        <h1 class="text-6xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-12 uppercase">
-            Invest in <br>
-            <span class="text-brand glow-brand">The Truth.</span>
-        </h1>
-        <p class="text-xl text-zinc-400 max-w-3xl mx-auto font-medium leading-relaxed mb-16 italic font-mono">
-            "Institutional capital routes allowing fans to invest in artists with 8% APY target returns."
-        </p>
-    </div>
-</header>
+    </header>
 
-<!-- THE SOVEREIGN NOTE (8% APY PRODUCT) -->
-<section id="notes" class="py-20 px-6 relative">
-    <div class="container mx-auto">
-        <div class="max-w-6xl mx-auto glass p-1 gap-0 rounded-[3rem] border-brand/20 overflow-hidden shadow-2xl flex flex-col lg:flex-row">
-            <!-- Left Side: Narrative -->
-            <div class="flex-1 p-12 lg:p-20 bg-surface">
-                <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">Product // Sovereign Note</h2>
-                <h3 class="text-4xl lg:text-6xl font-bold tracking-tight mb-8 leading-none">HIGH-YIELD <br>MUSIC DEBT.</h3>
-                <p class="text-zinc-400 mb-12 leading-relaxed">
-                    The NGN Sovereign Note is a simple promissory note (debt instrument) that allows you to provide liquidity directly to the creator economy while securing a guaranteed return.
-                </p>
-                <div class="space-y-6">
-                    <div class="flex items-center gap-4">
-                        <i class="bi-check-circle-fill text-brand"></i>
-                        <span class="text-sm font-bold uppercase tracking-widest">Fixed 8.00% APY Paid Quarterly</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <i class="bi-check-circle-fill text-brand"></i>
-                        <span class="text-sm font-bold uppercase tracking-widest">5-Year Maturity Term</span>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        <i class="bi-check-circle-fill text-brand"></i>
-                        <span class="text-sm font-bold uppercase tracking-widest">Priority AI Tool Access (Elite-Host)</span>
+    <!-- THE SOVEREIGN NOTE (8% APY PRODUCT) -->
+    <section id="notes" class="py-20 px-6 relative">
+        <div class="container mx-auto">
+            <div class="max-w-6xl mx-auto glass rounded-[3rem] border-brand/20 overflow-hidden shadow-2xl flex flex-col lg:flex-row">
+                <!-- Left Side: Narrative -->
+                <div class="flex-1 p-12 lg:p-20 bg-surface">
+                    <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">Product // Sovereign Note</h2>
+                    <h3 class="text-4xl lg:text-6xl font-bold tracking-tight mb-8 leading-none">HIGH-YIELD <br>MUSIC DEBT.</h3>
+                    <p class="text-zinc-400 mb-12 leading-relaxed">
+                        The NGN Sovereign Note is a simple promissory note (debt instrument) that allows you to provide liquidity directly to the creator economy while securing a guaranteed return.
+                    </p>
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <i class="bi-check-circle-fill text-brand"></i>
+                            <span class="text-sm font-bold uppercase tracking-widest">Fixed 8.00% APY Paid Quarterly</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <i class="bi-check-circle-fill text-brand"></i>
+                            <span class="text-sm font-bold uppercase tracking-widest">5-Year Maturity Term</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <i class="bi-check-circle-fill text-brand"></i>
+                            <span class="text-sm font-bold uppercase tracking-widest">Priority AI Tool Access (Elite-Host)</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Right Side: Calculator -->
-            <div class="w-full lg:w-[450px] p-12 bg-moat border-l border-white/5">
-                <h4 class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-10 text-center">ROI Terminal v1.0</h4>
-                
-                <div class="space-y-8">
-                    <div>
-                        <label class="block text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Investment Principal (USD)</label>
-                        <div class="relative">
-                            <span class="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 stat-value text-xl">$</span>
-                            <input type="number" id="principal" value="<?= $defaultInvestment ?>" min="<?= $minimumInvestment ?>" step="100" 
-                                   class="w-full bg-black border border-white/10 rounded-2xl py-6 pl-12 pr-6 text-2xl stat-value text-brand focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-black/40 p-6 rounded-2xl border border-white/5">
-                            <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Total Return</div>
-                            <div id="total-return" class="text-xl stat-value text-white">$0.00</div>
-                        </div>
-                        <div class="bg-black/40 p-6 rounded-2xl border border-white/5">
-                            <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Quarterly</div>
-                            <div id="quarterly-payout" class="text-xl stat-value text-emerald-500">$0.00</div>
-                        </div>
-                    </div>
-
-                    <div class="pt-4">
-                        <a href="https://nextgennoise.com/invest/invest.php" id="cta-link" class="block w-full py-6 bg-brand text-black text-center font-black uppercase tracking-[0.2em] rounded-2xl text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand/20">
-                            Secure Promissory Note
-                        </a>
-                        <p class="text-[9px] text-zinc-600 text-center mt-6 uppercase tracking-widest leading-relaxed">
-                            Secured by NGN Cash Reserves & <br>Institutional Royalty Pools.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<div class="tactical-line"></div>
-
-<!-- THE MARKET PROBLEM -->
-<section id="market" class="py-32 px-6">
-    <div class="container mx-auto">
-        <div class="flex flex-col lg:flex-row gap-20 items-center">
-            <div class="flex-1">
-                <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">01 // The Opportunity</h2>
-                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 leading-none uppercase">The Incumbents <br>are failing.</h3>
-                <div class="space-y-8">
-                    <div class="flex gap-6">
-                        <div class="w-12 h-12 rounded-xl glass flex items-center justify-center text-brand shrink-0">
-                            <i class="bi-exclamation-triangle-fill text-xl"></i>
-                        </div>
+                <!-- Right Side: Calculator -->
+                <div class="w-full lg:w-[450px] p-12 bg-moat border-l border-white/5">
+                    <h4 class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-10 text-center">ROI Terminal v1.0</h4>
+                    
+                    <div class="space-y-8">
                         <div>
-                            <h4 class="text-xl font-bold mb-2">$0.003 Payouts</h4>
-                            <p class="text-zinc-500">Traditional streaming is economically dead for the 40% of the market that generates the most content.</p>
+                            <label class="block text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Investment Principal (USD)</label>
+                            <div class="relative">
+                                <span class="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 stat-value text-xl">$</span>
+                                <input type="number" id="principal" value="<?= $defaultInvestment ?>" min="<?= $minimumInvestment ?>" step="100" 
+                                       class="w-full bg-black border border-white/10 rounded-2xl py-6 pl-12 pr-6 text-2xl stat-value text-brand focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all">
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex gap-6">
-                        <div class="w-12 h-12 rounded-xl glass flex items-center justify-center text-brand shrink-0">
-                            <i class="bi-eye-slash-fill text-xl"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xl font-bold mb-2">Algorithm Opacity</h4>
-                            <p class="text-zinc-500">Major labels buy the charts. Independent breakouts are suppressed by a black box.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="flex-1 w-full max-w-xl">
-                <div class="glass p-10 rounded-[40px] border-brand/20 relative">
-                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 rounded-full blur-3xl"></div>
-                    <h4 class="text-sm font-black uppercase tracking-widest text-zinc-500 mb-8 font-mono italic">Market Inefficiency // Value Capture</h4>
-                    <canvas id="marketChart" class="h-80"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- THE 21 SOVEREIGN NODES (THE RIG) -->
-<section id="moats" class="py-32 px-6 bg-surface">
-    <div class="container mx-auto">
-        <div class="text-center mb-20">
-            <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">02 // The Backbone</h2>
-            <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 uppercase">21 Sovereign Nodes.</h3>
-            <p class="text-zinc-500 max-w-2xl mx-auto">A multi-layered ecosystem pressurized for speed and scale. No single point of failure.</p>
-        </div>
-        
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
-            <?php
-            $nodes = [
-                ['name' => 'Beacon', 'role' => 'ID'], ['name' => 'Vault', 'role' => 'Secrets'], ['name' => 'Ledger', 'role' => 'Finance'],
-                ['name' => 'Sentinel', 'role' => 'Defense'], ['name' => 'Pulse', 'role' => 'Metrics'], ['name' => 'Mint', 'role' => 'Economy'],
-                ['name' => 'Vent', 'role' => 'Email'], ['name' => 'A-OS', 'role' => 'Logic'], ['name' => 'Oracle', 'role' => 'Truth'],
-                ['name' => 'Search', 'role' => 'Neural'], ['name' => 'Simulator', 'role' => 'ROI'], ['name' => 'Uplink', 'role' => 'Bridge'],
-                ['name' => 'Signal', 'role' => 'Events'], ['name' => 'Messenger', 'role' => 'Chat'], ['name' => 'Forge', 'role' => 'Infra'],
-                ['name' => 'Reception', 'role' => 'Air'], ['name' => 'Judge', 'role' => 'Law'], ['name' => 'Manual', 'role' => 'Rules'],
-                ['name' => 'Studio', 'role' => 'Assets'], ['name' => 'Depot', 'role' => 'Storage'], ['name' => 'Clock', 'role' => 'Jobs']
-            ];
-            foreach ($nodes as $node):
-            ?>
-            <div class="glass p-4 rounded-xl hover:border-brand/50 transition-all group">
-                <div class="text-[10px] font-black text-zinc-600 group-hover:text-brand uppercase mb-1 font-mono"><?= $node['role'] ?></div>
-                <div class="font-mono font-bold text-sm"><?= $node['name'] ?></div>
-            </div>
-            <?php endforeach; ?>
-        </div>
-    </div>
-</section>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-black/40 p-6 rounded-2xl border border-white/5">
+                                <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Total Return</div>
+                                <div id="total-return" class="text-xl stat-value text-white">$0.00</div>
+                            </div>
+                            <div class="bg-black/40 p-6 rounded-2xl border border-white/5">
+                                <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Quarterly</div>
+                                <div id="quarterly-payout" class="text-xl stat-value text-emerald-500">$0.00</div>
+                            </div>
+                        </div>
 
-<!-- REVENUE STREAMS -->
-<section id="revenue" class="py-32 px-6">
-    <div class="container mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
-            <div>
-                <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">03 // The Economics</h2>
-                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-12 uppercase leading-none">Diversified <br>High-Margin.</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="glass p-8 rounded-3xl">
-                        <div class="text-brand text-2xl mb-4"><i class="bi-lightning-charge-fill"></i></div>
-                        <h4 class="font-bold mb-2">Spark Tips</h4>
-                        <p class="text-sm text-zinc-500">5% Platform fee on direct fan-to-artist micro-tips. 95% margin.</p>
-                    </div>
-                    <div class="glass p-8 rounded-3xl">
-                        <div class="text-blue-500 text-2xl mb-4"><i class="bi-reception-4"></i></div>
-                        <h4 class="font-bold mb-2">Subscriptions</h4>
-                        <p class="text-sm text-zinc-500">$9.99 - $49.99/mo SaaS recurring revenue. 85% gross margin.</p>
-                    </div>
-                    <div class="glass p-8 rounded-3xl">
-                        <div class="text-emerald-500 text-2xl mb-4"><i class="bi-ticket-perforated-fill"></i></div>
-                        <h4 class="font-bold mb-2">Ticketing</h4>
-                        <p class="text-sm text-zinc-500">2.5% + $1.50 per live event ticket. Capturing the $162M+ volume.</p>
-                    </div>
-                    <div class="glass p-8 rounded-3xl">
-                        <div class="text-purple-500 text-2xl mb-4"><i class="bi-cpu-fill"></i></div>
-                        <h4 class="font-bold mb-2">B2B API</h4>
-                        <p class="text-sm text-zinc-500">Data licensing for labels and aggregators. High-ticket enterprise value.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="glass p-12 rounded-[40px] border-brand/20">
-                <h4 class="text-xl font-bold mb-8 font-mono uppercase tracking-tighter text-brand">Financial Trajectory</h4>
-                <div class="h-[400px]">
-                    <canvas id="revChart"></canvas>
-                </div>
-                <div class="mt-12 space-y-4">
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-zinc-500 font-bold uppercase tracking-widest">Artist LTV</span>
-                        <span class="stat-value text-brand">$4,500</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-zinc-500 font-bold uppercase tracking-widest">Acquisition Cost (CAC)</span>
-                        <span class="stat-value text-white">$75</span>
-                    </div>
-                    <div class="flex justify-between items-center text-sm">
-                        <span class="text-zinc-500 font-bold uppercase tracking-widest">Payback Period</span>
-                        <span class="stat-value text-emerald-500">20 Days</span>
+                        <div class="pt-4">
+                            <a href="https://nextgennoise.com/invest/invest.php" id="cta-link" class="block w-full py-6 bg-brand text-black text-center font-black uppercase tracking-[0.2em] rounded-2xl text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand/20">
+                                Secure Promissory Note
+                            </a>
+                            <p class="text-[9px] text-zinc-600 text-center mt-6 uppercase tracking-widest leading-relaxed">
+                                Secured by NGN Cash Reserves & <br>Institutional Royalty Pools.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
+
+    <div class="tactical-line"></div>
+
+    <!-- THE MARKET PROBLEM -->
+    <section id="market" class="py-32 px-6">
+        <div class="container mx-auto">
+            <div class="flex flex-col lg:flex-row gap-20 items-center">
+                <div class="flex-1">
+                    <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">01 // The Opportunity</h2>
+                    <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 leading-none uppercase text-white">The Incumbents <br>are failing.</h3>
+                    <div class="space-y-8">
+                        <div class="flex gap-6">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center text-brand shrink-0">
+                                <i class="bi-exclamation-triangle-fill text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold mb-2">$0.003 Payouts</h4>
+                                <p class="text-zinc-500">Traditional streaming is economically dead for the 40% of the market that generates the most content.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-6">
+                            <div class="w-12 h-12 rounded-xl glass flex items-center justify-center text-brand shrink-0">
+                                <i class="bi-eye-slash-fill text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-bold mb-2">Algorithm Opacity</h4>
+                                <p class="text-zinc-500">Major labels buy the charts. Independent breakouts are suppressed by a black box.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-1 w-full max-w-xl">
+                    <div class="glass p-10 rounded-[40px] border-brand/20 relative overflow-hidden">
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-brand/20 rounded-full blur-3xl"></div>
+                        <h4 class="text-sm font-black uppercase tracking-widest text-zinc-500 mb-8 font-mono italic">Market Inefficiency // Value Capture</h4>
+                        <div class="relative h-80">
+                            <canvas id="marketChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- THE 21 SOVEREIGN NODES (THE RIG) -->
+    <section id="moats" class="py-32 px-6 bg-surface">
+        <div class="container mx-auto text-center">
+            <div class="mb-20">
+                <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">02 // The Backbone</h2>
+                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 uppercase text-white">21 Sovereign Nodes.</h3>
+                <p class="text-zinc-500 max-w-2xl mx-auto">A multi-layered ecosystem pressurized for speed and scale. No single point of failure.</p>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
+                <?php
+                $nodes = [
+                    ['name' => 'Beacon', 'role' => 'ID'], ['name' => 'Vault', 'role' => 'Secrets'], ['name' => 'Ledger', 'role' => 'Finance'],
+                    ['name' => 'Sentinel', 'role' => 'Defense'], ['name' => 'Pulse', 'role' => 'Metrics'], ['name' => 'Mint', 'role' => 'Economy'],
+                    ['name' => 'Vent', 'role' => 'Email'], ['name' => 'A-OS', 'role' => 'Logic'], ['name' => 'Oracle', 'role' => 'Truth'],
+                    ['name' => 'Search', 'role' => 'Neural'], ['name' => 'Simulator', 'role' => 'ROI'], ['name' => 'Uplink', 'role' => 'Bridge'],
+                    ['name' => 'Signal', 'role' => 'Events'], ['name' => 'Messenger', 'role' => 'Chat'], ['name' => 'Forge', 'role' => 'Infra'],
+                    ['name' => 'Reception', 'role' => 'Air'], ['name' => 'Judge', 'role' => 'Law'], ['name' => 'Manual', 'role' => 'Rules'],
+                    ['name' => 'Studio', 'role' => 'Assets'], ['name' => 'Depot', 'role' => 'Storage'], ['name' => 'Clock', 'role' => 'Jobs']
+                ];
+                foreach ($nodes as $node):
+                ?>
+                <div class="glass p-4 rounded-xl hover:border-brand/50 transition-all group text-left">
+                    <div class="text-[10px] font-black text-zinc-600 group-hover:text-brand uppercase mb-1 font-mono"><?= $node['role'] ?></div>
+                    <div class="font-mono font-bold text-sm text-white"><?= $node['name'] ?></div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    </section>
+
+    <!-- REVENUE STREAMS -->
+    <section id="revenue" class="py-32 px-6">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+                <div>
+                    <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">03 // The Economics</h2>
+                    <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-12 uppercase leading-none text-white">Diversified <br>High-Margin.</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="glass p-8 rounded-3xl">
+                            <div class="text-brand text-2xl mb-4"><i class="bi-lightning-charge-fill"></i></div>
+                            <h4 class="font-bold mb-2 text-white">Spark Tips</h4>
+                            <p class="text-sm text-zinc-500">5% Platform fee on direct fan-to-artist micro-tips. 95% margin.</p>
+                        </div>
+                        <div class="glass p-8 rounded-3xl">
+                            <div class="text-blue-500 text-2xl mb-4"><i class="bi-reception-4"></i></div>
+                            <h4 class="font-bold mb-2 text-white">Subscriptions</h4>
+                            <p class="text-sm text-zinc-500">$9.99 - $49.99/mo SaaS recurring revenue. 85% gross margin.</p>
+                        </div>
+                        <div class="glass p-8 rounded-3xl">
+                            <div class="text-emerald-500 text-2xl mb-4"><i class="bi-ticket-perforated-fill"></i></div>
+                            <h4 class="font-bold mb-2 text-white">Ticketing</h4>
+                            <p class="text-sm text-zinc-500">2.5% + $1.50 per live event ticket. Capturing the $162M+ volume.</p>
+                        </div>
+                        <div class="glass p-8 rounded-3xl">
+                            <div class="text-purple-500 text-2xl mb-4"><i class="bi-cpu-fill"></i></div>
+                            <h4 class="font-bold mb-2 text-white">B2B API</h4>
+                            <p class="text-sm text-zinc-500">Data licensing for labels and aggregators. High-ticket enterprise value.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass p-12 rounded-[40px] border-brand/20 overflow-hidden relative">
+                    <h4 class="text-xl font-bold mb-8 font-mono uppercase tracking-tighter text-brand">Financial Trajectory</h4>
+                    <div class="relative h-[400px]">
+                        <canvas id="revChart"></canvas>
+                    </div>
+                    <div class="mt-12 space-y-4">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold uppercase tracking-widest">Artist LTV</span>
+                            <span class="stat-value text-brand">$4,500</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold uppercase tracking-widest">Acquisition Cost (CAC)</span>
+                            <span class="stat-value text-white">$75</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-zinc-500 font-bold uppercase tracking-widest">Payback Period</span>
+                            <span class="stat-value text-emerald-500">20 Days</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
 
 <!-- FOOTER -->
-<footer class="py-20 px-6 text-center bg-surface border-t border-white/5">
+<footer class="py-20 px-6 text-center bg-surface border-t border-white/5 w-full">
     <div class="container mx-auto">
-        <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" alt="NGN" class="h-8 mx-auto mb-8 opacity-20 object-contain">
+        <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-8 mx-auto mb-8 opacity-20 object-contain" alt="NGN">
         <p class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.5em]">NextGenNoise // Pressurized // Sovereign</p>
     </div>
 </footer>
@@ -373,7 +381,7 @@ $minimumInvestment = 50;
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { display: false },
-                    x: { grid: { display: false } }
+                    x: { grid: { display: false }, ticks: { color: '#ffffff' } }
                 }
             }
         });
@@ -399,8 +407,8 @@ $minimumInvestment = 50;
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { callback: v => '$' + v + 'M' } },
-                    x: { grid: { display: false } }
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { callback: v => '$' + v + 'M', color: '#737373' } },
+                    x: { grid: { display: false }, ticks: { color: '#737373' } }
                 }
             }
         });
