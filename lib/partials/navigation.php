@@ -1,6 +1,6 @@
 <?php
 /**
- * NGN 2.0.3 Sovereign Navigation
+ * NGN 2.1.0 Sovereign Navigation
  * Mobile-First "Spotify-Killer" Architecture
  * Electric Orange (#FF5F1F) Theme
  */

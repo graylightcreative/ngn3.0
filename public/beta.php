@@ -1,6 +1,6 @@
 <?php
 /**
- * NGN 2.0.3 Feature Listing (Beta)
+ * NGN 2.1.0 Feature Listing (Beta)
  * Show-off list for stakeholders and early adopters
  */
 
@@ -93,7 +93,7 @@ $features = [
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NGN 2.0.3 | Feature Showroom</title>
+  <title>NGN 2.1.0 | Feature Showroom</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     window.tailwind = { config: { darkMode: 'class', theme: { extend: { colors: { brand: '#FF5F1F' } } } } };
@@ -114,7 +114,7 @@ $features = [
         
         <!-- Header -->
         <header class="mb-24 text-center">
-            <div class="inline-block px-4 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-[0.3em] mb-8 rounded-full">System_Manifest_v2.0.3</div>
+            <div class="inline-block px-4 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-[0.3em] mb-8 rounded-full">System_Manifest_v2.1.0</div>
             <h1 class="text-6xl lg:text-8xl font-black tracking-tighter mb-8 leading-none">THE FUTURE OF <br><span class="text-brand italic">MUSIC TECH</span></h1>
             <p class="text-xl text-zinc-500 max-w-2xl mx-auto font-medium leading-relaxed">A decentralized command center for independent rock and metal. Built for sovereignty, powered by intelligence.</p>
         </header>

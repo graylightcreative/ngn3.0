@@ -1,6 +1,6 @@
 <?php
 /**
- * NGN 2.0.3 Hero Section
+ * NGN 2.1.0 Hero Section
  * Raw CSS patterns & Electric Orange theme
  * No external images to avoid CORS flood
  */
@@ -40,7 +40,7 @@
             <div class="story-content transition-all duration-700 block" data-story-content="0">
                 <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm">The_Fusion</div>
                 <h1 class="text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none text-white">MUSIC MEETS <br><span class="text-[#FF5F1F] italic">TERMINAL</span> VELOCITY</h1>
-                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">NextGenNoise 2.0.3 is the definitive fusion of underground sound and pressurized tech.</p>
+                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">NextGenNoise 2.1.0 is the definitive fusion of underground sound and pressurized tech.</p>
                 <div class="flex gap-6">
                     <a href="/register.php" class="bg-[#FF5F1F] text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm">Join_The_Fleet</a>
                 </div>
@@ -49,7 +49,7 @@
             <div class="story-content transition-all duration-700 hidden" data-story-content="1">
                 <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm">Sovereignty</div>
                 <h1 class="text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none text-white">OWN YOUR <br><span class="text-[#FF5F1F] italic">INFRASTRUCTURE</span></h1>
-                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">No more rented platforms. NGN 2.0.3 provides absolute sovereignty for artists and labels.</p>
+                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">No more rented platforms. NGN 2.1.0 provides absolute sovereignty for artists and labels.</p>
                 <div class="flex gap-6">
                     <a href="/register.php" class="bg-[#FF5F1F] text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm">Get_A_Bunker</a>
                 </div>

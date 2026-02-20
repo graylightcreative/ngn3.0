@@ -1,6 +1,6 @@
 <?php
 /**
- * NGN 2.0.3 SMR Charts View
+ * NGN 2.1.0 SMR Charts View
  */
 $smrData = $data['smr_charts'] ?? [];
 $smrDate = $data['smr_date'] ?? 'N/A';

@@ -74,7 +74,7 @@ for ($i = 2; $i < count($argv); $i++) {
 // Get Version from Options or Environment
 // ============================================================================
 
-$version = $options['version'] ?? getenv('APP_VERSION') ?? '2.0.3';
+$version = $options['version'] ?? getenv('APP_VERSION') ?? '2.1.0';
 $dryRun = isset($options['dry-run']) || isset($options['dryrun']);
 
 // ============================================================================
@@ -303,16 +303,16 @@ COMMANDS:
   help          Show this help message
 
 OPTIONS:
-  --version=X.X.X    Target version (default: 2.0.3)
+  --version=X.X.X    Target version (default: 2.1.0)
   --dry-run          Preview changes without executing
   --to=<hash>        Commit hash for rollback
 
 EXAMPLES:
   # Full workflow (recommended)
-  php bin/automate.php full --version=2.0.3
+  php bin/automate.php full --version=2.1.0
 
   # Test without making changes
-  php bin/automate.php full --version=2.0.3 --dry-run
+  php bin/automate.php full --version=2.1.0 --dry-run
 
   # Individual operations
   php bin/automate.php progress

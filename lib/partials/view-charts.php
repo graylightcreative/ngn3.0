@@ -1,6 +1,6 @@
 <?php
 /**
- * NGN 2.0.3 Charts View
+ * NGN 2.1.0 Charts View
  * Spotify-Killer Design
  */
 $chartType = $data['chart_type'] ?? 'artists';
