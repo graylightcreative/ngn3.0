@@ -949,11 +949,12 @@ if ($pdo) {
 $totalPages = $total > 0 ? ceil($total / $perPage) : 1;
 
 // SEO Meta Overhaul (Bible Ch. 18 - Discovery Engine Compliance)
+$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+$baseUrl = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'nextgennoise.com');
+
 $seoTitle = 'NextGenNoise // The Sovereign Music Infrastructure';
 $seoDesc = 'Own your sound. NextGenNoise provides the cryptographic source of truth for independent metal and rock. 90/10 revenue model, verified charts, and direct fan tipping.';
 $seoImage = $baseUrl . '/lib/images/site/og-image-2026.jpg';
-$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-$baseUrl = $protocol . '://' . ($_SERVER['HTTP_HOST'] ?? 'nextgennoise.com');
 $seoUrl = $baseUrl . ($_SERVER['REQUEST_URI'] ?? '/');
 
 if ($view === 'post' && !empty($data['post'])) {
