@@ -116,4 +116,25 @@ class AgreementService
 
         return (int)$this->db->lastInsertId();
     }
+
+    /**
+     * Increment version and force re-signature for all users.
+     */
+    public function forceResignature(string $slug): void
+    {
+        $template = $this->getTemplate($slug);
+        if (!$template) return;
+
+        // Increment version (simple minor bump)
+        $parts = explode('.', $template['version']);
+        $parts[count($parts)-1] = (int)$parts[count($parts)-1] + 1;
+        $newVersion = implode('.', $parts);
+
+        // Update template to new version
+        $this->upsertTemplate($slug, $template['title'], $template['body'], $newVersion);
+
+        // Invalidate old signatures by moving them to history or just letting the version check fail
+        // (hasSigned checks for current version if logic is updated, or we can delete old ones)
+        // For NGN, we'll just increment version and the dashboard logic will see they haven't signed the NEW version.
+    }
 }

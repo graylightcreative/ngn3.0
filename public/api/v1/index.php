@@ -224,7 +224,20 @@ function getCurrentUser($tokenSvc, $request): ?array
         $userId = $claims['sub'] ?? null;
         $userRole = $claims['role'] ?? null; // Expecting role as a string like 'admin', 'editor'
         if ($userId && ctype_digit($userId)) {
-            return ['userId' => (int)$userId, 'role' => strtolower($userRole ?? '')];
+            $user = ['userId' => (int)$userId, 'role' => strtolower($userRole ?? '')];
+            
+            // MISSION: Board Compensation Integration
+            // Inject Comp_Profile for Board Members (Admin/Director)
+            if (in_array($user['role'], ['admin', 'director'])) {
+                try {
+                    $compSvc = new \NGN\Lib\Services\Institutional\CompProfileService(new \NGN\Lib\Config());
+                    $user['Comp_Profile'] = $compSvc->getCompProfile($user['userId']);
+                } catch (\Throwable $e) {
+                    error_log("Comp_Profile Injection Error: " . $e->getMessage());
+                }
+            }
+            
+            return $user;
         }
     } catch (\Throwable $e) {
         error_log("API Auth Error: Token decoding failed - " . $e->getMessage());
@@ -4426,6 +4439,22 @@ $router->post('/claims/approve/:id', function (Request $request) use ($config, $
             WHERE id = ?
         ");
         $updateClaim->execute([$user['userId'], $adminNotes, $claimId]);
+
+        // MISSION: Success Signals (Artist Onboarding)
+        // If this is an artist profile verification, trigger the rake/override signals
+        if ($claim['entity_type'] === 'artist') {
+            try {
+                $signalSvc = new \NGN\Lib\Services\Social\SignalService($config);
+                $signalSvc->broadcast('artist.verified', [
+                    'title' => 'Ghost Profile Verified',
+                    'body' => "Artist profile '{$claim['claimant_name']}' successfully verified.",
+                    'rake_triggers' => ['Adam' => '15%', 'Erik' => '2%'],
+                    'entity_id' => $claim['entity_id']
+                ]);
+            } catch (\Throwable $e) {
+                error_log("Signal Dispatch Error (Artist): " . $e->getMessage());
+            }
+        }
 
         $logger->info("Claim approved: ID=$claimId, User=$userId");
 

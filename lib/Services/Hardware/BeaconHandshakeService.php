@@ -48,9 +48,26 @@ class BeaconHandshakeService
             VALUES (?, ?, NOW())
         ");
         
-        return $stmt->execute([
+        $success = $stmt->execute([
             $beaconId,
             json_encode($data)
         ]);
+
+        // MISSION: Success Signals (Venue Install)
+        // If this is the registration pulse, trigger the bounty signals
+        if ($success && ($data['event'] ?? '') === 'registration') {
+            try {
+                $signalSvc = new \NGN\Lib\Services\Social\SignalService($this->config);
+                $signalSvc->broadcast('venue.install', [
+                    'title' => 'Aether Node Online',
+                    'body' => "Beacon {$beaconId} successfully registered to venue.",
+                    'bounty_triggers' => ['Adam' => 500, 'Josh' => 1000]
+                ]);
+            } catch (\Throwable $e) {
+                error_log("Signal Dispatch Error (Venue): " . $e->getMessage());
+            }
+        }
+
+        return $success;
     }
 }
