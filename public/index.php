@@ -9,15 +9,18 @@ require_once __DIR__ . '/../lib/bootstrap.php';
 
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Config;
-use NGN\Lib\Auth\AuthService;
+
+// Start session
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
 
 $config = new Config();
 $pdo = ConnectionFactory::read($config);
-$auth = new AuthService($config, $pdo);
 
 // Session State
-$isLoggedIn = $auth->check();
-$currentUser = $isLoggedIn ? $auth->user() : null;
+$isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
+$currentUser = $_SESSION['User'] ?? null;
 
 // View Routing Protocol
 $view = $_GET['view'] ?? 'home';
@@ -133,7 +136,7 @@ function ngn_get(PDO $pdo, string $table, $id): ?array {
 }
 
 function get_top_rankings(PDO $pdo, string $type, int $limit = 10): array {
-    $sql = "SELECT i.*, e.name as Name, e.slug as slug, e.image_url as image_url 
+    $sql = "SELECT i.score as Score, e.name as Name, e.slug as slug, e.image_url as image_url 
             FROM `ngn_rankings_2025`.`ranking_items` i
             JOIN `ngn_2025`.`{$type}s` e ON i.entity_id = e.id
             WHERE i.entity_type = ?
