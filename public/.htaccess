@@ -198,6 +198,7 @@ RewriteRule ^shop/?$ index.php?view=shop [L,QSA]
 RewriteRule ^charts/?$ index.php?view=charts [L,QSA]
 RewriteRule ^smr-charts/?$ index.php?view=smr-charts [L,QSA]
 RewriteRule ^pricing/?$ index.php?view=pricing [L,QSA]
+RewriteRule ^advertisers/?$ index.php?view=advertisers [L,QSA]
 
 # Fallback for all other non-file/dir requests to index.php
 RewriteCond %{REQUEST_FILENAME} !-f

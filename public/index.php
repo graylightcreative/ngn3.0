@@ -349,6 +349,7 @@ $seoUrl = "https://nextgennoise.com" . ($_SERVER['REQUEST_URI'] ?? '/');
         elseif ($view === 'charts') include $root . 'lib/partials/view-charts.php';
         elseif ($view === 'smr-charts') include $root . 'lib/partials/view-smr-charts.php';
         elseif ($view === 'advertisers') include $root . 'lib/partials/view-advertiser.php';
+        elseif ($view === 'pricing') include $root . 'lib/partials/view-pricing.php';
         elseif (in_array($view, ['artist', 'label', 'station', 'venue'])) {
             $entity = $data['entity'] ?? null;
             if ($entity) include $root . "lib/partials/profiles/{$view}.php";
