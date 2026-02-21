@@ -177,7 +177,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input id="confirm_password" name="confirm_password" type="password" required class="sk-input w-full" placeholder="Confirm password">
             </div>
 
-            <?php // User Type Selection -->
+            <?php // User Type Selection ?>
             <fieldset>
               <legend class="sr-only">User Type</legend>
               <div class="space-y-2">

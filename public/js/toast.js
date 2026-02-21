@@ -26,11 +26,11 @@ window.NGN_Toast = {
         };
 
         toast.innerHTML = `
-            <div class="flex-shrink-0">${icons[type] || icons.info}</div>
+            <div class="flex-shrink-0 self-start mt-0.5">${icons[type] || icons.info}</div>
             <div class="flex-1 min-w-0">
-                <p class="text-sm font-black text-white truncate">${message}</p>
+                <p class="text-sm font-black text-white leading-relaxed break-words">${message}</p>
             </div>
-            <button class="text-zinc-500 hover:text-white transition-colors">
+            <button class="text-zinc-500 hover:text-white transition-colors self-start">
                 <i class="bi-x-lg"></i>
             </button>
         `;
