@@ -1,0 +1,1143 @@
+<div class="ngn-version-tab" onclick="this.classList.toggle('expanded')" style="
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 999999;
+    background: #0A0A0A;
+    color: #ffffff;
+    padding: 12px 6px;
+    border: 1px solid rgba(255, 95, 31, 0.3);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+    box-shadow: -4px 0 20px rgba(0,0,0,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 0.1em;
+    user-select: none;
+">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="color: #FF5F1F;">NGN v2.0.3</span>
+        <span style="width: 4px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 50%;"></span>
+        <span style="opacity: 0.6;">TESTING</span>
+    </div>
+    
+    <div class="details" style="
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+        font-size: 9px;
+        color: #888;
+        padding-top: 0;
+    ">
+        RELEASED: 2026-02-12
+    </div>
+</div>
+
+<style>
+    .ngn-version-tab:hover {
+        background: #111;
+        border-color: #FF5F1F;
+        padding-right: 10px;
+    }
+    .ngn-version-tab.expanded {
+        padding-left: 15px;
+    }
+    .ngn-version-tab.expanded .details {
+        max-height: 100px;
+        opacity: 1;
+        padding-top: 10px;
+    }
+    @media print {
+        .ngn-version-tab { display: none !important; }
+    }
+</style><!doctype html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NextGenNoise // The Sovereign Music Infrastructure</title>
+  <meta name="description" content="Own your sound. NextGenNoise provides the cryptographic source of truth for independent metal and rock. 90/10 revenue model, verified charts, and direct fan tipping.">
+  
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHGQG7HXKH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-LHGQG7HXKH');
+  </script>
+
+  <!-- SOVEREIGN SEO PROTOCOL -->
+  <link rel="canonical" href="http://nextgennoise.com/">
+  <meta property="og:site_name" content="NextGenNoise">
+  <meta property="og:title" content="NextGenNoise // The Sovereign Music Infrastructure">
+  <meta property="og:description" content="Own your sound. NextGenNoise provides the cryptographic source of truth for independent metal and rock. 90/10 revenue model, verified charts, and direct fan tipping.">
+  <meta property="og:image" content="http://nextgennoise.com/lib/images/site/og-image-2026.jpg">
+  <meta property="og:url" content="http://nextgennoise.com/">
+  <meta property="og:type" content="website">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@NextGenNoise">
+  <meta name="twitter:title" content="NextGenNoise // The Sovereign Music Infrastructure">
+  <meta name="twitter:description" content="Own your sound. NextGenNoise provides the cryptographic source of truth for independent metal and rock. 90/10 revenue model, verified charts, and direct fan tipping.">
+  <meta name="twitter:image" content="http://nextgennoise.com/lib/images/site/og-image-2026.jpg">
+
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="/lib/images/site/site.webmanifest">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="NGN">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <!-- Favicons (NGN 2026 Brand - Emblem) -->
+  <link rel="icon" type="image/png" sizes="16x16" href="/lib/images/site/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/lib/images/site/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/lib/images/site/favicon-48x48.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/lib/images/site/favicon-64x64.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/lib/images/site/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <script>
+    window.tailwind = { config: { darkMode: 'class', theme: { extend: { colors: { brand: { DEFAULT: '#FF5F1F', dark: '#E64A00' } } } } } };
+    (function(){
+      const saved = localStorage.getItem('ngn_theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved ? saved === 'dark' : prefersDark) document.documentElement.classList.add('dark');
+    })();
+  </script>
+  <script src="https://cdn.tailwindcss.com?v=1771637582"></script>
+  <script src="/js/toast.js?v=1771637582"></script>
+  <script src="/js/commerce.js?v=1771637582"></script>
+  <script src="/js/pwa-installer.js?v=1771637582"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css?v=1771637582">
+  <script src="/js/pwa-setup.js?v=0.1.0" defer></script>
+  <style>
+    :root { 
+        --primary: #FF5F1F; 
+        --charcoal: #050505; 
+        --surface: #121212;
+        --highlight: #1a1a1a;
+        --text-main: #ffffff;
+        --text-sub: #a7a7a7;
+    }
+    
+    body { 
+        background-color: var(--charcoal) !important; 
+        color: var(--text-main); 
+        font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+        overflow-x: hidden;
+    }
+
+    /* Spotify-style Card */
+    .sp-card { 
+        background: var(--surface); 
+        padding: 16px; 
+        border-radius: 12px; 
+        transition: background 0.3s, transform 0.3s;
+        height: 100%;
+        border: 1px solid rgba(255,255,255,0.03);
+    }
+    .sp-card:hover { 
+        background: var(--highlight);
+        transform: translateY(-4px);
+        border-color: rgba(255, 95, 31, 0.2);
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+    /* Layout Constraints */
+    .content-container {
+        padding-bottom: 100px;
+    }
+    @media (min-width: 1024px) {
+        .content-container { 
+            margin-left: 280px;
+            padding-bottom: 40px;
+        }
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+      width: 3rem;
+      height: 3rem;
+      border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="h-full selection:bg-brand/30 dark">
+  <div id="pwa-mobilizer" class="hidden fixed top-0 left-0 right-0 z-[200] bg-brand text-black px-6 py-4 items-center justify-between shadow-2xl animate-slide-down">
+    <div class="flex items-center gap-4">
+        <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center text-brand">
+            <i class="bi-phone-fill text-2xl"></i>
+        </div>
+        <div>
+            <h4 class="text-xs font-black uppercase tracking-tighter leading-none">Install_Sovereign_App</h4>
+            <p class="text-[9px] font-bold uppercase tracking-widest mt-1 opacity-80">Bypass the App Store Tax // Lock-Screen Active</p>
+        </div>
+    </div>
+    <div class="flex items-center gap-3">
+        <button onclick="window.NGN_PWA.install()" class="px-4 py-2 bg-black text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg active:scale-95 transition-transform">
+            Install_Now
+        </button>
+        <button onclick="document.getElementById('pwa-mobilizer').classList.add('hidden')" class="text-black/40 hover:text-black">
+            <i class="bi-x-lg"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+@keyframes slide-down {
+    from { transform: translateY(-100%); }
+    to { transform: translateY(0); }
+}
+.animate-slide-down {
+    animation: slide-down 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>
+  <div class="min-h-screen flex flex-col lg:flex-row">
+
+    <!-- Mobile Bottom Bar (Fixed) -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 h-[72px] bg-black/90 backdrop-blur-xl border-t border-white/5 z-[100] flex items-center justify-around px-2 pb-safe">
+    <a href="/" class="flex flex-col items-center gap-1 text-[#FF5F1F]">
+        <i class="bi-house-door-fill text-2xl"></i>
+        <span class="text-[10px] font-black uppercase tracking-widest">Home</span>
+    </a>
+    <a href="/charts" class="flex flex-col items-center gap-1 text-zinc-500">
+        <i class="bi-bar-chart-fill text-2xl"></i>
+        <span class="text-[10px] font-black uppercase tracking-widest">Charts</span>
+    </a>
+    <a href="/search" class="flex flex-col items-center gap-1 text-zinc-500">
+        <i class="bi-search text-2xl"></i>
+        <span class="text-[10px] font-black uppercase tracking-widest">Search</span>
+    </a>
+    <a href="/artists" class="flex flex-col items-center gap-1 text-zinc-500">
+        <i class="bi-collection-play-fill text-2xl"></i>
+        <span class="text-[10px] font-black uppercase tracking-widest">Library</span>
+    </a>
+</nav>
+
+<!-- Desktop Sidebar (Fixed) -->
+<aside class="hidden lg:flex flex-col w-[280px] bg-black fixed inset-y-0 left-0 z-50 border-r border-white/5">
+    <div class="p-8">
+        <a href="/" class="block mb-10">
+            <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" alt="Next Generation Noise" class="h-10 object-contain">
+        </a>
+
+        <nav class="space-y-6">
+            <a href="/" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-white">
+                <i class="bi-house-door-fill text-2xl text-[#FF5F1F]"></i> Home
+            </a>
+            <a href="/charts" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
+                <i class="bi-bar-chart-fill text-2xl "></i> NGN Charts
+            </a>
+            <a href="/smr-charts" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
+                <i class="bi-graph-up text-2xl "></i> SMR Charts
+            </a>
+            <a href="/videos" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
+                <i class="bi-play-circle-fill text-2xl "></i> Video Vault
+            </a>
+            <a href="/releases" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
+                <i class="bi-vinyl-fill text-2xl "></i> Releases
+            </a>
+            <a href="/posts" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
+                <i class="bi-newspaper text-2xl "></i> Intelligence
+            </a>
+            <a href="/advertisers" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all text-zinc-500 hover:text-white">
+                <i class="bi-megaphone-fill text-2xl "></i> Advertisers
+            </a>
+        </nav>
+
+        <!-- PWA SOVEREIGN CTA -->
+        <div class="mt-10">
+            <button onclick="window.NGN_PWA.install()" class="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl border border-white/5 flex flex-col items-center gap-2 group transition-all">
+                <div class="flex items-center gap-3">
+                    <i class="bi-phone text-xl text-[#FF5F1F] group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">Deploy_Sovereign_App</span>
+                </div>
+                <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">The Spotify Killer // v3.0.0</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- SIDEBAR BILLBOARD (Ad Engine) -->
+    
+    <!-- Your Library Section -->
+    <div class="flex-1 px-4 overflow-hidden flex flex-col">
+        <div class="bg-zinc-900/50 rounded-2xl flex-1 flex flex-col border border-white/5">
+            <div class="p-6 flex items-center justify-between border-b border-white/5">
+                <span class="font-black text-[10px] uppercase tracking-[0.2em] text-zinc-500">Your_Library</span>
+                <i class="bi-plus-lg text-zinc-500 hover:text-white cursor-pointer"></i>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+                <a href="/artists" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                    <div class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
+                        <i class="bi-person-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
+                    </div>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Artists</span>
+                </a>
+                <a href="/labels" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
+                        <i class="bi-record-circle-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
+                    </div>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Labels</span>
+                </a>
+                <a href="/stations" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
+                        <i class="bi-broadcast text-zinc-500 group-hover:text-[#FF5F1F]"></i>
+                    </div>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Stations</span>
+                </a>
+                <a href="/venues" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
+                        <i class="bi-geo-alt-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
+                    </div>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Venues</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Section -->
+    <div class="p-6 border-t border-white/5">
+                    <div class="space-y-3">
+                <a href="/login.php" class="block w-full py-4 text-center font-black text-sm uppercase tracking-widest text-white border border-white/10 rounded-2xl hover:bg-white/5 transition-all">Log_In</a>
+                <a href="/register.php" class="block w-full py-4 text-center font-black text-sm uppercase tracking-widest bg-[#FF5F1F] text-black rounded-2xl hover:scale-[1.02] transition-all">Join_The_Fleet</a>
+            </div>
+            </div>
+</aside>
+
+<style>
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #1a1a1a; border-radius: 10px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #222; }
+</style>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 content-container">
+      <!-- Desktop Header (Floating) -->
+      <header class="hidden lg:flex items-center justify-between px-8 h-20 sticky top-0 z-40 bg-black/60 backdrop-blur-xl">
+        <div class="flex items-center gap-4">
+          <div class="flex gap-2">
+            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-left"></i></button>
+            <button onclick="history.forward()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-right"></i></button>
+          </div>
+          <form method="get" action="/" class="relative group" id="global-search-form">
+            <input type="hidden" name="view" value="artists">
+            <i class="bi-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-white transition-colors"></i>
+            <input type="text" name="q" id="global-search-input" autocomplete="off" value="" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
+            
+            <!-- Autocomplete Dropdown -->
+            <div id="search-autocomplete" class="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl hidden z-[200] overflow-hidden">
+                <div id="autocomplete-results" class="max-h-[400px] overflow-y-auto py-2">
+                    <!-- Results injected here -->
+                </div>
+            </div>
+          </form>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('global-search-input');
+            const autocomplete = document.getElementById('search-autocomplete');
+            const resultsBox = document.getElementById('autocomplete-results');
+            let debounceTimer;
+
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    autocomplete.classList.add('hidden');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/api/v1/search/suggest?q=${encodeURIComponent(query)}`)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success && data.data.length > 0) {
+                                renderResults(data.data);
+                                autocomplete.classList.remove('hidden');
+                            } else {
+                                autocomplete.classList.add('hidden');
+                            }
+                        })
+                        .catch(() => autocomplete.classList.add('hidden'));
+                }, 300);
+            });
+
+            function renderResults(items) {
+                resultsBox.innerHTML = items.map(item => {
+                    const icon = item.type === 'artist' ? 'bi-person-circle' : (item.type === 'label' ? 'bi-record-circle' : 'bi-music-note-beamed');
+                    const url = `/${item.type}/${item.slug || item.id}`;
+                    const img = item.image_url || '/lib/images/user-default-avatar.jpg';
+                    const subtext = item.subtext || (item.type.charAt(0).toUpperCase() + item.type.slice(1));
+
+                    return `
+                        <a href="${url}" class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors group">
+                            <div class="w-10 h-10 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">
+                                <img src="${img}" class="w-full h-full object-cover" onerror="this.src='/lib/images/user-default-avatar.jpg'">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-bold text-white truncate group-hover:text-brand transition-colors">${item.name}</div>
+                                <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate">${subtext}</div>
+                            </div>
+                            <i class="bi ${icon} text-zinc-600 group-hover:text-brand transition-colors"></i>
+                        </a>
+                    `;
+                }).join('');
+            }
+
+            // Close on click outside
+            document.addEventListener('click', function(e) {
+                if (!document.getElementById('global-search-form').contains(e.target)) {
+                    autocomplete.classList.add('hidden');
+                }
+            });
+        });
+        </script>
+        
+        <div class="flex items-center gap-6">
+          <a href="/pricing" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Premium</a>
+          <a href="/shop" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Merch</a>
+          <div class="h-8 w-[1px] bg-white/10"></div>
+                      <div class="flex items-center gap-8">
+              <a href="/register.php" class="text-zinc-400 hover:text-white font-bold text-sm">Sign up</a>
+              <a href="/login.php" class="px-8 py-3 bg-white text-black font-black rounded-full hover:scale-105 transition-all">Log in</a>
+            </div>
+                  </div>
+      </header>
+
+      <!-- View Wrapper -->
+      <div class="px-4 lg:px-8 py-6">
+
+                      <!-- THE NGN STORY ENGINE -->
+<div class="relative rounded-[2rem] overflow-hidden mb-16 group border border-white/5 shadow-2xl bg-black">
+    <div class="absolute inset-0">
+        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent z-10"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent z-10"></div>
+        
+        <!-- Slide 1: THE FUSION -->
+        <div class="absolute inset-0 transition-all duration-1000 opacity-100" data-story-slide="0">
+            <div class="w-full h-full bg-[#0b0b0b] flex items-center justify-center">
+                <div class="absolute w-full h-full opacity-20" style="background-image: radial-gradient(circle, #FF5F1F 1px, transparent 1px); background-size: 40px 40px;"></div>
+                <div class="absolute w-full h-full bg-gradient-to-br from-[#FF5F1F]/5 to-transparent"></div>
+            </div>
+        </div>
+        <!-- Slide 2: THE SOVEREIGNTY -->
+        <div class="absolute inset-0 transition-all duration-1000 opacity-0" data-story-slide="1">
+            <div class="w-full h-full bg-[#111] flex items-center justify-center">
+                <div class="absolute w-full h-full bg-[linear-gradient(45deg,rgba(255,95,31,0.05)_25%,transparent_25%,transparent_50%,rgba(255,95,31,0.05)_50%,rgba(255,95,31,0.05)_75%,transparent_75%,transparent)] bg-[length:60px_60px]"></div>
+                <div class="absolute inset-0 bg-gradient-to-tr from-[#FF5F1F]/10 via-transparent to-transparent"></div>
+            </div>
+        </div>
+        <!-- Slide 3: THE REVENUE -->
+        <div class="absolute inset-0 transition-all duration-1000 opacity-0" data-story-slide="2">
+            <div class="w-full h-full bg-[#070707] flex items-center justify-center">
+                <div class="absolute w-full h-full opacity-10" style="background-image: conic-gradient(from 0deg at 50% 50%, #FF5F1F 0deg, transparent 90deg);"></div>
+                <div class="absolute inset-0 bg-gradient-to-bl from-[#FF5F1F]/5 via-transparent to-transparent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="relative z-20 p-12 lg:p-24 min-h-[600px] flex items-center">
+        <div class="max-w-3xl">
+            <!-- Content 0 -->
+            <div class="story-content transition-all duration-700 block" data-story-content="0">
+                <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm">The_Fusion</div>
+                <h1 class="text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none text-white">MUSIC MEETS <br><span class="text-[#FF5F1F] italic">TERMINAL</span> VELOCITY</h1>
+                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">NextGenNoise 2.1.0 is the definitive fusion of underground sound and pressurized tech.</p>
+                <div class="flex gap-6">
+                    <a href="/register.php" class="bg-[#FF5F1F] text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm">Join_The_Fleet</a>
+                </div>
+            </div>
+            <!-- Content 1 -->
+            <div class="story-content transition-all duration-700 hidden" data-story-content="1">
+                <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm">Sovereignty</div>
+                <h1 class="text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none text-white">OWN YOUR <br><span class="text-[#FF5F1F] italic">INFRASTRUCTURE</span></h1>
+                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">No more rented platforms. NGN 2.1.0 provides absolute sovereignty for artists and labels.</p>
+                <div class="flex gap-6">
+                    <a href="/register.php" class="bg-[#FF5F1F] text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm">Get_A_Bunker</a>
+                </div>
+            </div>
+            <!-- Content 2 -->
+            <div class="story-content transition-all duration-700 hidden" data-story-content="2">
+                <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-6 rounded-sm">Revenue</div>
+                <h1 class="text-6xl lg:text-8xl font-black mb-8 tracking-tighter leading-none text-white">ARTIST-FIRST <br><span class="text-[#FF5F1F] italic">REVENUE</span> ENGINES</h1>
+                <p class="text-xl text-gray-400 font-mono mb-12 max-w-xl">Autonomous marketing loops and institutional invoicing. We build commerce.</p>
+                <div class="flex gap-6">
+                    <a href="/register.php" class="bg-[#FF5F1F] text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white transition-all rounded-sm">Start_Earning</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="absolute bottom-12 right-12 z-30 flex gap-3">
+        <button onclick="window.storyEngine.to(0)" class="w-12 h-1 bg-white/20 transition-all hover:bg-[#FF5F1F]" data-story-nav="0"></button>
+        <button onclick="window.storyEngine.to(1)" class="w-12 h-1 bg-white/20 transition-all hover:bg-[#FF5F1F]" data-story-nav="1"></button>
+        <button onclick="window.storyEngine.to(2)" class="w-12 h-1 bg-white/20 transition-all hover:bg-[#FF5F1F]" data-story-nav="2"></button>
+    </div>
+</div>
+
+<script>
+    window.storyEngine = {
+        current: 0,
+        total: 3,
+        to: function(index) {
+            this.current = index;
+            document.querySelectorAll("[data-story-slide]").forEach((s, i) => {
+                if (i === index) {
+                    s.classList.remove('opacity-0');
+                    s.classList.add('opacity-100');
+                } else {
+                    s.classList.remove('opacity-100');
+                    s.classList.add('opacity-0');
+                }
+            });
+            document.querySelectorAll(".story-content").forEach((c, i) => {
+                if (i === index) {
+                    c.classList.remove('hidden');
+                    c.classList.add('block');
+                } else {
+                    c.classList.remove('block');
+                    c.classList.add('hidden');
+                }
+            });
+            document.querySelectorAll("[data-story-nav]").forEach((n, i) => {
+                if (i === index) {
+                    n.classList.remove('bg-white/20');
+                    n.classList.add('bg-[#FF5F1F]');
+                } else {
+                    n.classList.remove('bg-[#FF5F1F]');
+                    n.classList.add('bg-white/20');
+                }
+            });
+        },
+        next: function() {
+            this.to((this.current + 1) % this.total);
+        }
+    };
+    setInterval(() => window.storyEngine.next(), 8000);
+</script>
+        <!-- Stats Grid (Spotify-style cards) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Artists</div>
+            <div class="text-4xl font-black text-white">915</div>
+          </div>
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Labels</div>
+            <div class="text-4xl font-black text-white">293</div>
+          </div>
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Stations</div>
+            <div class="text-4xl font-black text-white">4</div>
+          </div>
+          <div class="sp-card border border-white/5">
+            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Venues</div>
+            <div class="text-4xl font-black text-white">149</div>
+          </div>
+        </div>
+
+        <!-- Stream Now Section -->
+                <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Stream Now</h2>
+            <a href="/songs" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Featured Station -->
+            <div class="sp-card border border-brand/30 bg-brand/5 flex flex-col justify-center p-8 relative overflow-hidden group cursor-pointer"
+                 data-play-track
+                 data-track-url="https://ice1.somafm.com/groovesalad-256-mp3"
+                 data-track-title="The Rage Online"
+                 data-track-artist="Live Radio"
+                 data-track-art="/lib/images/site/radio-icon.jpg">
+                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-1000">
+                    <i class="bi-broadcast text-9xl text-brand"></i>
+                </div>
+                <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-2">Currently On Air</div>
+                <h3 class="text-2xl font-black text-white mb-4">The Rage Online</h3>
+                <button class="bg-brand text-black w-12 h-12 rounded-full flex items-center justify-center shadow-xl">
+                    <i class="bi-play-fill text-2xl"></i>
+                </button>
+            </div>
+
+                        <div class="group sp-card border border-white/5 flex items-center gap-6 cursor-pointer"
+                 data-play-track
+                 data-track-url=""
+                 data-track-title="Evermore"
+                 data-track-artist="Heroes and Villains"
+                 data-track-art="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg">
+                <div class="relative w-20 h-20 flex-shrink-0 shadow-2xl">
+                    <img src="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg" class="w-full h-full object-cover rounded-lg">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                        <i class="bi-play-fill text-3xl text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-black text-white text-lg truncate">Evermore</div>
+                    <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1">Heroes and Villains</div>
+                </div>
+            </div>
+                        <div class="group sp-card border border-white/5 flex items-center gap-6 cursor-pointer"
+                 data-play-track
+                 data-track-url=""
+                 data-track-title="Alone Together"
+                 data-track-artist="Heroes and Villains"
+                 data-track-art="/lib/images/releases/heroes-and-villains/1200x1200.jpg">
+                <div class="relative w-20 h-20 flex-shrink-0 shadow-2xl">
+                    <img src="/lib/images/releases/heroes-and-villains/1200x1200.jpg" class="w-full h-full object-cover rounded-lg">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
+                        <i class="bi-play-fill text-3xl text-white"></i>
+                    </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="font-black text-white text-lg truncate">Alone Together</div>
+                    <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1">Heroes and Villains</div>
+                </div>
+            </div>
+                      </div>
+        </section>
+        
+        <!-- Trending Artists -->
+        
+        <!-- Top Labels -->
+                <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Top Labels</h2>
+            <a href="/labels" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
+          </div>
+          <div class="grid grid-cols-3 md:grid-cols-6 gap-6">
+                                    <a href="/label/sharptone-land-shark-160" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="/lib/images/site/2026/default-avatar.png" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors">SharpTone/Land Shark</div>
+            </a>
+                                    <a href="/label/elektra-300-670" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="/lib/images/site/2026/default-avatar.png" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors">Elektra/300</div>
+            </a>
+                                    <a href="/label/why-worry-stem-783" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="/lib/images/site/2026/default-avatar.png" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors">Why Worry/Stem</div>
+            </a>
+                                    <a href="/label/rise-records" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="/lib/images/site/2026/default-avatar.png" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors">Rise Records</div>
+            </a>
+                                    <a href="/label/cranked-up" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="/lib/images/site/2026/default-avatar.png" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors">Cranked Up</div>
+            </a>
+                                    <a href="/label/autumn" class="group text-center">
+              <div class="relative w-full aspect-square mb-3">
+                <img src="/lib/images/site/2026/default-avatar.png" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors">Autumn</div>
+            </a>
+                      </div>
+        </section>
+        
+        <!-- Latest News -->
+                <section class="mb-12">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-black tracking-tight text-white">Latest News</h2>
+            <a href="/posts" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <a href="/post/smr-chart-report-march-11-2025-a-week-of-rock-evolution" class="group flex flex-col">
+              <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
+                <img src="/lib/images/posts/smr-chart-report-march-11-2025-a-week-of-rock-evolution.jpg" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors">SMR Chart Report: March 11, 2025 - A Week of Rock Evolution</div>
+              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">Mar 17, 2025</div>
+            </a>
+                                    <a href="/post/rock-radio-rhetoric-are-we-stuck-in-a-time-warp" class="group flex flex-col">
+              <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
+                <img src="/lib/images/posts/rock-radio-rhetoric-are-we-stuck-in-a-time-warp.jpg" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors">Rock Radio Rhetoric: Are We Stuck in a Time Warp? </div>
+              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">Mar 14, 2025</div>
+            </a>
+                                    <a href="/post/papa-roach-the-haunt-rock-resilience-titans-and-trailblazers" class="group flex flex-col">
+              <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
+                <img src="/lib/images/posts/papa-roach-the-haunt-rock-resilience-titans-and-trailblazers.jpg" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors">Papa Roach &amp;amp; The Haunt: Rock Resilience - Titans and Trailblazers</div>
+              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">Mar 13, 2025</div>
+            </a>
+                                    <a href="/post/next-gen-noise-five-years-from-now-you-will-be-saying-spotify-who" class="group flex flex-col">
+              <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
+                <img src="/lib/images/posts/next-gen-noise-five-years-from-now-youll-be-saying-spotify-who.jpg" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='/lib/images/site/default-avatar.png'">
+              </div>
+              <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors">Next Gen Noise: Five Years From Now, You Will Be Saying, &amp;#039;Spotify Who&amp;#039;?</div>
+              <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-2">Feb 12, 2025</div>
+            </a>
+                      </div>
+        </section>
+        
+        <!-- NGN Rankings - Artists Chart -->
+                <div class="mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Top Artists</h2>
+            <a href="/charts" class="text-brand text-sm font-medium hover:underline">View All →</a>
+          </div>
+          <div class="bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">#</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Artist</th>
+                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">1</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/from-ashes-to-new" class="text-brand hover:underline font-medium">
+                        From Ashes To New                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">94,795</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">2</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/sleep-theory" class="text-brand hover:underline font-medium">
+                        Sleep Theory                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">40,749</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">3</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/falling-in-reverse" class="text-brand hover:underline font-medium">
+                        Falling In Reverse                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">31,027</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">4</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/fame-on-fire" class="text-brand hover:underline font-medium">
+                        Fame On Fire                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">26,606</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">5</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/daughtry" class="text-brand hover:underline font-medium">
+                        Daughtry                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">26,458</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">6</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/jelly-roll" class="text-brand hover:underline font-medium">
+                        Jelly Roll                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">25,426</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">7</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/pop-evil" class="text-brand hover:underline font-medium">
+                        Pop Evil                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">22,887</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">8</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/the-offspring" class="text-brand hover:underline font-medium">
+                        The Offspring                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">22,287</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">9</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/shallow-side" class="text-brand hover:underline font-medium">
+                        Shallow Side                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">21,655</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">10</td>
+                    <td class="px-4 py-3">
+                      <a href="/artist/nothing-more" class="text-brand hover:underline font-medium">
+                        Nothing More                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">20,178</td>
+                  </tr>
+                                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        
+        <!-- NGN Rankings - Labels Chart -->
+                <div class="mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Top Labels</h2>
+            <a href="/charts" class="text-brand text-sm font-medium hover:underline">View All →</a>
+          </div>
+          <div class="bg-white dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+            <div class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50 dark:bg-white/5 border-b border-gray-200 dark:border-white/10">
+                  <tr>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">#</th>
+                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Label</th>
+                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">1</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/reverse" class="text-brand hover:underline font-medium">
+                        Reverse                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">22,281</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">2</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/wake-up-music-rocks" class="text-brand hover:underline font-medium">
+                        Wake Up! Music Rocks                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">20,392</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">3</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/rise" class="text-brand hover:underline font-medium">
+                        Rise                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">12,641</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">4</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/better-noise" class="text-brand hover:underline font-medium">
+                        Better Noise                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">7,269</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">5</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/epitaph" class="text-brand hover:underline font-medium">
+                        Epitaph                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">4,389</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">6</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/amplify" class="text-brand hover:underline font-medium">
+                        Amplify                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">4,344</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">7</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/legend" class="text-brand hover:underline font-medium">
+                        Legend                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">3,635</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">8</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/force" class="text-brand hover:underline font-medium">
+                        Force                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">3,073</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">9</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/warner" class="text-brand hover:underline font-medium">
+                        Warner                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">2,829</td>
+                  </tr>
+                                    <tr class="border-b border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                    <td class="px-4 py-3 text-sm font-semibold text-gray-500">10</td>
+                    <td class="px-4 py-3">
+                      <a href="/label/sumerian" class="text-brand hover:underline font-medium">
+                        Sumerian                      </a>
+                    </td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold">2,612</td>
+                  </tr>
+                                  </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+                        
+                    </div> <!-- End px-4 lg:px-8 py-6 -->
+    </main>
+  </div>
+
+  <div id="dispute-modal" class="fixed inset-0 z-[200] hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="bg-zinc-900 border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+        <!-- Header -->
+        <div class="p-8 border-b border-white/5 flex items-center justify-between">
+            <div>
+                <h3 class="text-xl font-black text-white uppercase tracking-tight">Dispute Profile Claim</h3>
+                <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest mt-1">Formal Ownership Challenge</p>
+            </div>
+            <button onclick="closeDisputeModal()" class="text-zinc-500 hover:text-white transition-colors"><i class="bi bi-x-lg text-2xl"></i></button>
+        </div>
+
+        <!-- Form -->
+        <form id="dispute-form" onsubmit="submitDispute(event)" class="p-8 space-y-6">
+            <input type="hidden" id="dispute-entity-type" name="entity_type">
+            <input type="hidden" id="dispute-entity-id" name="entity_id">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Your Name</label>
+                    <input type="text" name="disputant_name" required class="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-brand outline-none transition-all">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Contact Email</label>
+                    <input type="email" name="disputant_email" required class="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-brand outline-none transition-all">
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Your Relationship to Entity</label>
+                <select name="relationship" required class="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-brand outline-none transition-all appearance-none">
+                    <option value="">Select Relationship...</option>
+                    <option value="owner">Legal Owner</option>
+                    <option value="manager">Professional Manager</option>
+                    <option value="member">Artist / Member</option>
+                    <option value="agent">Authorized Agent</option>
+                </select>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1">Reason for Dispute</label>
+                <textarea name="reason" required rows="4" placeholder="Explain why you are challenging the current ownership..." class="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:ring-2 focus:ring-brand outline-none transition-all resize-none"></textarea>
+            </div>
+
+            <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <p class="text-[10px] text-red-400 font-bold leading-relaxed">
+                    <i class="bi bi-exclamation-triangle-fill mr-1"></i>
+                    NOTICE: False or malicious disputes may result in permanent account suspension. All challenges are manually reviewed by NextGenNoise compliance.
+                </p>
+            </div>
+
+            <button type="submit" class="w-full py-4 bg-brand text-black font-black uppercase tracking-widest text-sm rounded-full hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-brand/20">
+                Submit Challenge
+            </button>
+        </form>
+
+        <!-- Success State -->
+        <div id="dispute-success" class="hidden p-12 text-center space-y-6">
+            <div class="w-20 h-20 bg-brand/20 text-brand rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="bi bi-check-lg text-5xl"></i>
+            </div>
+            <h3 class="text-2xl font-black text-white">Dispute Filed</h3>
+            <p class="text-zinc-400 text-sm">Your challenge has been recorded and anchored to the Graylight Vault. Our compliance team will review your evidence within 48 hours.</p>
+            <button onclick="closeDisputeModal()" class="px-8 py-3 bg-white/5 hover:bg-white/10 text-white font-black uppercase tracking-widest text-xs rounded-full border border-white/10 transition-all">Close Window</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openDisputeModal(type, id) {
+    document.getElementById('dispute-entity-type').value = type;
+    document.getElementById('dispute-entity-id').value = id;
+    document.getElementById('dispute-modal').classList.remove('hidden');
+    document.getElementById('dispute-modal').classList.add('flex');
+}
+
+function closeDisputeModal() {
+    document.getElementById('dispute-modal').classList.add('hidden');
+    document.getElementById('dispute-modal').classList.remove('flex');
+    document.getElementById('dispute-form').classList.remove('hidden');
+    document.getElementById('dispute-success').classList.add('hidden');
+    document.getElementById('dispute-form').reset();
+}
+
+async function submitDispute(event) {
+    event.preventDefault();
+    const form = event.target;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerText;
+    
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Anchoring...';
+
+    const formData = new FormData(form);
+    const data = Object.from_entries(formData.entries());
+
+    try {
+        const response = await fetch('/api/v1/disputes/file', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            form.classList.add('hidden');
+            document.getElementById('dispute-success').classList.remove('hidden');
+        } else {
+            alert('Error: ' + result.message);
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    } catch (error) {
+        alert('A network error occurred. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.innerText = originalText;
+    }
+}
+</script>
+
+  <!-- GLOBAL MUSIC PLAYER (Sovereign Command Center) -->
+  <div id="ngn-player-container" class="player-bar">
+    <!-- Player UI will be injected here by PlayerUI.js -->
+</div>
+
+<style>
+/* Sovereign Player Overrides */
+.player-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(5, 5, 5, 0.9);
+    backdrop-filter: blur(30px);
+    border-top: 1px solid rgba(255, 95, 31, 0.2);
+    z-index: 1000;
+    height: 90px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+}
+
+/* Base tailwind for player injected content */
+#ngn-player-container .ngn-player {
+    display: grid;
+    grid-template-columns: 300px 1fr 300px;
+    width: 100%;
+    align-items: center;
+    gap: 32px;
+}
+
+.ngn-btn-shredder {
+    color: #FF5F1F;
+    border: 1px solid rgba(255, 95, 31, 0.3);
+    padding: 4px 12px;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.ngn-btn-shredder:hover {
+    background: rgba(255, 95, 31, 0.1);
+    box-shadow: 0 0 15px rgba(255, 95, 31, 0.2);
+}
+</style>
+
+<!-- Player Engine Scripts -->
+<script type="module" src="/js/player/player-init.js?v=1771637582"></script>
+
+  <!-- Global Loader -->
+
+  
+<!-- Email Capture Popup (Tailwind) -->
+<div class="popup fixed inset-0 flex items-center justify-center bg-black/70 z-50" id="contactJoinPopup" style="display:none;">
+  <div class="bg-zinc-900 rounded-lg p-8 max-w-md w-full mx-4 relative border border-zinc-700">
+    <button class="close-popup absolute top-4 right-4 text-zinc-400 hover:text-white text-2xl leading-none" aria-label="Close">
+      <i class="bi bi-x"></i>
+    </button>
+
+    <div class="mb-6">
+      <h2 class="text-2xl font-black text-white mb-4">🤘 Join the NGN Movement!</h2>
+      <p class="text-zinc-300 text-sm leading-relaxed">
+        Don't miss a beat of the underground music scene. Sign up for the NextGen Noise newsletter and get exclusive chart insights, curated music picks, behind-the-scenes stories, and launch updates!
+      </p>
+    </div>
+
+    <form action='' method='post' novalidate class='newsletterSignup space-y-4'>
+      <div class='grid grid-cols-2 gap-4'>
+        <div>
+          <input type='text' class='newsletterFirstName w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none' placeholder='First name' value='' required>
+        </div>
+        <div>
+          <input type='email' class='newsletterEmail w-full bg-zinc-800 border border-zinc-700 rounded px-3 py-2 text-white placeholder-zinc-500 focus:border-zinc-500 focus:outline-none' placeholder='Email' value='' required>
+        </div>
+      </div>
+
+      <button type='submit' class='w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg transition-colors mt-6'>Get Exclusive Access</button>
+      <button type='button' class='w-full bg-transparent text-zinc-400 hover:text-white font-medium py-2 rounded-lg transition-colors dismiss-popup'>Not now</button>
+    </form>
+  </div>
+</div>
+
+<!-- Auth state for email popup -->
+<script>
+  window.NGN = window.NGN || {};
+  window.NGN.isAuthenticated = false;
+</script>
+
+<!-- jQuery (required for popup and form handling) -->
+<script src='https://code.jquery.com/jquery-3.7.1.min.js'></script>
+
+<!-- Axios (required for form submission) -->
+<script src='https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js'></script>
+
+<!-- Newsletter signup script with email capture -->
+<script src="/lib/js/newsletter-signup.js?v=1771637582"></script>
+
+</body>
+</html>
