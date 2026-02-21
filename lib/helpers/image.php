@@ -37,7 +37,9 @@ if (!function_exists('resolve_ngn_image')) {
                 '/public/lib/images/artists/',
                 '/lib/images/artists/',
                 '/public/uploads/users/',
-                '/storage/uploads/users/'
+                '/storage/uploads/users/',
+                '/public/uploads/',
+                '/storage/uploads/'
             ],
             'release' => [
                 '/public/lib/images/releases/',

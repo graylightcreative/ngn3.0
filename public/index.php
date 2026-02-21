@@ -144,14 +144,16 @@ function get_top_rankings(PDO $pdo, string $type, int $limit = 10): array {
     global $config;
     try {
         $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
-        $sql = "SELECT i.score as Score, e.name as Name, e.slug as slug, e.image_url as image_url 
+        $sql = "SELECT i.score as Score, i.entity_id, e.name as Name, e.slug as slug, e.image_url as image_url 
                 FROM `ngn_rankings_2025`.`ranking_items` i
                 JOIN `ngn_2025`.`{$type}s` e ON i.entity_id = e.id
                 WHERE i.entity_type = ?
                 ORDER BY i.score DESC LIMIT ?";
         $stmt = $rankingsPdo->prepare($sql);
         $stmt->execute([$type, $limit]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        error_log("Rankings Debug: Fetched " . count($results) . " rows for type: $type");
+        return $results;
     } catch (\Throwable $e) {
         error_log("Rankings Fetch Error: " . $e->getMessage());
         return [];
