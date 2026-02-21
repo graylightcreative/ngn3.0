@@ -21,7 +21,7 @@ $iconVersionQ = '?v=3.0.0';
 <link rel="apple-touch-icon" sizes="180x180" href="/lib/images/site/apple-touch-icon.png<?= $iconVersionQ ?>">
 
 <!-- Fonts & Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
