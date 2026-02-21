@@ -1614,7 +1614,7 @@ if ($view === 'post' && !empty($data['post'])) {
         </div>
                 <?php endif; ?>
         
-              <?php elseif ($view === 'charts'): ?>
+      <?php elseif ($view === 'charts'): ?>
                 <?php include $root . 'lib/partials/view-charts.php'; ?>
 
               <?php elseif ($view === 'smr-charts'): ?>
