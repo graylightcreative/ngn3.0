@@ -1,7 +1,8 @@
 <?php
 /**
- * Authoritative Image Resolution Helper - Absolute Robustness
- * Bible Ref: Chapter 10 (Writer Engine) // Image Integrity
+ * Authoritative Image Resolution Helper - Aggressive Discovery v3
+ * Resolves images by searching known compartmentalized directories.
+ * This version prioritizes SLUG discovery if image_url is empty.
  */
 
 if (!function_exists('resolve_ngn_image')) {
@@ -15,60 +16,46 @@ if (!function_exists('resolve_ngn_image')) {
         $default = $defaults[$type] ?? $defaults['post'];
         $projectRoot = dirname(__DIR__, 2);
 
-        // 1. Define SEARCH MATRIX (Absolute paths for file_exists)
-        $searchMatrix = [
-            'post' => [
-                '/public/lib/images/posts/',
-                '/lib/images/posts/',
-                '/public/uploads/posts/',
-                '/storage/uploads/posts/'
-            ],
-            'user' => [
-                '/public/lib/images/users/',
-                '/lib/images/users/',
-                '/public/lib/images/labels/',
-                '/public/lib/images/stations/',
-                '/public/lib/images/artists/',
-                '/lib/images/artists/'
-            ],
-            'release' => [
-                '/public/lib/images/releases/',
-                '/lib/images/releases/',
-                '/public/uploads/releases/',
-                '/storage/uploads/releases/'
-            ]
+        // 1. Define base directories to search
+        $baseDirs = [
+            'post'    => ['/lib/images/posts/', '/uploads/posts/'],
+            'user'    => ['/lib/images/users/', '/lib/images/labels/', '/lib/images/stations/', '/lib/images/venues/'],
+            'release' => ['/lib/images/releases/', '/uploads/releases/']
         ];
 
-        $dirs = $searchMatrix[$type] ?? $searchMatrix['post'];
+        $dirs = $baseDirs[$type] ?? $baseDirs['post'];
 
-        // 2. FILENAME RESOLUTION
+        // 2. FILENAME RESOLUTION (If provided)
         if (!empty($filename) && !str_starts_with($filename, 'http')) {
             $cleanName = basename($filename);
+            
             foreach ($dirs as $dir) {
-                $candidates = [
-                    $projectRoot . $dir . $cleanName,
-                    $slug ? $projectRoot . $dir . $slug . '/' . $cleanName : null
-                ];
-                foreach (array_filter($candidates) as $absPath) {
-                    if (file_exists($absPath)) {
-                        // Return the web-relative path (remove project root and /public prefix)
-                        $webPath = str_replace([$projectRoot . '/public', $projectRoot], '', $absPath);
-                        return $webPath;
+                $paths = [];
+                if ($slug) $paths[] = $dir . $slug . '/' . $cleanName;
+                $paths[] = $dir . $cleanName;
+
+                foreach ($paths as $relPath) {
+                    if (file_exists($projectRoot . '/public' . $relPath) || file_exists($projectRoot . $relPath)) {
+                        return $relPath;
                     }
                 }
             }
         }
 
-        // 3. SLUG-BASED DISCOVERY (FALLBACK)
+        // 3. AGGRESSIVE SLUG DISCOVERY (Fallback or Primary if filename empty)
+        // If DB has no image_url, we scan the slug directory for ANY valid image.
         if ($slug) {
             foreach ($dirs as $dir) {
                 $slugDir = $projectRoot . $dir . $slug;
+                if (!is_dir($slugDir)) {
+                    $slugDir = $projectRoot . '/public' . $dir . $slug;
+                }
+
                 if (is_dir($slugDir)) {
                     $files = scandir($slugDir);
                     foreach ($files as $f) {
                         if ($f[0] !== '.' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $f)) {
-                            $absPath = $slugDir . '/' . $f;
-                            return str_replace([$projectRoot . '/public', $projectRoot], '', $absPath);
+                            return $dir . $slug . '/' . $f;
                         }
                     }
                 }
