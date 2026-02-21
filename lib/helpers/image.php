@@ -25,6 +25,7 @@ if (!function_exists('post_image')) {
             }
         }
 
+        error_log("[ImageHelper] Failed to resolve post image: " . $filename . " (Checked in " . $projectRoot . ")");
         return '/lib/images/site/default-post.jpg';
     }
 }
