@@ -1,7 +1,7 @@
 <?php
 /**
- * Image Resolution Helper - High Integrity
- * Bible Ref: Chapter 10 (Writer Engine) // Image Integrity
+ * Authoritative Image Resolution Helper
+ * Maps legacy DB paths to the compartmentalized lib/images architecture.
  */
 
 if (!function_exists('post_image')) {
@@ -10,29 +10,11 @@ if (!function_exists('post_image')) {
         if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http')) return $filename;
 
-        // Strip redundant prefix if DB has 'posts/filename.jpg'
-        $cleanName = str_replace('posts/', '', $filename);
-        $cleanName = ltrim($cleanName, '/');
+        $clean = str_replace('posts/', '', $filename);
+        $clean = ltrim($clean, '/');
 
-        // On server, helper is in /lib/helpers/
-        // dirname(__DIR__, 1) is /lib/
-        // dirname(__DIR__, 2) is the root (e.g., /www/wwwroot/nextgennoise)
-        $projectRoot = dirname(__DIR__, 2);
-
-        $candidates = [
-            '/uploads/posts/' . $cleanName,
-            '/lib/images/posts/' . $cleanName,
-            '/uploads/' . $cleanName
-        ];
-
-        foreach ($candidates as $relPath) {
-            // Check in public/ (where the web server looks)
-            if (file_exists($projectRoot . '/public' . $relPath)) {
-                return $relPath;
-            }
-        }
-
-        return $default;
+        // Target: /lib/images/posts/
+        return '/lib/images/posts/' . $clean;
     }
 }
 
@@ -42,55 +24,45 @@ if (!function_exists('user_image')) {
         if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http')) return $filename;
 
+        // Strip legacy prefixes
+        $clean = str_replace(['/uploads/users/', '/uploads/', 'users/'], '', $filename);
+        $clean = ltrim($clean, '/');
+        
+        $base = basename($clean);
+
+        // Logic: Try slug subdirectory, then root users directory
         $projectRoot = dirname(__DIR__, 2);
-
-        // NGN LOGIC: Many DB paths are hardcoded to /uploads/users/
-        // but files reside in /lib/images/users/ due to compartmentalization.
-        $cleanName = str_replace(['/uploads/users/', '/uploads/'], '', $filename);
-        $cleanName = ltrim($cleanName, '/');
-
-        $candidates = [
-            "/lib/images/users/{$slug}/" . basename($cleanName),
-            "/lib/images/users/" . $cleanName,
-            "/lib/images/users/" . basename($cleanName),
-            "/uploads/artists/{$slug}/" . basename($cleanName),
-            "/uploads/users/{$slug}/" . basename($cleanName),
-            "/lib/images/labels/" . basename($cleanName),
-            "/lib/images/stations/" . basename($cleanName),
-            "/lib/images/venues/" . basename($cleanName)
-        ];
-
-        foreach ($candidates as $relPath) {
-            if (file_exists($projectRoot . '/public' . $relPath)) {
-                return $relPath;
-            }
+        
+        if ($slug && file_exists($projectRoot . "/lib/images/users/{$slug}/{$base}")) {
+            return "/lib/images/users/{$slug}/{$base}";
+        }
+        
+        if (file_exists($projectRoot . "/lib/images/users/{$base}")) {
+            return "/lib/images/users/{$base}";
         }
 
-        return $default;
+        // Fallback to exactly what was requested but in lib/images
+        return "/lib/images/users/" . $clean;
     }
 }
 
 if (!function_exists('release_image')) {
-    function release_image(?string $filename): string {
+    function release_image(?string $filename, ?string $artistSlug = null): string {
         $default = '/lib/images/site/2026/default-avatar.png';
         if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http')) return $filename;
 
-        $cleanName = ltrim($filename, '/');
+        $clean = str_replace(['/uploads/releases/', '/uploads/'], '', $filename);
+        $clean = ltrim($clean, '/');
+        $base = basename($clean);
+
         $projectRoot = dirname(__DIR__, 2);
 
-        $candidates = [
-            '/uploads/releases/' . basename($cleanName),
-            '/lib/images/releases/' . basename($cleanName),
-            '/uploads/' . $cleanName
-        ];
-
-        foreach ($candidates as $relPath) {
-            if (file_exists($projectRoot . '/public' . $relPath)) {
-                return $relPath;
-            }
+        // Try artist subdirectory if provided
+        if ($artistSlug && file_exists($projectRoot . "/lib/images/releases/{$artistSlug}/{$base}")) {
+            return "/lib/images/releases/{$artistSlug}/{$base}";
         }
 
-        return $default;
+        return "/lib/images/releases/" . $clean;
     }
 }
