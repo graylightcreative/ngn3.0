@@ -1833,9 +1833,9 @@ if ($view === 'post' && !empty($data['post'])) {
                 </div>
 
                 <?php 
-                    $postImg = $post['featured_image_url'] ?? '';
+                    $postImg = post_image($post['featured_image_url'] ?? '');
                 ?>
-                <?php if (!empty($postImg)): ?>
+                <?php if ($postImg): ?>
                 <div class="rounded-3xl overflow-hidden shadow-2xl border border-white/5 aspect-[21/9]">
                     <img src="<?= htmlspecialchars($postImg) ?>" class="w-full h-full object-cover" alt="">
                 </div>
