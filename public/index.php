@@ -1110,32 +1110,30 @@ if ($view === 'post' && !empty($data['post'])) {
         padding-bottom: 100px;
     }
     
-    /* Sovereign App Frame (Mobile-First) */
+    /* Sovereign App Experience (Full Width Responsive) */
     .app-frame {
         width: 100%;
-        max-width: 500px; /* Tablet/Mobile Width */
         margin: 0 auto;
         background: var(--charcoal);
         min-height: 100vh;
         position: relative;
-        border-left: 1px solid rgba(255,255,255,0.05);
-        border-right: 1px solid rgba(255,255,255,0.05);
-        box-shadow: 0 0 100px rgba(0,0,0,0.5);
     }
 
-    /* Player Rig Fixes */
+    /* Player Rig Fixes (Mobile Style, Full Width Bar) */
     #ngn-player-container {
-        max-width: 500px;
-        left: 50% !important;
-        transform: translateX(-50%);
+        width: 100%;
+        left: 0 !important;
+        transform: none !important;
         height: 80px;
-        padding: 0 16px;
+        padding: 0 24px;
     }
     #ngn-player-container .ngn-player {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 12px;
+        gap: 24px;
+        max-width: 1400px;
+        margin: 0 auto;
     }
     .ngn-player-artwork {
         width: 48px !important;
@@ -1144,30 +1142,44 @@ if ($view === 'post' && !empty($data['post'])) {
     }
     .ngn-player-track-info {
         width: auto !important;
-        flex: 1;
+        flex: 0 1 300px;
         min-width: 0;
     }
     .ngn-player-meta {
         font-size: 12px;
     }
     .ngn-player-controls {
-        gap: 8px !important;
+        gap: 16px !important;
+        flex: 1;
+        justify-content: center;
     }
     .ngn-btn-play {
-        width: 40px !important;
-        height: 40px !important;
+        width: 44px !important;
+        height: 44px !important;
     }
-    /* Hide non-essential player parts on mobile frame */
-    .ngn-player-volume, .ngn-player-progress, .ngn-btn-shuffle, .ngn-btn-repeat {
+    
+    /* Progress Bar (Show on larger mobile/tablet+) */
+    .ngn-player-progress {
         display: none !important;
+    }
+    @media (min-width: 640px) {
+        .ngn-player-progress {
+            display: flex !important;
+            flex: 1;
+            max-width: 600px;
+        }
+    }
+
+    /* Hide non-essential player parts on pure mobile feel */
+    .ngn-player-volume, .ngn-btn-shuffle, .ngn-btn-repeat {
+        display: none !important;
+    }
+    @media (min-width: 1024px) {
+        .ngn-player-volume { display: flex !important; }
     }
 
     @media (min-width: 1024px) {
-        body {
-            background: #000 !important; /* True black background for letterboxing */
-        }
         .content-container { 
-            margin-left: 0;
             padding-bottom: 100px;
         }
     }
