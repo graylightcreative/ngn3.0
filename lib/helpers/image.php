@@ -14,6 +14,9 @@ if (!function_exists('post_image')) {
         $cleanName = str_replace('posts/', '', $filename);
         $cleanName = ltrim($cleanName, '/');
 
+        // On server, helper is in /lib/helpers/
+        // dirname(__DIR__, 1) is /lib/
+        // dirname(__DIR__, 2) is the root (e.g., /www/wwwroot/nextgennoise)
         $projectRoot = dirname(__DIR__, 2);
 
         $candidates = [
@@ -23,6 +26,7 @@ if (!function_exists('post_image')) {
         ];
 
         foreach ($candidates as $relPath) {
+            // Check in public/ (where the web server looks)
             if (file_exists($projectRoot . '/public' . $relPath)) {
                 return $relPath;
             }
