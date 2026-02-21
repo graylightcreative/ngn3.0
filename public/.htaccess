@@ -182,6 +182,7 @@ RewriteRule ^product/([a-z0-9_-]+)/?$ index.php?view=product&slug=$1 [L,QSA]
 RewriteRule ^@([a-zA-Z0-9_-]+)/?$ index.php?view=user&username=$1 [L,QSA]
 
 # Clean URLs for listing pages
+RewriteRule ^partners/?$ index.php?view=partners [L,QSA]
 RewriteRule ^artists/?$ index.php?view=artists [L,QSA]
 RewriteRule ^labels/?$ index.php?view=labels [L,QSA]
 RewriteRule ^stations/?$ index.php?view=stations [L,QSA]

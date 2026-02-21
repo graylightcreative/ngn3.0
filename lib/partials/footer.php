@@ -1,7 +1,7 @@
 <?php
 /**
- * NGN Institutional Footer v3.0.0
- * Foundry Standard: Deep Charcoal / Electric Orange
+ * NGN Institutional Footer v3.2.0
+ * Layman ROI Overhaul: Deep Charcoal / Electric Orange
  * Bible Ref: Chapter 4 (Visual DNA)
  */
 
@@ -21,20 +21,20 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
       <div class="w-16 h-16 bg-brand rounded-2xl flex items-center justify-center text-black mb-6">
         <i class="bi bi-lightning-fill text-3xl"></i>
       </div>
-      <h2 class="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Join_The_Movement</h2>
+      <h2 class="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Join the Alliance</h2>
       <p class="text-zinc-400 text-sm leading-relaxed font-medium">
-        Deploy your credentials to the Sovereign Alliance. Get exclusive intelligence, verified charts, and private community access.
+        Secure your entry into the future of sound. Get exclusive market reports, data-backed charts, and access to automated production tools.
       </p>
     </div>
 
     <form action='' method='post' novalidate class='newsletterSignup space-y-4'>
       <div class='grid grid-cols-1 gap-4'>
-          <input type='text' class='newsletterFirstName w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-zinc-600 focus:border-brand focus:outline-none transition-all font-bold' placeholder='First_Name' required>
-          <input type='email' class='newsletterEmail w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-zinc-600 focus:border-brand focus:outline-none transition-all font-bold' placeholder='Email_Address' required>
+          <input type='text' class='newsletterFirstName w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-zinc-600 focus:border-brand focus:outline-none transition-all font-bold' placeholder='First Name' required>
+          <input type='email' class='newsletterEmail w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-zinc-600 focus:border-brand focus:outline-none transition-all font-bold' placeholder='Email Address' required>
       </div>
 
-      <button type='submit' class='w-full bg-brand hover:bg-white text-black font-black py-5 rounded-full transition-all mt-6 uppercase tracking-widest text-xs shadow-xl shadow-brand/20'>Secure_Access</button>
-      <button type='button' class='w-full text-zinc-500 hover:text-white font-black py-2 rounded-lg transition-all mt-2 dismiss-popup uppercase tracking-widest text-[10px]'>Decline_Entry</button>
+      <button type='submit' class='w-full bg-brand hover:bg-white text-black font-black py-5 rounded-full transition-all mt-6 uppercase tracking-widest text-xs shadow-xl shadow-brand/20'>Secure Access</button>
+      <button type='button' class='w-full text-zinc-500 hover:text-white font-black py-2 rounded-lg transition-all mt-2 dismiss-popup uppercase tracking-widest text-[10px]'>Decline Entry</button>
     </form>
   </div>
 </div>
@@ -57,9 +57,9 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
                     <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" alt="NGN" class="h-10 opacity-90 group-hover:opacity-100 transition-opacity">
                 </a>
                 <div class="border-l-2 border-brand/40 pl-8 py-2">
-                    <h4 class="text-[10px] font-mono text-brand uppercase tracking-[0.6em] mb-4 font-black">Foundry_Mandate</h4>
-                    <p class="text-sm font-medium leading-relaxed text-zinc-500 max-w-sm">
-                        Building the infrastructure of sovereignty. We deploy autonomous engines that kill the dependency on the manual service model. Sound ownership, verified by the Rig.
+                    <h4 class="text-[10px] font-mono text-brand uppercase tracking-[0.6em] mb-4 font-black">Growth_Mandate</h4>
+                    <p class="text-sm font-medium leading-relaxed text-zinc-500 max-w-sm font-bold">
+                        Building the infrastructure for the independent music industry. We deploy automated high-tech production labs that ensure sound ownership and maximize ROI for our partners.
                     </p>
                 </div>
                 <div class="flex gap-6 text-zinc-600">
@@ -73,40 +73,40 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
             <!-- Column 2: Platform -->
             <div>
                 <h4 class="text-[10px] font-mono text-white uppercase tracking-[0.4em] mb-8 font-bold flex items-center">
-                    <span class="w-2 h-px bg-brand mr-3"></span> Platform
+                    <span class="w-2 h-px bg-brand mr-3"></span> Marketplace
                 </h4>
                 <ul class="space-y-4 text-[11px] font-bold uppercase tracking-widest">
-                    <li><a href="/artists" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Artists</a></li>
-                    <li><a href="/labels" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Labels</a></li>
-                    <li><a href="/stations" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Stations</a></li>
-                    <li><a href="/venues" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Venues</a></li>
-                    <li><a href="/charts" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Charts</a></li>
+                    <li><a href="/partners" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Partners</a></li>
+                    <li><a href="/labels" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Capital Groups</a></li>
+                    <li><a href="/stations" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Production Labs</a></li>
+                    <li><a href="/venues" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Physical Assets</a></li>
+                    <li><a href="/charts" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Market Rankings</a></li>
                 </ul>
             </div>
 
-            <!-- Column 3: Institutional -->
+            <!-- Column 3: Opportunities -->
             <div>
                 <h4 class="text-[10px] font-mono text-white uppercase tracking-[0.4em] mb-8 font-bold flex items-center">
-                    <span class="w-2 h-px bg-brand mr-3"></span> Institutional
+                    <span class="w-2 h-px bg-brand mr-3"></span> Strategic
                 </h4>
                 <ul class="space-y-4 text-[11px] font-bold uppercase tracking-widest">
-                    <li><a href="https://investors.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">Investor_Terminal</a></li>
-                    <li><a href="https://boardroom.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">The_Boardroom</a></li>
-                    <li><a href="/forge" class="text-zinc-500 hover:text-brand transition-all">System_Manifest</a></li>
-                    <li><a href="/pricing" class="text-brand hover:text-white transition-all">Secure_Entry</a></li>
+                    <li><a href="https://investors.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">Investor Portal</a></li>
+                    <li><a href="https://boardroom.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">The Boardroom</a></li>
+                    <li><a href="/forge" class="text-zinc-500 hover:text-brand transition-all">Roadmap & Status</a></li>
+                    <li><a href="/pricing" class="text-brand hover:text-white transition-all">Secure Entry</a></li>
                 </ul>
             </div>
 
-            <!-- Column 4: Sovereign Nodes -->
+            <!-- Column 4: Technology -->
             <div>
                 <h4 class="text-[10px] font-mono text-white uppercase tracking-[0.4em] mb-8 font-bold flex items-center">
-                    <span class="w-2 h-px bg-brand mr-3"></span> Sovereign Nodes
+                    <span class="w-2 h-px bg-brand mr-3"></span> Production Labs
                 </h4>
                 <ul class="space-y-4 text-[10px] font-mono uppercase tracking-[0.2em]">
-                    <li><a href="https://beacon.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Beacon_ID</a></li>
-                    <li><a href="https://ledger.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Ledger_Moat</a></li>
-                    <li><a href="https://vault.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Vault_Secure</a></li>
-                    <li><a href="https://shredder.nextgennoise.com" class="text-zinc-600 hover:text-brand transition-all">Shredder_Node</a></li>
+                    <li><a href="https://beacon.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Identity Security</a></li>
+                    <li><a href="https://ledger.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Financial Engine</a></li>
+                    <li><a href="https://vault.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Data Fortress</a></li>
+                    <li><a href="https://shredder.nextgennoise.com" class="text-zinc-600 hover:text-brand transition-all">Content Distribution</a></li>
                 </ul>
             </div>
         </div>
@@ -115,12 +115,12 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
         <div class="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="space-y-2 text-center md:text-left">
                 <p class="text-[9px] font-mono text-zinc-700 uppercase tracking-[0.5em]">&copy; 2026 Graylight Creative // NGN Sovereign Platform</p>
-                <p class="text-[9px] font-mono text-brand/40 uppercase tracking-[0.3em]">SHA-256 INTEGRITY VERIFIED // PRESSURIZED FOR EXIT</p>
+                <p class="text-[9px] font-mono text-brand/40 uppercase tracking-[0.3em]">DATA INTEGRITY VERIFIED // AUTOMATED FOR GROWTH</p>
             </div>
             <div class="flex flex-wrap justify-center gap-8 text-[9px] font-mono text-zinc-700 uppercase tracking-[0.5em]">
-                <a href="/privacy-policy" class="hover:text-white transition-colors">Privacy_Protocol</a>
-                <a href="/terms-of-service" class="hover:text-white transition-colors">Terms_of_Service</a>
-                <a href="/agreement/dmca-policy" class="hover:text-white transition-colors">DMCA_Safe_Harbor</a>
+                <a href="/privacy-policy" class="hover:text-white transition-colors">Privacy Protocol</a>
+                <a href="/terms-of-service" class="hover:text-white transition-colors">Terms of Service</a>
+                <a href="/agreement/dmca-policy" class="hover:text-white transition-colors">Rights & Compliance</a>
             </div>
         </div>
     </div>
@@ -140,6 +140,6 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
 
 <script>
     window.NGN = window.NGN || {};
-    window.NGN.version = '3.0.0';
+    window.NGN.version = '3.2.0';
     window.NGN.environment = 'production';
 </script>
