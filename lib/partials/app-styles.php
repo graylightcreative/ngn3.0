@@ -181,4 +181,69 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+/* 2026 Pioneer UI Additions */
+.glass-panel {
+    background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(0,0,0,0.4) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+}
+
+.glass-panel:hover {
+    border-color: color-mix(in srgb, var(--primary) 40%, rgba(255,255,255,0.1));
+    box-shadow: 0 8px 32px 0 color-mix(in srgb, var(--primary) 20%, rgba(0,0,0,0.5));
+}
+
+.neon-border {
+    position: relative;
+}
+.neon-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(45deg, var(--primary), transparent, var(--primary));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.neon-border:hover::before {
+    opacity: 1;
+    animation: borderSpin 3s linear infinite;
+}
+
+@keyframes borderSpin {
+    100% { filter: hue-rotate(360deg); }
+}
+
+.separator-slash {
+    position: relative;
+    padding-bottom: 4rem;
+}
+.separator-slash::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    box-shadow: 0 0 20px var(--primary);
+    opacity: 0.5;
+}
+
+.bg-mesh {
+    background-color: var(--charcoal);
+    background-image: 
+        radial-gradient(at 0% 0%, color-mix(in srgb, var(--primary) 15%, transparent) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, color-mix(in srgb, var(--primary) 10%, transparent) 0px, transparent 50%);
+}
+
+.vibrant-icon-wrapper {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 20%, transparent), transparent);
+    border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+    box-shadow: inset 0 0 20px color-mix(in srgb, var(--primary) 10%, transparent);
+}
 </style>
