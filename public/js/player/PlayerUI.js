@@ -41,7 +41,7 @@ export class PlayerUI {
       <div class="ngn-player">
         <!-- Track Info -->
         <div class="ngn-player-track-info">
-          <img class="ngn-player-artwork" src="/lib/images/default-album-art.jpg" alt="Album artwork">
+          <img class="ngn-player-artwork" src="/lib/images/site/default-avatar.png" alt="Album artwork">
           <div class="ngn-player-meta">
             <div class="ngn-player-title">Ready to play</div>
             <div class="ngn-player-artist">NGN Player</div>
@@ -340,7 +340,7 @@ export class PlayerUI {
     this.artist.textContent = track.artist_name || 'Unknown Artist';
 
     // Update artwork
-    const artwork = track.cover_md || track.cover_lg || '/lib/images/default-album-art.jpg';
+    const artwork = track.cover_md || track.cover_lg || '/lib/images/site/default-avatar.png';
     this.artwork.src = artwork;
     this.artwork.alt = `${track.title} by ${track.artist_name}`;
   }
