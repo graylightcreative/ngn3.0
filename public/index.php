@@ -1109,10 +1109,66 @@ if ($view === 'post' && !empty($data['post'])) {
     .content-container {
         padding-bottom: 100px;
     }
+    
+    /* Sovereign App Frame (Mobile-First) */
+    .app-frame {
+        width: 100%;
+        max-width: 500px; /* Tablet/Mobile Width */
+        margin: 0 auto;
+        background: var(--charcoal);
+        min-height: 100vh;
+        position: relative;
+        border-left: 1px solid rgba(255,255,255,0.05);
+        border-right: 1px solid rgba(255,255,255,0.05);
+        box-shadow: 0 0 100px rgba(0,0,0,0.5);
+    }
+
+    /* Player Rig Fixes */
+    #ngn-player-container {
+        max-width: 500px;
+        left: 50% !important;
+        transform: translateX(-50%);
+        height: 80px;
+        padding: 0 16px;
+    }
+    #ngn-player-container .ngn-player {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+    .ngn-player-artwork {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 6px;
+    }
+    .ngn-player-track-info {
+        width: auto !important;
+        flex: 1;
+        min-width: 0;
+    }
+    .ngn-player-meta {
+        font-size: 12px;
+    }
+    .ngn-player-controls {
+        gap: 8px !important;
+    }
+    .ngn-btn-play {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    /* Hide non-essential player parts on mobile frame */
+    .ngn-player-volume, .ngn-player-progress, .ngn-btn-shuffle, .ngn-btn-repeat {
+        display: none !important;
+    }
+
     @media (min-width: 1024px) {
+        body {
+            background: #000 !important; /* True black background for letterboxing */
+        }
         .content-container { 
-            margin-left: 280px;
-            padding-bottom: 40px;
+            margin-left: 0;
+            padding-bottom: 100px;
         }
     }
 
@@ -1130,32 +1186,34 @@ if ($view === 'post' && !empty($data['post'])) {
 </head>
 <body class="h-full selection:bg-brand/30 dark">
   <?php include $root . 'lib/partials/pwa-mobilizer.php'; ?>
-  <div class="min-h-screen flex flex-col lg:flex-row">
-
-    <?php include $root . 'lib/partials/navigation.php'; ?>
-
+  
+  <div class="app-frame flex flex-col">
+    <?php include 'app-nav.php'; ?>
     <!-- Main Content Area -->
     <main class="flex-1 content-container">
-      <!-- Desktop Header (Floating) -->
-      <header class="hidden lg:flex items-center justify-between px-8 h-20 sticky top-0 z-40 bg-black/60 backdrop-blur-xl">
+      <!-- Minimal Header -->
+      <header class="flex items-center justify-between px-6 h-16 sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-white/5">
+        <a href="/" class="flex-shrink-0">
+            <img src="/lib/images/site/2026/NGN-Emblem-Light.png" class="h-8 w-auto" alt="NGN">
+        </a>
+        
         <div class="flex items-center gap-4">
-          <div class="flex gap-2">
-            <button onclick="history.back()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-left"></i></button>
-            <button onclick="history.forward()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white hover:bg-black/60"><i class="bi-chevron-right"></i></button>
-          </div>
-          <form method="get" action="/" class="relative group" id="global-search-form">
-            <input type="hidden" name="view" value="<?= in_array($view, ['artists','labels','stations','venues']) ? htmlspecialchars($view) : 'artists' ?>">
-            <i class="bi-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-white transition-colors"></i>
-            <input type="text" name="q" id="global-search-input" autocomplete="off" value="<?= htmlspecialchars($search ?? '') ?>" placeholder="Search artists, labels, or news..." class="w-80 h-10 pl-10 pr-4 rounded-full bg-zinc-800 border-none text-sm text-white focus:ring-2 focus:ring-white transition-all">
-            
-            <!-- Autocomplete Dropdown -->
+          <form method="get" action="/" class="relative" id="global-search-form">
+            <input type="text" name="q" id="global-search-input" autocomplete="off" placeholder="Search..." class="w-32 focus:w-48 h-9 pl-4 pr-4 rounded-full bg-zinc-800 border-none text-xs text-white transition-all">
             <div id="search-autocomplete" class="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl hidden z-[200] overflow-hidden">
-                <div id="autocomplete-results" class="max-h-[400px] overflow-y-auto py-2">
-                    <!-- Results injected here -->
-                </div>
+                <div id="autocomplete-results" class="max-h-[300px] overflow-y-auto py-2"></div>
             </div>
           </form>
+          
+          <?php if ($isLoggedIn): ?>
+            <button class="w-8 h-8 rounded-full bg-black border border-white/10 overflow-hidden">
+              <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? $currentUser['username'] ?? '', $currentUser['Image'] ?? $currentUser['avatar_url'] ?? null)) ?>" class="w-full h-full object-cover">
+            </button>
+          <?php else: ?>
+            <a href="/login.php" class="text-xs font-black uppercase text-zinc-400">Login</a>
+          <?php endif; ?>
         </div>
+      </header>
 
         <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -1238,7 +1296,7 @@ if ($view === 'post' && !empty($data['post'])) {
       </header>
 
       <!-- View Wrapper -->
-      <div class="px-4 lg:px-8 py-6">
+      <div class="px-4 py-6">
 
       <?php if ($view === 'home'): ?>
         <?php
