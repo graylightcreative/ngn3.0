@@ -1,28 +1,35 @@
 <?php
-/**
- * Temporary diagnostic script to read error log
- */
 header('Content-Type: text/plain');
+echo "Current Dir: " . __DIR__ . "\n";
+echo "Files in public/:\n";
+print_r(scandir(__DIR__));
+echo "\nFiles in root/:\n";
+print_r(scandir(dirname(__DIR__)));
 
-$logFile = __DIR__ . '/error_log';
-if (!file_exists($logFile)) {
-    $logFile = dirname(__DIR__) . '/error_log';
+$root = dirname(__DIR__);
+$possibleLogs = [
+    $root . '/error_log',
+    $root . '/php_errors.log',
+    $root . '/storage/logs/error.log',
+    '/tmp/php_errors.log'
+];
+
+foreach ($possibleLogs as $log) {
+    if (file_exists($log)) {
+        echo "\nFound log at $log:\n";
+        echo shell_exec("tail -n 50 " . escapeshellarg($log));
+    }
 }
 
-if (file_exists($logFile)) {
-    echo "Log found at: $logFile
-";
-    $lines = 100;
-    $data = shell_exec("tail -n $lines " . escapeshellarg($logFile));
-    echo $data;
-} else {
-    echo "Error log not found in common locations.
-";
-    // Try to find it via phpinfo or ini
-    echo "ini_get('error_log'): " . ini_get('error_log') . "
-";
-    $phpLog = ini_get('error_log');
-    if ($phpLog && file_exists($phpLog)) {
-        echo shell_exec("tail -n 100 " . escapeshellarg($phpLog));
+// Try reading recent NGN custom logs
+$ngnLogs = glob($root . '/storage/logs/*.log');
+if ($ngnLogs) {
+    echo "\nNGN custom logs found:\n";
+    foreach ($ngnLogs as $l) {
+        echo " - " . basename($l) . " (" . filesize($l) . " bytes)\n";
     }
+    // Read the newest one
+    usort($ngnLogs, function($a, $b) { return filemtime($b) - filemtime($a); });
+    echo "\nContent of " . basename($ngnLogs[0]) . ":\n";
+    echo shell_exec("tail -n 100 " . escapeshellarg($ngnLogs[0]));
 }
