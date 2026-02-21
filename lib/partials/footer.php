@@ -1,19 +1,50 @@
 <?php
 /**
- * NGN Institutional Footer
+ * NGN Institutional Footer v3.0.0
  * Foundry Standard: Deep Charcoal / Electric Orange
  * Bible Ref: Chapter 4 (Visual DNA)
  */
 
-$isMaster = $_SESSION['is_master'] ?? false;
-$baseUrl = $config->baseUrl();
+// Auth state for email popup
+$isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
 ?>
+
+<!-- Email Capture Popup -->
+<?php if (!$isLoggedIn): ?>
+<div class="popup fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm z-[300]" id="contactJoinPopup" style="display:none;">
+  <div class="bg-[#0a0a0a] rounded-[2rem] p-10 max-w-md w-full mx-4 relative border border-white/10 shadow-2xl">
+    <button class="close-popup absolute top-6 right-6 text-zinc-500 hover:text-white text-2xl leading-none" aria-label="Close">
+      <i class="bi bi-x-lg"></i>
+    </button>
+
+    <div class="mb-8">
+      <div class="w-16 h-16 bg-brand rounded-2xl flex items-center justify-center text-black mb-6">
+        <i class="bi bi-lightning-fill text-3xl"></i>
+      </div>
+      <h2 class="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Join_The_Movement</h2>
+      <p class="text-zinc-400 text-sm leading-relaxed font-medium">
+        Deploy your credentials to the Sovereign fleet. Get exclusive intelligence, verified charts, and private community access.
+      </p>
+    </div>
+
+    <form action='' method='post' novalidate class='newsletterSignup space-y-4'>
+      <div class='grid grid-cols-1 gap-4'>
+          <input type='text' class='newsletterFirstName w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-zinc-600 focus:border-brand focus:outline-none transition-all font-bold' placeholder='First_Name' required>
+          <input type='email' class='newsletterEmail w-full bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-zinc-600 focus:border-brand focus:outline-none transition-all font-bold' placeholder='Email_Address' required>
+      </div>
+
+      <button type='submit' class='w-full bg-brand hover:bg-white text-black font-black py-5 rounded-full transition-all mt-6 uppercase tracking-widest text-xs shadow-xl shadow-brand/20'>Secure_Access</button>
+      <button type='button' class='w-full text-zinc-500 hover:text-white font-black py-2 rounded-lg transition-all mt-2 dismiss-popup uppercase tracking-widest text-[10px]'>Decline_Entry</button>
+    </form>
+  </div>
+</div>
+<?php endif; ?>
 
 <!-- NGN PLAYER INTERFACE -->
 <div id="ngn-player-container"></div>
 
 <!-- INSTITUTIONAL FOOTER -->
-<footer class="bg-charcoal border-t border-white/5 pt-24 pb-12 px-6 lg:px-12 selection:bg-brand selection:text-white relative overflow-hidden">
+<footer class="bg-[#050505] border-t border-white/5 pt-24 pb-12 px-6 lg:px-12 relative overflow-hidden mt-24">
     <!-- Tactical Grid Overlay -->
     <div class="absolute inset-0 opacity-[0.02] pointer-events-none" style="background-image: linear-gradient(#FF5F1F 1px, transparent 1px), linear-gradient(90deg, #FF5F1F 1px, transparent 1px); background-size: 40px 40px;"></div>
 
@@ -50,7 +81,6 @@ $baseUrl = $config->baseUrl();
                     <li><a href="/stations" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Stations</a></li>
                     <li><a href="/venues" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Venues</a></li>
                     <li><a href="/charts" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>Charts</a></li>
-                    <li><a href="/smr-charts" class="text-zinc-500 hover:text-brand transition-all flex items-center group"><span class="w-0 group-hover:w-2 h-px bg-brand transition-all mr-0 group-hover:mr-2"></span>SMR_Radio</a></li>
                 </ul>
             </div>
 
@@ -63,8 +93,6 @@ $baseUrl = $config->baseUrl();
                     <li><a href="/?view=investors" class="text-zinc-500 hover:text-brand transition-all">Investor_Terminal</a></li>
                     <li><a href="https://boardroom.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">The_Boardroom</a></li>
                     <li><a href="/beta" class="text-zinc-500 hover:text-brand transition-all">System_Manifest</a></li>
-                    <li><a href="/docs/bible/00%20-%20Bible%20Index.md" class="text-zinc-500 hover:text-brand transition-all">Technical_Bible</a></li>
-                    <li><a href="/agreement/artist-onboarding" class="text-zinc-500 hover:text-brand transition-all">Rights_Ledger</a></li>
                     <li><a href="/pricing" class="text-brand hover:text-white transition-all">Secure_Entry</a></li>
                 </ul>
             </div>
@@ -79,8 +107,6 @@ $baseUrl = $config->baseUrl();
                     <li><a href="https://ledger.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Ledger_Moat</a></li>
                     <li><a href="https://vault.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Vault_Secure</a></li>
                     <li><a href="https://shredder.nextgennoise.com" class="text-zinc-600 hover:text-brand transition-all">Shredder_Node</a></li>
-                    <li><a href="https://uplink.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Uplink_SMM</a></li>
-                    <li><a href="https://nexus.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Nexus_Infra</a></li>
                 </ul>
             </div>
         </div>
@@ -95,7 +121,6 @@ $baseUrl = $config->baseUrl();
                 <a href="/privacy-policy" class="hover:text-white transition-colors">Privacy_Protocol</a>
                 <a href="/terms-of-service" class="hover:text-white transition-colors">Terms_of_Service</a>
                 <a href="/agreement/dmca-policy" class="hover:text-white transition-colors">DMCA_Safe_Harbor</a>
-                <a href="/notes" class="hover:text-white transition-colors">Dev_Notes</a>
             </div>
         </div>
     </div>
@@ -106,20 +131,15 @@ $baseUrl = $config->baseUrl();
 
 <!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="/lib/js/newsletter-signup.js?v=<?= time() ?>"></script>
 <script src="/lib/js/site.js?v=<?= time() ?>"></script>
-<script src="/js/toast.js?v=<?= time() ?>"></script>
 
 <!-- NGN Player Initialization -->
-<script type="module" src="/public/js/player/player-init.js"></script>
+<script type="module" src="/public/js/player/player-init.js?v=<?= time() ?>"></script>
 
 <script>
-    // System Handshake
     window.NGN = window.NGN || {};
-    window.NGN.version = '2.1.0';
+    window.NGN.version = '3.0.0';
     window.NGN.environment = 'production';
 </script>
-
-</body>
-</html>

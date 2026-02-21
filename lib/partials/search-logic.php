@@ -34,13 +34,13 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderResults(items) {
         resultsBox.innerHTML = items.map(item => {
             const icon = item.type === 'artist' ? 'bi-person-circle' : (item.type === 'label' ? 'bi-record-circle' : 'bi-music-note-beamed');
-            const url = `/${item.type}/${item.slug || item.id}`;
+            const url = '/' + item.type + '/' + (item.slug || item.id);
             const img = item.image_url || '/lib/images/site/2026/default-avatar.png';
             const subtext = item.subtext || (item.type.charAt(0).toUpperCase() + item.type.slice(1));
 
             return '<a href="' + url + '" class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors group">' +
                     '<div class="w-10 h-10 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">' +
-                        '<img src="' + img + '" class="w-full h-full object-cover" onerror="this.src=\"/lib/images/site/2026/default-avatar.png\"">' +
+                        '<img src="' + img + '" class="w-full h-full object-cover" onerror="this.onerror=null;this.src=\'/lib/images/site/2026/default-avatar.png\';">' +
                     '</div>' +
                     '<div class="flex-1 min-w-0">' +
                         '<div class="text-sm font-bold text-white truncate group-hover:text-brand transition-colors">' + item.name + '</div>' +

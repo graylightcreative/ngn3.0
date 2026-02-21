@@ -299,9 +299,7 @@ if ($view === 'post' && !empty($data['post'])) {
     </main>
   </div>
 
-  <?php include $root . 'lib/partials/dispute-modal.php'; ?>
-  <?php require $root . 'lib/partials/player.php'; ?>
-  <?php require $root . 'lib/partials/global-footer.php'; ?>
+  <?php require $root . 'lib/partials/footer.php'; ?>
 
 </body>
 </html>
