@@ -1,5 +1,5 @@
 <?php
-$pColor = $_ENV['THEME_COLOR_PRIMARY'] ?? '#FF5F1F';
+$pColor = \NGN\Lib\Env::get('THEME_COLOR_PRIMARY', '#FF5F1F');
 ?>
 <style>
 :root { 

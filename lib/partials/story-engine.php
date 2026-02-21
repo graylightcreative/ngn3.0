@@ -1,7 +1,7 @@
 <?php
 /**
- * Sovereign Story Engine v3.2.0
- * High-Velocity Immersive Visuals
+ * Sovereign Story Engine v3.2.1
+ * High-Velocity Immersive Visuals // Corrected Shellshock Positioning
  */
 ?>
 <div class="relative rounded-3xl md:rounded-[3rem] overflow-hidden mb-12 md:mb-16 group border border-white/5 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] bg-[#050505] min-h-[550px] md:min-h-[650px] flex items-center">
@@ -42,12 +42,12 @@
             </div>
         </div>
 
-        <!-- Slide 3: SHELLSHOCK CMS (Security Shield) -->
+        <!-- Slide 3: SHELLSHOCK (Drum Precision) -->
         <div class="absolute inset-0 transition-all duration-1000 opacity-0" data-story-slide="2">
             <div class="w-full h-full bg-[#050505] flex items-center justify-center">
                 <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 180deg at 50% 50%, var(--primary) 0deg, transparent 120deg);"></div>
                 <div class="w-full h-full bg-gradient-to-tr from-brand/10 via-transparent to-transparent"></div>
-                <!-- SVG Hexagons -->
+                <!-- SVG Circular Tech -->
                 <svg class="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <pattern id="hexagons" width="50" height="43.4" patternUnits="userSpaceOnUse" patternTransform="scale(2)">
@@ -56,6 +56,9 @@
                     </defs>
                     <rect width="100%" height="100%" fill="url(#hexagons)" />
                 </svg>
+                <div class="relative z-0 opacity-10 scale-150">
+                    <i class="bi bi-reception-4 text-[20vw] text-brand"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -91,12 +94,12 @@
             <!-- Content 2: Shellshock -->
             <div class="story-content transition-all duration-700 hidden" data-story-content="2">
                 <div class="inline-flex items-center gap-3 px-4 py-1.5 bg-brand text-black font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-8 rounded-full shadow-xl shadow-brand/20">
-                    <i class="bi bi-shield-lock-fill"></i> Sovereign_CMS
+                    <i class="bi bi-tools"></i> Precision_Engineering
                 </div>
                 <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] text-white uppercase break-words drop-shadow-2xl">Shell<span class="text-brand">_Shock</span></h1>
-                <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">The administrative core of the Empire. Deploy labels and stations in seconds.</p>
+                <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">The world's first autonomous drum tuning system. Perfect pitch, verified by the Rig.</p>
                 <div class="flex flex-col sm:flex-row gap-6">
-                    <a href="https://shellshock.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all rounded-full shadow-2xl shadow-brand/30 text-center">Explore_Console</a>
+                    <a href="https://shellshock.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all rounded-full shadow-2xl shadow-brand/30 text-center">Explore_Shellshock</a>
                 </div>
             </div>
         </div>

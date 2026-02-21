@@ -1,14 +1,14 @@
 <?php
 /**
- * Sovereign Head Protocol v3.1.0
+ * Sovereign Head Protocol v3.1.1
  * Pure high-velocity metadata and assets.
  */
 $iconVersionQ = '?v=3.0.0';
 
-// Pull from ENV for reliability in partials
-$pColor = $_ENV['THEME_COLOR_PRIMARY'] ?? '#FF5F1F';
-$sColor = $_ENV['THEME_COLOR_SECONDARY'] ?? '#E64A00';
-$dColor = $_ENV['THEME_COLOR_DARK'] ?? '#0A0A0A';
+// Use authoritative Env helper
+$pColor = \NGN\Lib\Env::get('THEME_COLOR_PRIMARY', '#FF5F1F');
+$sColor = \NGN\Lib\Env::get('THEME_COLOR_SECONDARY', '#E64A00');
+$dColor = \NGN\Lib\Env::get('THEME_COLOR_DARK', '#0A0A0A');
 ?>
 <link rel="canonical" href="<?= "https://nextgennoise.com" . $_SERVER['REQUEST_URI'] ?>">
 
@@ -45,10 +45,10 @@ $dColor = $_ENV['THEME_COLOR_DARK'] ?? '#0A0A0A';
                             secondary: '<?= $sColor ?>',
                         },
                         theme: {
-                            danger: '<?= $_ENV['THEME_COLOR_DANGER'] ?? '#ff4949' ?>',
-                            warning: '<?= $_ENV['THEME_COLOR_WARNING'] ?? '#ffcc00' ?>',
-                            success: '<?= $_ENV['THEME_COLOR_SUCCESS'] ?? '#3fa307' ?>',
-                            info: '<?= $_ENV['THEME_COLOR_INFO'] ?? '#4CAF50' ?>'
+                            danger: '<?= \NGN\Lib\Env::get('THEME_COLOR_DANGER', '#ff4949') ?>',
+                            warning: '<?= \NGN\Lib\Env::get('THEME_COLOR_WARNING', '#ffcc00') ?>',
+                            success: '<?= \NGN\Lib\Env::get('THEME_COLOR_SUCCESS', '#3fa307') ?>',
+                            info: '<?= \NGN\Lib\Env::get('THEME_COLOR_INFO', '#4CAF50') ?>'
                         }
                     },
                     fontFamily: {
