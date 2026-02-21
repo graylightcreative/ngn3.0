@@ -8,26 +8,8 @@ $artistName = $artist['name'] ?? 'Unknown Artist';
 $artistSlug = $artist['slug'] ?? '';
 $isClaimed = !empty($artist['claimed']);
 
-// Robust Image Detection
-$artistImg = DEFAULT_AVATAR;
-if (!empty($artist['image_url'])) {
-    if (str_starts_with($artist['image_url'], 'http') || str_starts_with($artist['image_url'], '/')) {
-        $artistImg = $artist['image_url'];
-    } else {
-        // Try multiple locations for migrated/legacy images
-        $paths = [
-            "/uploads/artists/{$artistSlug}/{$artist['image_url']}",
-            "/uploads/users/{$artistSlug}/{$artist['image_url']}",
-            "/uploads/posts/{$artist['image_url']}"
-        ];
-        foreach ($paths as $p) {
-            if (file_exists(dirname(__DIR__, 3) . '/public' . $p)) {
-                $artistImg = $p;
-                break;
-            }
-        }
-    }
-}
+// Use Authoritative Image Helper
+$artistImg = user_image($artistSlug, $artist['image_url'] ?? null);
 
 $bio = $artist['bio'] ?? '';
 $scores = $artist['scores'] ?? ['Score' => 0];
@@ -156,10 +138,7 @@ $scores = $artist['scores'] ?? ['Score' => 0];
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                         <?php foreach (array_slice($entity['releases'], 0, 4) as $release): ?>
                         <?php 
-                            $releaseImg = ($release['cover_image_url'] ?? $release['cover_url'] ?? '') ?: DEFAULT_AVATAR; 
-                            if ($releaseImg && !str_starts_with($releaseImg, 'http') && !str_starts_with($releaseImg, '/')) {
-                                $releaseImg = "/uploads/releases/{$releaseImg}";
-                            }
+                            $releaseImg = release_image($release['cover_url'] ?? $release['cover_image_url'] ?? '', $artistSlug); 
                         ?>
                         <div class="group">
                             <div class="aspect-square rounded-xl overflow-hidden mb-4 shadow-2xl relative border border-white/5">
