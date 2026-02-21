@@ -53,11 +53,15 @@ LOG_DIR_CRON=$NGN_ROOT/storage/cron_logs
 #    Updates sitemap.xml for SEO optimization.
 0 2 * * 0 "$PHP_BIN" "$NGN_ROOT/bin/generate_sitemap.php" >> "$LOG_DIR_LEGACY/cron-sitemap.log" 2>&1
 
+# 5. Forge Auto-Sync: Every day at 03:00
+#    Automatically pulls the latest changes from Git and updates the project.
+0 3 * * * /bin/bash "$NGN_ROOT/bin/sync_forge.sh" >> "$LOG_DIR_CRON/forge_sync.log" 2>&1
+
 # ------------------------------------------------------------------------------
 # Section 2: Governance Cron Jobs (from aapanel guide)
 # ------------------------------------------------------------------------------
 
-# 4. NGN SIR Reminders: Daily at 9:00 AM UTC
+# 6. NGN SIR Reminders: Daily at 9:00 AM UTC
 #    Sends reminders to directors for overdue SIRs (>14 days).
 0 9 * * * "$PHP_BIN" "$NGN_ROOT/jobs/governance/send_sir_reminders.php" >> "$LOG_DIR_CRON/sir_reminders.log" 2>&1
 

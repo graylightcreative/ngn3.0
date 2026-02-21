@@ -2,7 +2,11 @@
 /**
  * NGN Single Post View
  */
-$post = $data['post'];
+$post = $data['post'] ?? null;
+if (!$post) {
+    echo '<div class="p-20 text-center text-zinc-500 uppercase font-black tracking-widest">Sovereign Data Missing / Entry Void</div>';
+    return;
+}
 ?>
 <!-- SINGLE POST VIEW (Modern Editorial) -->
 <div class="max-w-4xl mx-auto">
@@ -38,12 +42,12 @@ $post = $data['post'];
     </header>
 
     <article class="prose prose-invert prose-lg max-w-none">
-        <?php if ($post['is_locked']): ?>
+        <?php if (!empty($post['is_locked'])): ?>
             <div class="bg-zinc-900/80 backdrop-blur-xl border border-brand/20 p-12 rounded-3xl text-center">
                 <i class="bi-shield-lock-fill text-6xl text-brand mb-6 block"></i>
-                <h2 class="text-3xl font-black text-white mb-4">Premium Intelligence</h2>
-                <p class="text-zinc-400 mb-8 max-w-md mx-auto">This report is restricted to NGN Pro members. Gain the competitive edge with full platform access.</p>
-                <a href="/pricing" class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-xs">Upgrade to Pro</a>
+                <h2 class="text-3xl font-black text-white mb-4">Market Intelligence Report</h2>
+                <p class="text-zinc-400 mb-8 max-w-md mx-auto">This strategic report is restricted to NGN Partners. Gain the competitive edge with full platform access and detailed ROI analysis.</p>
+                <a href="/pricing" class="inline-block bg-brand text-black font-black py-4 px-10 rounded-full hover:scale-105 transition-all shadow-xl shadow-brand/20 uppercase tracking-widest text-xs">Unlock Full Access</a>
             </div>
         <?php else: ?>
             <div class="text-zinc-300 font-medium leading-[1.8]">

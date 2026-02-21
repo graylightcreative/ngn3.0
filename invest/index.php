@@ -17,8 +17,8 @@ $minimumInvestment = 50;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NGN // INVESTOR TERMINAL // Series A</title>
-    <meta name="description" content="Institutional capital routes for the independent music monopoly. High-yield Sovereign Notes providing 8% APY target returns. Built for sovereignty, pressurized for exit.">
+    <title>NGN // INVESTOR TERMINAL // Fixed-Return Notes</title>
+    <meta name="description" content="Secure your investment in the future of sound. High-yield Investment Notes providing 8% APY target returns. Backed by real-time music data and high-tech production labs.">
     
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LHGQG7HXKH"></script>
@@ -32,13 +32,13 @@ $minimumInvestment = 50;
 
     <!-- SOVEREIGN SEO PROTOCOL -->
     <meta property="og:site_name" content="NextGenNoise">
-    <meta property="og:title" content="NGN // INVESTOR TERMINAL // Series A">
-    <meta property="og:description" content="Secure your entry into the first platform providing cryptographic source of truth for the $28.6B music industry.">
+    <meta property="og:title" content="NGN // INVESTOR TERMINAL // Fixed-Return Notes">
+    <meta property="og:description" content="Secure your entry into the first platform providing a data-backed source of truth for the $28.6B music industry.">
     <meta property="og:image" content="https://nextgennoise.com/lib/images/site/og-image-investors.jpg">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="NGN // INVESTOR TERMINAL // Series A">
-    <meta name="twitter:description" content="Institutional capital routes for the independent music monopoly. 8% APY Sovereign Notes active.">
+    <meta name="twitter:title" content="NGN // INVESTOR TERMINAL // Fixed-Return Notes">
+    <meta name="twitter:description" content="High-yield 8% APY Fixed-Return Investment Notes now active.">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -49,7 +49,7 @@ $minimumInvestment = 50;
             theme: {
                 extend: {
                     colors: {
-                        brand: '#FF5F1F',
+                        brand: '#FF5500',
                         charcoal: '#050505',
                         surface: '#0A0A0A',
                         moat: '#121212'
@@ -77,19 +77,19 @@ $minimumInvestment = 50;
             flex-direction: column;
             overflow-x: hidden;
         }
-        .glow-brand { text-shadow: 0 0 20px rgba(255, 95, 31, 0.5); }
-        .border-brand-glow { border-color: rgba(255, 95, 31, 0.3); box-shadow: 0 0 15px rgba(255, 95, 31, 0.1); }
+        .glow-brand { text-shadow: 0 0 20px rgba(255, 85, 0, 0.5); }
+        .border-brand-glow { border-color: rgba(255, 85, 0, 0.3); box-shadow: 0 0 15px rgba(255, 85, 0, 0.1); }
         .glass { background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
-        .tactical-line { height: 1px; background: linear-gradient(90deg, transparent, #FF5F1F, transparent); }
+        .tactical-line { height: 1px; background: linear-gradient(90deg, transparent, #FF5500, transparent); }
         
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #050505; }
-        ::-webkit-scrollbar-thumb { background: #FF5F1F; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #FF5500; border-radius: 10px; }
 
         .stat-value { font-family: 'JetBrains Mono', monospace; font-weight: 800; }
         .phase-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .active-dot { background: #FF5F1F; box-shadow: 0 0 10px #FF5F1F; }
+        .active-dot { background: #FF5500; box-shadow: 0 0 10px #FF5500; }
 
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
@@ -101,6 +101,7 @@ $minimumInvestment = 50;
     </style>
 </head>
 <body class="selection:bg-brand selection:text-white">
+<?php include __DIR__ . '/../lib/partials/pwa-mobilizer.php'; ?>
 
 <!-- HUD / NAVIGATION -->
 <nav class="sticky top-0 z-50 glass border-b border-white/5 px-6 h-20 flex items-center justify-between">
@@ -112,16 +113,16 @@ $minimumInvestment = 50;
             <span class="font-bold tracking-tighter text-xl font-mono">NGN // <span class="text-brand">INVESTOR</span></span>
         </div>
         <div class="hidden lg:flex gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500">
-            <a href="#notes" class="hover:text-white transition-colors">Sovereign Notes</a>
+            <a href="#notes" class="hover:text-white transition-colors">Fixed-Return Notes</a>
             <a href="#market" class="hover:text-white transition-colors">Market</a>
-            <a href="#moats" class="hover:text-white transition-colors">21 Nodes</a>
+            <a href="#moats" class="hover:text-white transition-colors">21 Production Labs</a>
             <a href="#revenue" class="hover:text-white transition-colors">Economics</a>
         </div>
     </div>
     <div class="flex items-center gap-6">
         <div class="hidden md:flex flex-col text-right">
-            <span class="text-[10px] font-black uppercase text-brand tracking-widest">Fixed APY</span>
-            <span class="text-lg stat-value">8.00%</span>
+            <span class="text-[10px] font-black uppercase text-brand tracking-widest">Fixed Return</span>
+            <span class="text-lg stat-value">8.00% APY</span>
         </div>
         <a href="#notes" class="px-8 py-3 bg-brand text-black font-black uppercase tracking-widest text-xs rounded-full hover:scale-105 transition-all shadow-2xl shadow-brand/20">
             Get Started
@@ -136,14 +137,14 @@ $minimumInvestment = 50;
         <div class="container mx-auto text-center">
             <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border-brand/20 mb-8">
                 <span class="phase-dot active-dot"></span>
-                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-brand">Institutional Capital Routes Active</span>
+                <span class="text-[10px] font-black uppercase tracking-[0.3em] text-brand">Institutional Investment Now Open</span>
             </div>
             <h1 class="text-6xl lg:text-9xl font-black tracking-tighter leading-[0.85] mb-12 uppercase">
-                Invest in <br>
-                <span class="text-brand glow-brand">The Truth.</span>
+                Resource<br>
+                <span class="text-brand glow-brand">The Future.</span>
             </h1>
             <p class="text-xl text-zinc-400 max-w-3xl mx-auto font-medium leading-relaxed mb-16 italic font-mono">
-                "Institutional capital routes allowing fans to invest in artists with 8% APY target returns."
+                "Building 21 high-tech production labs to automate creator revenue with a target 8.00% annual return for our partners."
             </p>
         </div>
     </header>
@@ -154,10 +155,10 @@ $minimumInvestment = 50;
             <div class="max-w-6xl mx-auto glass rounded-[3rem] border-brand/20 overflow-hidden shadow-2xl flex flex-col lg:flex-row">
                 <!-- Left Side: Narrative -->
                 <div class="flex-1 p-12 lg:p-20 bg-surface">
-                    <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">Product // Sovereign Note</h2>
-                    <h3 class="text-4xl lg:text-6xl font-bold tracking-tight mb-8 leading-none">HIGH-YIELD <br>MUSIC DEBT.</h3>
+                    <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">Product // Fixed-Return Note</h2>
+                    <h3 class="text-4xl lg:text-6xl font-bold tracking-tight mb-8 leading-none">SECURE <br>ANNUAL RETURNS.</h3>
                     <p class="text-zinc-400 mb-12 leading-relaxed">
-                        The NGN Sovereign Note is a simple promissory note (debt instrument) that allows you to provide liquidity directly to the creator economy while securing a guaranteed return.
+                        The NGN Fixed-Return Note is a simple promissory note that allows you to provide liquidity directly to the creator economy while securing a guaranteed return backed by our data infrastructure.
                     </p>
                     <div class="space-y-6">
                         <div class="flex items-center gap-4">
@@ -170,7 +171,7 @@ $minimumInvestment = 50;
                         </div>
                         <div class="flex items-center gap-4">
                             <i class="bi-check-circle-fill text-brand"></i>
-                            <span class="text-sm font-bold uppercase tracking-widest">Priority AI Tool Access (Elite-Host)</span>
+                            <span class="text-sm font-bold uppercase tracking-widest">Priority Access to Production Tools</span>
                         </div>
                     </div>
                 </div>
@@ -181,7 +182,7 @@ $minimumInvestment = 50;
                     
                     <div class="space-y-8">
                         <div>
-                            <label class="block text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Investment Principal (USD)</label>
+                            <label class="block text-[10px] font-black text-zinc-600 uppercase tracking-widest mb-4">Resource Allocation (USD)</label>
                             <div class="relative">
                                 <span class="absolute left-6 top-1/2 -translate-y-1/2 text-zinc-500 stat-value text-xl">$</span>
                                 <input type="number" id="principal" value="<?= $defaultInvestment ?>" min="<?= $minimumInvestment ?>" step="100" 
@@ -191,18 +192,18 @@ $minimumInvestment = 50;
 
                         <div class="grid grid-cols-2 gap-4">
                             <div class="bg-black/40 p-6 rounded-2xl border border-white/5">
-                                <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Total Return</div>
+                                <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Projected ROI</div>
                                 <div id="total-return" class="text-xl stat-value text-white">$0.00</div>
                             </div>
                             <div class="bg-black/40 p-6 rounded-2xl border border-white/5">
-                                <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Quarterly</div>
-                                <div id="quarterly-payout" class="text-xl stat-value text-emerald-500">$0.00</div>
+                                <div class="text-[9px] font-black text-zinc-600 uppercase tracking-widest mb-2">Investment Impact</div>
+                                <div id="xp-generation" class="text-xl stat-value text-brand">0 Score</div>
                             </div>
                         </div>
 
                         <div class="pt-4">
                             <a href="https://nextgennoise.com/invest/invest.php" id="cta-link" class="block w-full py-6 bg-brand text-black text-center font-black uppercase tracking-[0.2em] rounded-2xl text-sm hover:scale-[1.02] active:scale-95 transition-all shadow-2xl shadow-brand/20">
-                                Secure Promissory Note
+                                Start Investment
                             </a>
                             <p class="text-[9px] text-zinc-600 text-center mt-6 uppercase tracking-widest leading-relaxed">
                                 Secured by NGN Cash Reserves & <br>Institutional Royalty Pools.
@@ -257,13 +258,13 @@ $minimumInvestment = 50;
         </div>
     </section>
 
-    <!-- THE 21 SOVEREIGN NODES (THE GRAYLIGHT RIG) -->
+    <!-- THE 21 PRODUCTION LABS (THE GRAYLIGHT ENGINE) -->
     <section id="moats" class="py-32 px-6 bg-surface">
         <div class="container mx-auto text-center">
             <div class="mb-20">
                 <h2 class="text-sm font-black text-brand uppercase tracking-[0.4em] mb-6">02 // The Infrastructure</h2>
-                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 uppercase text-white">The Graylight Foundry.</h3>
-                <p class="text-zinc-500 max-w-2xl mx-auto">NGN is a premier tenant of the <span class="text-white font-bold">Graylight Creative</span> infrastructure ecosystem. 21 specialized nodes pressurized for institutional scale.</p>
+                <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-8 uppercase text-white">The Production Engine.</h3>
+                <p class="text-zinc-500 max-w-2xl mx-auto">NGN is a premier tenant of the <span class="text-white font-bold">Graylight Creative</span> infrastructure ecosystem. 21 specialized production labs automated for institutional scale.</p>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
@@ -280,7 +281,7 @@ $minimumInvestment = 50;
                 foreach ($nodes as $node):
                 ?>
                 <div class="glass p-4 rounded-xl hover:border-brand/50 transition-all group text-left">
-                    <div class="text-[10px] font-black text-zinc-600 group-hover:text-brand uppercase mb-1 font-mono">Graylight_<?= $node['role'] ?></div>
+                    <div class="text-[10px] font-black text-zinc-600 group-hover:text-brand uppercase mb-1 font-mono">LAB_<?= $node['role'] ?></div>
                     <div class="font-mono font-bold text-sm text-white"><?= $node['name'] ?></div>
                 </div>
                 <?php endforeach; ?>
@@ -300,22 +301,22 @@ $minimumInvestment = 50;
                     <h3 class="text-5xl lg:text-7xl font-bold tracking-tight mb-12 uppercase leading-none text-white">Diversified <br>High-Margin.</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="glass p-8 rounded-3xl">
-                            <div class="text-brand text-2xl mb-4"><i class="bi-lightning-charge-fill"></i></div>
+                            <div class="text-brand text-2xl mb-4"><i class="bi bi-lightning-charge-fill"></i></div>
                             <h4 class="font-bold mb-2 text-white">Spark Tips</h4>
                             <p class="text-sm text-zinc-500">5% Platform fee on direct fan-to-artist micro-tips. 95% margin.</p>
                         </div>
                         <div class="glass p-8 rounded-3xl">
-                            <div class="text-blue-500 text-2xl mb-4"><i class="bi-reception-4"></i></div>
+                            <div class="text-blue-500 text-2xl mb-4"><i class="bi bi-reception-4"></i></div>
                             <h4 class="font-bold mb-2 text-white">Subscriptions</h4>
                             <p class="text-sm text-zinc-500">$9.99 - $49.99/mo SaaS recurring revenue. 85% gross margin.</p>
                         </div>
                         <div class="glass p-8 rounded-3xl">
-                            <div class="text-emerald-500 text-2xl mb-4"><i class="bi-ticket-perforated-fill"></i></div>
+                            <div class="text-emerald-500 text-2xl mb-4"><i class="bi bi-ticket-detailed-fill"></i></div>
                             <h4 class="font-bold mb-2 text-white">Ticketing</h4>
                             <p class="text-sm text-zinc-500">2.5% + $1.50 per live event ticket. Capturing the $162M+ volume.</p>
                         </div>
                         <div class="glass p-8 rounded-3xl">
-                            <div class="text-purple-500 text-2xl mb-4"><i class="bi-cpu-fill"></i></div>
+                            <div class="text-purple-500 text-2xl mb-4"><i class="bi bi-cpu-fill"></i></div>
                             <h4 class="font-bold mb-2 text-white">B2B API</h4>
                             <p class="text-sm text-zinc-500">Data licensing for labels and aggregators. High-ticket enterprise value.</p>
                         </div>
@@ -349,7 +350,7 @@ $minimumInvestment = 50;
 <!-- FOOTER -->
 <footer class="py-20 px-6 text-center bg-surface border-t border-white/5 w-full">
     <div class="container mx-auto">
-        <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-8 mx-auto mb-8 opacity-20 object-contain" alt="NGN">
+        <img src="https://nextgennoise.com/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-8 mx-auto mb-8 opacity-20 object-contain" alt="NGN">
         <p class="text-zinc-600 text-[10px] font-black uppercase tracking-[0.5em]">NextGenNoise // Pressurized // Sovereign</p>
     </div>
 </footer>
@@ -358,7 +359,7 @@ $minimumInvestment = 50;
     document.addEventListener('DOMContentLoaded', function() {
         const principalInput = document.getElementById('principal');
         const totalReturnEl = document.getElementById('total-return');
-        const quarterlyPayoutEl = document.getElementById('quarterly-payout');
+        const xpGenerationEl = document.getElementById('xp-generation');
         const ctaLink = document.getElementById('cta-link');
 
         const APY = <?= $baseApy ?>;
@@ -374,10 +375,10 @@ $minimumInvestment = 50;
             const principal = parseFloat(principalInput.value) || 0;
             const interest = principal * APY * TERM;
             const totalReturn = principal + interest;
-            const quarterlyPayout = (interest / TERM) / 4;
+            const xpGen = Math.floor(principal * 10);
 
             totalReturnEl.innerText = formatter.format(totalReturn);
-            quarterlyPayoutEl.innerText = formatter.format(quarterlyPayout);
+            xpGenerationEl.innerText = xpGen.toLocaleString() + ' XP';
             
             ctaLink.href = `invest.php?amount=${principal}`;
         }

@@ -1,6 +1,6 @@
 <?php
 /**
- * NGN 2.1.0 Sovereign Navigation
+ * NGN 3.2.0 Layman-Friendly Navigation
  * Mobile-First "Spotify-Killer" Architecture
  * Electric Orange (#FF5F1F) Theme
  */
@@ -19,9 +19,9 @@
         <i class="bi-search text-2xl"></i>
         <span class="text-[10px] font-black uppercase tracking-widest">Search</span>
     </a>
-    <a href="/artists" class="flex flex-col items-center gap-1 <?= in_array($view, ['artists', 'labels', 'stations', 'venues']) ? 'text-[#FF5F1F]' : 'text-zinc-500' ?>">
+    <a href="/partners" class="flex flex-col items-center gap-1 <?= in_array($view, ['artists', 'partners', 'labels', 'stations', 'venues']) ? 'text-[#FF5F1F]' : 'text-zinc-500' ?>">
         <i class="bi-collection-play-fill text-2xl"></i>
-        <span class="text-[10px] font-black uppercase tracking-widest">Library</span>
+        <span class="text-[10px] font-black uppercase tracking-widest">Partners</span>
     </a>
 </nav>
 
@@ -46,10 +46,10 @@
                 <i class="bi-play-circle-fill text-2xl <?= $view === 'videos' ? 'text-[#FF5F1F]' : '' ?>"></i> Video Vault
             </a>
             <a href="/releases" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'releases' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
-                <i class="bi-vinyl-fill text-2xl <?= $view === 'releases' ? 'text-[#FF5F1F]' : '' ?>"></i> Releases
+                <i class="bi-vinyl-fill text-2xl <?= $view === 'releases' ? 'text-[#FF5F1F]' : '' ?>"></i> Music Drops
             </a>
-            <a href="/posts" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'posts' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
-                <i class="bi-newspaper text-2xl <?= $view === 'posts' ? 'text-[#FF5F1F]' : '' ?>"></i> Intelligence
+            <a href="/market-reports" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'market-reports' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
+                <i class="bi-newspaper text-2xl <?= $view === 'market-reports' ? 'text-[#FF5F1F]' : '' ?>"></i> Intelligence
             </a>
             <a href="/advertisers" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'advertisers' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
                 <i class="bi-megaphone-fill text-2xl <?= $view === 'advertisers' ? 'text-[#FF5F1F]' : '' ?>"></i> Advertisers
@@ -61,9 +61,9 @@
             <button onclick="window.NGN_PWA.install()" class="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl border border-white/5 flex flex-col items-center gap-2 group transition-all">
                 <div class="flex items-center gap-3">
                     <i class="bi-phone text-xl text-[#FF5F1F] group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">Deploy_Sovereign_App</span>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">Install Global App</span>
                 </div>
-                <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">The Spotify Killer // v3.0.0</span>
+                <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">Direct Access // v3.2.0</span>
             </button>
         </div>
     </div>
@@ -82,34 +82,34 @@
     <div class="flex-1 px-4 overflow-hidden flex flex-col">
         <div class="bg-zinc-900/50 rounded-2xl flex-1 flex flex-col border border-white/5">
             <div class="p-6 flex items-center justify-between border-b border-white/5">
-                <span class="font-black text-[10px] uppercase tracking-[0.2em] text-zinc-500">Your_Library</span>
+                <span class="font-black text-[10px] uppercase tracking-[0.2em] text-zinc-500">Marketplace</span>
                 <i class="bi-plus-lg text-zinc-500 hover:text-white cursor-pointer"></i>
             </div>
             
             <div class="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
-                <a href="/artists" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
+                <a href="/partners" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
                     <div class="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
                         <i class="bi-person-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
                     </div>
-                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Artists</span>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Partners</span>
                 </a>
                 <a href="/labels" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
                     <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
                         <i class="bi-record-circle-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
                     </div>
-                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Labels</span>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Capital Groups</span>
                 </a>
                 <a href="/stations" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
                     <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
                         <i class="bi-broadcast text-zinc-500 group-hover:text-[#FF5F1F]"></i>
                     </div>
-                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Stations</span>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Production Labs</span>
                 </a>
                 <a href="/venues" class="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-all group">
                     <div class="w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center group-hover:bg-[#FF5F1F]/20">
                         <i class="bi-geo-alt-fill text-zinc-500 group-hover:text-[#FF5F1F]"></i>
                     </div>
-                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Venues</span>
+                    <span class="font-bold text-sm text-zinc-400 group-hover:text-white">Physical Assets</span>
                 </a>
             </div>
         </div>
@@ -122,13 +122,13 @@
                 <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? '', $currentUser['Image'] ?? null)) ?>" class="w-10 h-10 rounded-full object-cover ring-2 ring-white/5 group-hover:ring-[#FF5F1F]/50 transition-all">
                 <div class="flex-1 min-w-0">
                     <div class="text-sm font-black text-white truncate"><?= htmlspecialchars($currentUser['display_name'] ?? 'User') ?></div>
-                    <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Dashboard</div>
+                    <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Partner Dashboard</div>
                 </div>
             </a>
         <?php else: ?>
             <div class="space-y-3">
                 <a href="/login.php" class="block w-full py-4 text-center font-black text-sm uppercase tracking-widest text-white border border-white/10 rounded-2xl hover:bg-white/5 transition-all">Log_In</a>
-                <a href="/register.php" class="block w-full py-4 text-center font-black text-sm uppercase tracking-widest bg-[#FF5F1F] text-black rounded-2xl hover:scale-[1.02] transition-all">Join_The_Fleet</a>
+                <a href="/register.php" class="block w-full py-4 text-center font-black text-sm uppercase tracking-widest bg-[#FF5F1F] text-black rounded-2xl hover:scale-[1.02] transition-all">Become a Partner</a>
             </div>
         <?php endif; ?>
     </div>

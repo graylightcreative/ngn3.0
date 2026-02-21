@@ -2,7 +2,11 @@
 /**
  * NGN Single Release View
  */
-$release = $data['release'];
+$release = $data['release'] ?? null;
+if (!$release) {
+    echo '<div class="p-20 text-center text-zinc-500 uppercase font-black tracking-widest">Sovereign Data Missing / Entry Void</div>';
+    return;
+}
 ?>
 <!-- SINGLE RELEASE VIEW (Premium Immersion) -->
 <div class="max-w-6xl mx-auto">
