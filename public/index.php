@@ -1201,6 +1201,7 @@ if ($view === 'post' && !empty($data['post'])) {
   
   <div class="app-frame flex flex-col">
     <?php include 'app-nav.php'; ?>
+    <?php include $root . 'lib/partials/sovereign-menu.php'; ?>
     <!-- Main Content Area -->
     <main class="flex-1 content-container">
       <!-- Minimal Header -->
