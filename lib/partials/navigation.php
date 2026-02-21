@@ -51,8 +51,21 @@
             <a href="/posts" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'posts' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
                 <i class="bi-newspaper text-2xl <?= $view === 'posts' ? 'text-[#FF5F1F]' : '' ?>"></i> Intelligence
             </a>
+            <a href="/advertisers" class="flex items-center gap-4 font-black text-sm uppercase tracking-widest transition-all <?= $view === 'advertisers' ? 'text-white' : 'text-zinc-500 hover:text-white' ?>">
+                <i class="bi-megaphone-fill text-2xl <?= $view === 'advertisers' ? 'text-[#FF5F1F]' : '' ?>"></i> Advertisers
+            </a>
         </nav>
     </div>
+
+    <!-- SIDEBAR BILLBOARD (Ad Engine) -->
+    <?php if (!empty($sidebarAd)): ?>
+    <div class="px-4 mb-6">
+        <a href="<?= htmlspecialchars($sidebarAd['link_url']) ?>" target="_blank" class="block group relative rounded-2xl overflow-hidden border border-white/5 hover:border-brand/50 transition-all">
+            <img src="<?= htmlspecialchars($sidebarAd['image_url']) ?>" class="w-full h-auto grayscale group-hover:grayscale-0 transition-all duration-500">
+            <div class="absolute top-2 right-2 px-2 py-0.5 bg-black/60 backdrop-blur-md rounded text-[8px] font-black text-zinc-400 uppercase tracking-widest">Sponsored</div>
+        </a>
+    </div>
+    <?php endif; ?>
 
     <!-- Your Library Section -->
     <div class="flex-1 px-4 overflow-hidden flex flex-col">

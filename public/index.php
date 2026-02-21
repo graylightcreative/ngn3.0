@@ -91,8 +91,15 @@ if (str_starts_with($host, 'investors.')) {
     exit;
 }
 
-$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', 'integrations', 'dashboard', '404'];
+$validViews = ['home', 'artists', 'labels', 'stations', 'venues', 'charts', 'smr-charts', 'posts', 'videos', 'artist', 'label', 'station', 'venue', 'post', 'video', 'releases', 'songs', 'release', 'song', 'shop', 'shops', 'product', 'pricing', 'agreement', 'investors', 'integrations', 'dashboard', 'advertiser', 'advertisers', '404'];
 if (!in_array($view, $validViews, true)) $view = '404';
+
+// Ad Engine Pre-fetch
+$sidebarAd = null;
+try {
+    $adService = new \NGN\Lib\Services\Advertiser\SelfServeAdService($config);
+    $sidebarAd = $adService->getAdForPlacement('sidebar');
+} catch (\Throwable $e) {}
 
 // Agreement Guard (Bible Ch. 41)
 // Erik Baker (User ID 4) and Artists must sign their respective agreements
