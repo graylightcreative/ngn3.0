@@ -1,68 +1,79 @@
 <?php
 /**
  * Authoritative Image Resolution Helper
- * Maps legacy DB paths to the compartmentalized lib/images architecture.
+ * Resolves images by searching known compartmentalized directories.
  */
 
-if (!function_exists('post_image')) {
-    function post_image(?string $filename): string {
-        $default = '/lib/images/site/2026/NGN-Emblem-Light.png';
+if (!function_exists('resolve_ngn_image')) {
+    /**
+     * Core resolution logic for all images
+     */
+    function resolve_ngn_image(?string $filename, string $type = 'post', ?string $slug = null): string {
+        $defaults = [
+            'post'    => '/lib/images/site/2026/NGN-Emblem-Light.png',
+            'user'    => '/lib/images/site/2026/default-avatar.png',
+            'release' => '/lib/images/site/2026/default-avatar.png'
+        ];
+        
+        $default = $defaults[$type] ?? $defaults['post'];
         if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http')) return $filename;
 
-        $clean = str_replace('posts/', '', $filename);
-        $clean = ltrim($clean, '/');
+        // 1. Extract the core filename (strip all legacy path noise)
+        $cleanName = basename($filename);
+        $projectRoot = dirname(__DIR__, 2);
 
-        // Target: /lib/images/posts/
-        return '/lib/images/posts/' . $clean;
+        // 2. Define search priority based on type
+        $searchMatrix = [
+            'post' => [
+                '/lib/images/posts/' . $cleanName,
+                '/uploads/posts/' . $cleanName,
+                '/uploads/' . $cleanName
+            ],
+            'user' => [
+                $slug ? "/lib/images/users/{$slug}/{$cleanName}" : null,
+                "/lib/images/users/{$cleanName}",
+                "/lib/images/labels/{$cleanName}",
+                "/lib/images/stations/{$cleanName}",
+                "/lib/images/venues/{$cleanName}",
+                $slug ? "/uploads/users/{$slug}/{$cleanName}" : null,
+                "/uploads/{$cleanName}"
+            ],
+            'release' => [
+                $slug ? "/lib/images/releases/{$slug}/{$cleanName}" : null,
+                "/lib/images/releases/{$cleanName}",
+                "/uploads/releases/{$cleanName}",
+                "/uploads/{$cleanName}"
+            ]
+        ];
+
+        $candidates = array_filter($searchMatrix[$type] ?? []);
+
+        // 3. Physical check in public/ directory
+        foreach ($candidates as $relPath) {
+            if (file_exists($projectRoot . '/public' . $relPath)) {
+                return $relPath;
+            }
+        }
+
+        return $default;
+    }
+}
+
+if (!function_exists('post_image')) {
+    function post_image(?string $filename): string {
+        return resolve_ngn_image($filename, 'post');
     }
 }
 
 if (!function_exists('user_image')) {
     function user_image(?string $slug, ?string $filename): string {
-        $default = '/lib/images/site/2026/default-avatar.png';
-        if (empty($filename)) return $default;
-        if (str_starts_with($filename, 'http')) return $filename;
-
-        // Strip legacy prefixes
-        $clean = str_replace(['/uploads/users/', '/uploads/', 'users/'], '', $filename);
-        $clean = ltrim($clean, '/');
-        
-        $base = basename($clean);
-
-        // Logic: Try slug subdirectory, then root users directory
-        $projectRoot = dirname(__DIR__, 2);
-        
-        if ($slug && file_exists($projectRoot . "/lib/images/users/{$slug}/{$base}")) {
-            return "/lib/images/users/{$slug}/{$base}";
-        }
-        
-        if (file_exists($projectRoot . "/lib/images/users/{$base}")) {
-            return "/lib/images/users/{$base}";
-        }
-
-        // Fallback to exactly what was requested but in lib/images
-        return "/lib/images/users/" . $clean;
+        return resolve_ngn_image($filename, 'user', $slug);
     }
 }
 
 if (!function_exists('release_image')) {
     function release_image(?string $filename, ?string $artistSlug = null): string {
-        $default = '/lib/images/site/2026/default-avatar.png';
-        if (empty($filename)) return $default;
-        if (str_starts_with($filename, 'http')) return $filename;
-
-        $clean = str_replace(['/uploads/releases/', '/uploads/'], '', $filename);
-        $clean = ltrim($clean, '/');
-        $base = basename($clean);
-
-        $projectRoot = dirname(__DIR__, 2);
-
-        // Try artist subdirectory if provided
-        if ($artistSlug && file_exists($projectRoot . "/lib/images/releases/{$artistSlug}/{$base}")) {
-            return "/lib/images/releases/{$artistSlug}/{$base}";
-        }
-
-        return "/lib/images/releases/" . $clean;
+        return resolve_ngn_image($filename, 'release', $artistSlug);
     }
 }
