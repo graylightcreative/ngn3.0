@@ -46,7 +46,7 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
 <!-- INSTITUTIONAL FOOTER -->
 <footer class="bg-[#050505] border-t border-white/5 pt-24 pb-12 px-6 lg:px-12 relative overflow-hidden mt-24">
     <!-- Tactical Grid Overlay -->
-    <div class="absolute inset-0 opacity-[0.02] pointer-events-none" style="background-image: linear-gradient(#FF5F1F 1px, transparent 1px), linear-gradient(90deg, #FF5F1F 1px, transparent 1px); background-size: 40px 40px;"></div>
+    <div class="absolute inset-0 opacity-[0.02] pointer-events-none" style="background-image: linear-gradient(var(--primary) 1px, transparent 1px), linear-gradient(90deg, var(--primary) 1px, transparent 1px); background-size: 40px 40px;"></div>
 
     <div class="max-w-7xl mx-auto relative z-10">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-24">

@@ -34,7 +34,17 @@ $iconVersionQ = '?v=3.0.0';
             theme: { 
                 extend: { 
                     colors: { 
-                        brand: { DEFAULT: '#FF5F1F', dark: '#E64A00' } 
+                        brand: { 
+                            DEFAULT: '<?= $GLOBALS['theme']['primary'] ?? '#FF5F1F' ?>', 
+                            dark: '<?= $GLOBALS['theme']['dark'] ?? '#E64A00' ?>',
+                            secondary: '<?= $GLOBALS['theme']['secondary'] ?? '#367208' ?>',
+                        },
+                        theme: {
+                            danger: '<?= $GLOBALS['theme']['danger'] ?? '#ff4949' ?>',
+                            warning: '<?= $GLOBALS['theme']['warning'] ?? '#ffcc00' ?>',
+                            success: '<?= $GLOBALS['theme']['success'] ?? '#3fa307' ?>',
+                            info: '<?= $GLOBALS['theme']['info'] ?? '#4CAF50' ?>'
+                        }
                     },
                     fontFamily: {
                         sans: ['Space Grotesk', 'sans-serif'],

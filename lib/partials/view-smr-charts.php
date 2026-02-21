@@ -8,7 +8,7 @@ $smrDate = $data['smr_date'] ?? 'N/A';
 <div class="mb-12">
     <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
         <div>
-            <div class="inline-block px-3 py-1 bg-[#FF5F1F] text-black font-black text-[10px] uppercase tracking-widest mb-4 rounded-sm">Radio_Intelligence</div>
+            <div class="inline-block px-3 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-widest mb-4 rounded-sm">Radio_Intelligence</div>
             <h1 class="text-5xl lg:text-7xl font-black tracking-tighter text-white">SMR CHARTS</h1>
             <p class="text-zinc-500 font-mono text-sm mt-4 max-w-xl">Spins Music Radio global airplay tracking. Updated weekly.</p>
         </div>
@@ -35,7 +35,7 @@ $smrDate = $data['smr_date'] ?? 'N/A';
                     <?php foreach ($smrData as $row): ?>
                     <tr class="group hover:bg-white/5 transition-all cursor-pointer border-b border-white/5 last:border-0">
                         <td class="px-8 py-6">
-                            <span class="text-2xl font-black <?= (int)$row['TWP'] <= 3 ? 'text-[#FF5F1F]' : 'text-zinc-400' ?>"><?= $row['TWP'] ?></span>
+                            <span class="text-2xl font-black <?= (int)$row['TWP'] <= 3 ? 'text-brand' : 'text-zinc-400' ?>"><?= $row['TWP'] ?></span>
                         </td>
                         <td class="px-8 py-6 text-center">
                             <span class="text-xs font-black text-zinc-600"><?= $row['LWP'] ?></span>
@@ -47,7 +47,7 @@ $smrDate = $data['smr_date'] ?? 'N/A';
                                 ?>
                                 <img src="<?= htmlspecialchars($rowImg) ?>" class="w-12 h-12 rounded-lg object-cover shadow-xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
                                 <div>
-                                    <div class="font-black text-white group-hover:text-[#FF5F1F] transition-colors"><?= htmlspecialchars($row['Song']) ?></div>
+                                    <div class="font-black text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($row['Song']) ?></div>
                                     <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($row['artist']['name']) ?></div>
                                 </div>
                             </div>

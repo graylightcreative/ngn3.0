@@ -12,7 +12,7 @@
         <!-- Slide 1: CLARITY VST -->
         <div class="absolute inset-0 transition-all duration-1000 opacity-100" data-story-slide="0">
             <div class="w-full h-full flex items-center justify-center relative">
-                <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle, #FF5F1F 1.5px, transparent 1px); background-size: 30px 30px;"></div>
+                <div class="absolute inset-0 opacity-20" style="background-image: radial-gradient(circle, var(--primary) 1.5px, transparent 1px); background-size: 30px 30px;"></div>
                 <div class="w-[80%] h-[80%] bg-brand/5 blur-[80px] md:blur-[120px] rounded-full animate-pulse"></div>
             </div>
         </div>
@@ -26,7 +26,7 @@
         <!-- Slide 3: SHELLSHOCK CMS -->
         <div class="absolute inset-0 transition-all duration-1000 opacity-0" data-story-slide="2">
             <div class="w-full h-full bg-[#050505] flex items-center justify-center">
-                <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 180deg at 50% 50%, #FF5F1F 0deg, transparent 120deg);"></div>
+                <div class="absolute inset-0 opacity-10" style="background-image: conic-gradient(from 180deg at 50% 50%, var(--primary) 0deg, transparent 120deg);"></div>
                 <div class="w-full h-full bg-gradient-to-tr from-brand/5 via-transparent to-transparent"></div>
             </div>
         </div>

@@ -1,6 +1,6 @@
 <style>
 :root { 
-    --primary: #FF5F1F; 
+    --primary: <?= $GLOBALS['theme']['primary'] ?? '#FF5F1F' ?>; 
     --charcoal: #050505; 
     --surface: #121212;
     --highlight: #1a1a1a;
@@ -106,12 +106,11 @@ body {
     align-items: center;
     gap: 12px !important;
 }
-.ngn-btn-play {
-    width: 42px !important;
-    height: 42px !important;
-    background: #FF5F1F !important;
-    color: #000 !important;
-    border-radius: 50%;
+    .ngn-btn-play {
+        width: 42px !important;
+        height: 42px !important;
+        background: var(--primary) !important;
+        color: #000 !important;    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
