@@ -73,14 +73,37 @@ window.NGN_Toast = {
             const response = await originalFetch(...args);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                window.NGN_Toast.show(errorData.message || `Error: ${response.status}`, 'error');
+                const msg = errorData.message || `Error: ${response.status}`;
+                // Silence 'Error 0' / 'Network request failed' noise for background tasks
+                if (msg !== 'Error: 0' && msg !== '0') {
+                    window.NGN_Toast.show(msg, 'error');
+                }
             }
             return response;
         } catch (err) {
-            window.NGN_Toast.show(err.message || 'Network request failed', 'error');
+            // Only show network errors that aren't AbortErrors or generic 0 noise
+            if (err.name !== 'AbortError' && err.message !== '0') {
+                window.NGN_Toast.show(err.message || 'Network request failed', 'error');
+            }
             throw err;
         }
     };
+
+    // Global Runtime Error Listener
+    window.addEventListener('error', function(event) {
+        // Only toast real errors, skip browser extension noise
+        if (event.message && !event.message.includes('ResizeObserver')) {
+            window.NGN_Toast.error(event.message);
+        }
+    });
+
+    // Global Unhandled Promise Rejection Listener
+    window.addEventListener('unhandledrejection', function(event) {
+        const msg = event.reason?.message || event.reason || 'Unhandled promise rejection';
+        if (msg !== '0') {
+            window.NGN_Toast.error(msg);
+        }
+    });
 
     // Intercept jQuery AJAX if exists
     if (window.jQuery) {
