@@ -11,14 +11,14 @@ if (!function_exists('post_image')) {
 
         // Optimized priority search
         $searchPaths = [
-            '/uploads/posts/' . $filename,
-            '/uploads/' . $filename,
-            '/lib/images/posts/' . $filename
+            '/public/uploads/posts/' . $filename,
+            '/public/uploads/' . $filename,
+            '/public/lib/images/posts/' . $filename
         ];
 
         foreach ($searchPaths as $path) {
-            if (file_exists(dirname(__DIR__, 2) . '/public' . $path)) {
-                return $path;
+            if (file_exists(dirname(__DIR__, 2) . $path)) {
+                return str_replace('/public', '', $path);
             }
         }
 
@@ -32,17 +32,19 @@ if (!function_exists('user_image')) {
         if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
 
         $searchPaths = [
-            "/uploads/artists/{$slug}/{$filename}",
-            "/uploads/users/{$slug}/{$filename}",
-            "/uploads/labels/{$filename}",
-            "/uploads/stations/{$filename}",
-            "/uploads/venues/{$filename}",
-            "/uploads/{$filename}"
+            "/public/uploads/artists/{$slug}/{$filename}",
+            "/public/uploads/users/{$slug}/{$filename}",
+            "/public/uploads/labels/{$filename}",
+            "/public/uploads/stations/{$filename}",
+            "/public/uploads/venues/{$filename}",
+            "/public/uploads/{$filename}",
+            "/public/lib/images/users/{$filename}",
+            "/public/lib/images/labels/{$filename}"
         ];
 
         foreach ($searchPaths as $path) {
-            if (file_exists(dirname(__DIR__, 2) . '/public' . $path)) {
-                return $path;
+            if (file_exists(dirname(__DIR__, 2) . $path)) {
+                return str_replace('/public', '', $path);
             }
         }
 
