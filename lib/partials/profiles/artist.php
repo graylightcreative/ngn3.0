@@ -78,19 +78,22 @@ $scores = $artist['scores'] ?? ['Score' => 0];
         </div>
     </div>
 
-    <!-- ACTION BAR -->
+    <!-- ACTION BAR (REVENUE ENGINE) -->
     <div class="sticky top-16 z-30 flex items-center justify-between py-6 mb-16 bg-black/50 backdrop-blur-xl -mx-4 px-4 lg:-mx-8 lg:px-8 border-b border-white/5">
         <div class="flex items-center gap-6">
-            <button class="w-16 h-14 bg-brand text-black rounded-full flex items-center justify-center hover:scale-105 transition-all shadow-xl shadow-brand/20 group">
+            <button class="w-16 h-14 bg-brand text-black rounded-full flex items-center justify-center hover:scale-105 transition-all shadow-xl shadow-brand/20 group" data-play-all>
                 <i class="bi bi-play-fill text-4xl ml-1 group-active:scale-90 transition-transform"></i>
             </button>
-            <button class="px-8 py-3 rounded-full border-2 border-white/20 text-white font-black text-xs uppercase tracking-widest hover:border-white hover:bg-white hover:text-black transition-all">Follow</button>
+            <button class="px-8 py-3 rounded-full border-2 border-brand text-brand font-black text-xs uppercase tracking-widest hover:bg-brand hover:text-black transition-all shadow-[0_0_20px_rgba(255,95,31,0.2)]" onclick="tipArtist(<?= $artist['id'] ?>, 100)">
+                <i class="bi bi-lightning-charge-fill mr-2"></i> Tip 100 Sparks
+            </button>
+            <a href="/shop/<?= $artistSlug ?>" class="px-8 py-3 rounded-full bg-white/10 text-white font-black text-xs uppercase tracking-widest hover:bg-white/20 border border-white/10 transition-all">
+                <i class="bi bi-bag-check-fill mr-2"></i> Shop Merch
+            </a>
         </div>
         
         <div class="flex items-center gap-4">
-            <a href="/tip/<?= $artist['id'] ?>" class="hidden md:flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-full font-black text-xs uppercase tracking-widest border border-white/10 transition-all">
-                <i class="bi bi-lightning-charge-fill text-brand"></i> Send Sparks
-            </a>
+            <button class="hidden md:flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-full font-black text-xs uppercase tracking-widest border border-white/10 transition-all">Follow</button>
             <button class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white hover:bg-white/10"><i class="bi bi-share"></i></button>
         </div>
     </div>
@@ -120,7 +123,10 @@ $scores = $artist['scores'] ?? ['Score' => 0];
                                 <div class="font-black text-white truncate"><?= htmlspecialchars($song['title']) ?></div>
                                 <div class="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mt-1"><?= htmlspecialchars($song['ReleaseName'] ?? 'Single') ?></div>
                             </div>
-                            <div class="text-sm font-mono text-zinc-500"><?= ($song['duration_seconds'] ?? 0) ? gmdate('i:s', $song['duration_seconds']) : '--:--' ?></div>
+                            <div class="flex items-center gap-4">
+                                <button class="px-3 py-1 bg-brand/10 hover:bg-brand text-brand hover:text-black text-[8px] font-black uppercase tracking-widest rounded-full border border-brand/20 transition-all" onclick="event.stopPropagation(); tipArtist(<?= $artist['id'] ?>, 10)">Tip 10</button>
+                                <div class="text-sm font-mono text-zinc-500"><?= ($song['duration_seconds'] ?? 0) ? gmdate('i:s', $song['duration_seconds']) : '--:--' ?></div>
+                            </div>
                         </div>
                         <?php endforeach; ?>
                     </div>
