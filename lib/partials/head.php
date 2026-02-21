@@ -122,14 +122,7 @@ if ($cfg->maintenanceMode()) {
     }
 }
 
-// View-mode switching: if effective mode is "next" (2.0), redirect legacy pages to /frontend
-$viewMode = $cfg->publicViewMode();
-$override = $_COOKIE['NGN_VIEW_MODE'] ?? null;
-$effectiveMode = (in_array($override, ['legacy','next'], true)) ? $override : $viewMode;
-if ($effectiveMode === 'next' && !$allowAlways) {
-    header('Location: /frontend/index.php', true, 302);
-    exit;
-}
+// Maintenance guard with admin bypass; block /frontend for non-admins
 ?>
 <!doctype html>
 
