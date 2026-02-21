@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             return '<a href="' + url + '" class="flex items-center gap-4 px-4 py-3 hover:bg-white/5 transition-colors group">' +
                     '<div class="w-10 h-10 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0">' +
-                        '<img src="' + img + '" class="w-full h-full object-cover" onerror="this.src='/lib/images/site/default-avatar.png'">' +
+                        '<img src="' + img + '" class="w-full h-full object-cover" onerror="this.src=\"/lib/images/site/2026/default-avatar.png\"">' +
                     '</div>' +
                     '<div class="flex-1 min-w-0">' +
                         '<div class="text-sm font-bold text-white truncate group-hover:text-brand transition-colors">' + item.name + '</div>' +

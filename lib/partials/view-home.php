@@ -1,96 +1,177 @@
 <?php
 /**
- * NGN Sovereign Home View
- * Refactored into specialized high-velocity partials
+ * NGN Sovereign Home View v3.1.0
+ * High-impact Discovery & Onboarding
  */
-$featuredPosts = get_ngn_posts($pdo, '', 1, 4);
 ?>
 
 <?php include $root . 'lib/partials/story-engine.php'; ?>
 <?php include $root . 'lib/partials/stats-ticker.php'; ?>
 
-<!-- Pressurized Discovery -->
+<!-- Sovereign Stations: Institutional Radio -->
 <section class="mb-16">
     <div class="flex items-center justify-between mb-8">
-    <h2 class="text-3xl font-black tracking-tight text-white uppercase italic">Sovereign_Discovery</h2>
-    <div class="h-px flex-1 bg-white/5 mx-8"></div>
-    <a href="/releases" class="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">View_Archive</a>
+        <div>
+            <h2 class="text-3xl font-black tracking-tight text-white uppercase italic">Institutional_Stations</h2>
+            <p class="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Live Global Airplay Tracking</p>
+        </div>
+        <div class="h-px flex-1 bg-white/5 mx-8"></div>
+        <a href="/stations" class="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">Tune_In</a>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    <!-- Featured Station: THE RAGE -->
-    <div class="relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-brand/20"
-            data-play-track
-            data-track-url="https://ice1.somafm.com/groovesalad-256-mp3"
-            data-track-title="The Rage Online"
-            data-track-artist="Sovereign Broadcast"
-            data-track-art="/lib/images/users/the-rage-online/The Rage Slash Bitly.png">
-        <img src="/lib/images/users/the-rage-online/The Rage Slash Bitly.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-        <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <div class="flex items-center gap-2 mb-3">
-                <span class="w-2 h-2 bg-brand rounded-full animate-pulse"></span>
-                <span class="text-[10px] font-black text-brand uppercase tracking-widest">Live_Signal</span>
-            </div>
-            <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">The Rage<br>Online</h3>
-            <div class="flex items-center justify-between">
-                <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Institutional Radio</span>
-                <div class="w-12 h-12 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-all">
-                    <i class="bi bi-play-fill text-2xl ml-1"></i>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- THE RAGE ONLINE -->
+        <div class="relative h-64 rounded-3xl overflow-hidden group cursor-pointer border border-brand/20 bg-zinc-900"
+             data-play-track
+             data-track-url="https://ice1.somafm.com/groovesalad-256-mp3"
+             data-track-title="The Rage Online"
+             data-track-artist="Sovereign Broadcast"
+             data-track-art="/lib/images/users/the-rage-online/The Rage Slash Bitly.png">
+            <img src="/lib/images/users/the-rage-online/The Rage Slash Bitly.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110 opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+            <div class="absolute inset-0 p-10 flex flex-col justify-center">
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="w-2 h-2 bg-brand rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-black text-brand uppercase tracking-[0.2em]">Live_Signal</span>
+                </div>
+                <h3 class="text-4xl font-black text-white uppercase tracking-tighter mb-2">The Rage Online</h3>
+                <p class="text-sm text-zinc-400 font-medium max-w-xs mb-6">The heartbeat of independent rock. Zero gatekeepers. Pure sound.</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl shadow-brand/40 group-hover:scale-110 transition-transform">
+                        <i class="bi bi-play-fill text-2xl ml-1"></i>
+                    </div>
+                    <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Institutional Radio</span>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- New Release: Heroes and Villains -->
-    <div class="relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5"
-            data-play-track
-            data-track-id="1"
-            data-track-title="Evermore"
-            data-track-artist="Heroes and Villains"
-            data-track-art="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg">
-        <img src="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-        <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <div class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">New_Drop</div>
-            <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Evermore</h3>
-            <div class="flex items-center justify-between">
-                <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Heroes and Villains</span>
-                <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-all">
-                    <i class="bi bi-play-fill text-2xl ml-1"></i>
+        <!-- THE SOUND 228 -->
+        <div class="relative h-64 rounded-3xl overflow-hidden group cursor-pointer border border-white/5 bg-zinc-900"
+             data-play-track
+             data-track-url="https://ice1.somafm.com/dronezone-256-mp3"
+             data-track-title="The Sound 228"
+             data-track-artist="Verified Station"
+             data-track-art="/lib/images/users/the-sound-228/IMG_0136.jpeg">
+            <img src="/lib/images/users/the-sound-228/IMG_0136.jpeg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-110 opacity-60">
+            <div class="absolute inset-0 bg-gradient-to-r from-black via-black/40 to-transparent"></div>
+            <div class="absolute inset-0 p-10 flex flex-col justify-center">
+                <div class="flex items-center gap-2 mb-4 text-emerald-500">
+                    <i class="bi bi-broadcast text-lg"></i>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">Verified_Network</span>
+                </div>
+                <h3 class="text-4xl font-black text-white uppercase tracking-tighter mb-2">The Sound 228</h3>
+                <p class="text-sm text-zinc-400 font-medium max-w-xs mb-6">Global spins. Real-time metrics. The future of terrestrial FM.</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                        <i class="bi bi-play-fill text-2xl ml-1"></i>
+                    </div>
+                    <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Mississippi_Operator</span>
                 </div>
             </div>
         </div>
     </div>
+</section>
 
-    <!-- New Release: Heroes and Villains #2 -->
-    <div class="relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5"
-            data-play-track
-            data-track-id="2"
-            data-track-title="Alone Together"
-            data-track-artist="Heroes and Villains"
-            data-track-art="/lib/images/posts/heroes-and-villains/from-the-wastelands-heart-a-new-anthem-alone-together-arrives-november-29th.jpg">
-        <img src="/lib/images/posts/heroes-and-villains/from-the-wastelands-heart-a-new-anthem-alone-together-arrives-november-29th.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
-        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
-        <div class="absolute inset-0 p-8 flex flex-col justify-end">
-            <div class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Trending_Now</div>
-            <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Alone Together</h3>
-            <div class="flex items-center justify-between">
-                <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Heroes and Villains</span>
-                <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-all">
-                    <i class="bi bi-play-fill text-2xl ml-1"></i>
+<!-- Sovereign Release Radar: New Music Drops -->
+<section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h2 class="text-3xl font-black tracking-tight text-white uppercase italic">Release_Radar</h2>
+            <p class="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Institutional Music Distribution</p>
+        </div>
+        <div class="h-px flex-1 bg-white/5 mx-8"></div>
+        <a href="/releases" class="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">View_Drops</a>
+    </div>
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <!-- Heroes and Villains: Evermore -->
+        <div class="group cursor-pointer" 
+             data-play-track
+             data-track-id="1"
+             data-track-title="Evermore"
+             data-track-artist="Heroes and Villains"
+             data-track-art="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg">
+            <div class="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-white/5 shadow-2xl">
+                <img src="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div class="w-16 h-16 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl">
+                        <i class="bi bi-play-fill text-4xl ml-1"></i>
+                    </div>
                 </div>
             </div>
+            <div class="font-black text-white truncate px-1">Evermore</div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 mt-1">Heroes and Villains</div>
         </div>
-    </div>
+
+        <!-- Heroes and Villains: Alone Together -->
+        <div class="group cursor-pointer" 
+             data-play-track
+             data-track-id="2"
+             data-track-title="Alone Together"
+             data-track-artist="Heroes and Villains"
+             data-track-art="/lib/images/posts/heroes-and-villains/from-the-wastelands-heart-a-new-anthem-alone-together-arrives-november-29th.jpg">
+            <div class="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-white/5 shadow-2xl">
+                <img src="/lib/images/posts/heroes-and-villains/from-the-wastelands-heart-a-new-anthem-alone-together-arrives-november-29th.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div class="w-16 h-16 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl">
+                        <i class="bi bi-play-fill text-4xl ml-1"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="font-black text-white truncate px-1">Alone Together</div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 mt-1">Heroes and Villains</div>
+        </div>
+
+        <!-- Coldwards: Sunflower -->
+        <div class="group cursor-pointer" 
+             data-play-track
+             data-track-id="3"
+             data-track-title="Sunflower"
+             data-track-artist="Coldwards"
+             data-track-art="/lib/images/releases/coldwards/coldwards-sunflower-cover.jpg">
+            <div class="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-white/5 shadow-2xl">
+                <img src="/lib/images/releases/coldwards/coldwards-sunflower-cover.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div class="w-16 h-16 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl">
+                        <i class="bi bi-play-fill text-4xl ml-1"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="font-black text-white truncate px-1">Sunflower</div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 mt-1">Coldwards</div>
+        </div>
+
+        <!-- Heroes and Villains: Times Up -->
+        <div class="group cursor-pointer" 
+             data-play-track
+             data-track-id="4"
+             data-track-title="Times Up"
+             data-track-artist="Heroes and Villains"
+             data-track-art="/lib/images/releases/heroes-and-villains/times-up-featuring-tacboy-mike-mexas-brock-starr.jpg">
+            <div class="relative aspect-square rounded-2xl overflow-hidden mb-4 border border-white/5 shadow-2xl">
+                <img src="/lib/images/releases/heroes-and-villains/times-up-featuring-tacboy-mike-mexas-brock-starr.jpg" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div class="w-16 h-16 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl">
+                        <i class="bi bi-play-fill text-4xl ml-1"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="font-black text-white truncate px-1">Times Up</div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest px-1 mt-1">Heroes and Villains</div>
+        </div>
     </div>
 </section>
 
 <!-- Trending Artists -->
 <?php if (!empty($data['trending_artists'])): ?>
-<section class="mb-12">
-    <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-black tracking-tight text-white">Trending Artists</h2>
+<section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h2 class="text-3xl font-black tracking-tight text-white uppercase italic">Trending_Artists</h2>
+            <p class="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Institutional Engagement Monitoring</p>
+        </div>
+        <div class="h-px flex-1 bg-white/5 mx-8"></div>
+        <a href="/artists" class="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">View_Fleet</a>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
     <?php foreach ($data['trending_artists'] as $artist): ?>
@@ -107,7 +188,7 @@ $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
         </button>
         </div>
         <div class="font-black truncate text-white"><?= htmlspecialchars($artist['name'] ?? $artist['Name'] ?? 'Unknown Artist') ?></div>
-        <div class="text-xs font-bold text-zinc-500 uppercase tracking-tighter mt-1"><?= htmlspecialchars($artist['engagement_count'] ?? '0') ?> signals</div>
+        <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($artist['engagement_count'] ?? '0') ?> signals</div>
     </a>
     <?php endforeach; ?>
     </div>
@@ -118,10 +199,14 @@ $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
 
 <!-- Latest News -->
 <?php if (!empty($data['posts'])): ?>
-<section class="mb-12">
-    <div class="flex items-center justify-between mb-6">
-    <h2 class="text-2xl font-black tracking-tight text-white">Latest News</h2>
-    <a href="/posts" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
+<section class="mb-16">
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h2 class="text-3xl font-black tracking-tight text-white uppercase italic">Intelligence_Newswire</h2>
+            <p class="text-zinc-500 font-mono text-[10px] uppercase tracking-widest mt-1">Real-time Industry Reporting</p>
+        </div>
+        <div class="h-px flex-1 bg-white/5 mx-8"></div>
+        <a href="/posts" class="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">Show_All</a>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <?php foreach ($data['posts'] as $post): ?>
@@ -129,7 +214,7 @@ $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
         $postImg = post_image($post['featured_image_url'] ?? '');
     ?>
     <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col">
-        <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
+        <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5 bg-zinc-900 shadow-2xl">
         <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
         </div>
         <div class="font-black text-sm text-white line-clamp-2 leading-tight group-hover:text-brand transition-colors"><?= htmlspecialchars($post['title'] ?? 'Untitled Story') ?></div>

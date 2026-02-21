@@ -10,6 +10,7 @@ $iconVersionQ = '?v=3.0.0';
 <!-- PWA Meta Tags -->
 <link rel="manifest" href="/lib/images/site/site.webmanifest<?= $iconVersionQ ?>">
 <meta name="theme-color" content="#050505">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="NGN">
