@@ -228,17 +228,26 @@ if ($view === 'post' && !empty($data['post'])) {
   <?php include $root . 'lib/partials/pwa-mobilizer.php'; ?>
   
   <div class="app-frame flex flex-col">
-    <?php include 'app-nav.php'; ?>
     <?php include $root . 'lib/partials/sovereign-menu.php'; ?>
 
     <!-- Main Content Area -->
     <main class="flex-1 content-container flex flex-col">
-      <!-- Minimal Header -->
-      <header class="flex items-center justify-between px-6 h-16 sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/5 w-full">
-        <a href="/" class="flex-shrink-0">
-            <img src="/lib/images/site/2026/NGN-Emblem-Light.png" class="h-8 w-auto lg:hidden" alt="NGN">
-            <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-8 w-auto hidden lg:block" alt="Next Generation Noise">
-        </a>
+      <!-- Sovereign App Header -->
+      <header class="flex items-center justify-between px-6 h-20 sticky top-0 z-40 bg-black/80 backdrop-blur-2xl border-b border-white/5 w-full">
+        <div class="flex items-center gap-8">
+            <a href="/" class="flex-shrink-0">
+                <img src="/lib/images/site/2026/NGN-Emblem-Light.png" class="h-10 w-auto lg:hidden" alt="NGN">
+                <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-10 w-auto hidden lg:block" alt="Next Generation Noise">
+            </a>
+            
+            <!-- Desktop Primary Nav (Header Integrated) -->
+            <nav class="hidden md:flex items-center gap-6 text-[11px] font-black uppercase tracking-widest text-zinc-500">
+                <a href="/charts" class="hover:text-brand transition-colors">Charts</a>
+                <a href="/releases" class="hover:text-brand transition-colors">Music</a>
+                <a href="/posts" class="hover:text-brand transition-colors">Newswire</a>
+                <a href="/artists" class="hover:text-brand transition-colors">Fleet</a>
+            </nav>
+        </div>
         
         <div class="flex items-center gap-3">
           <form method="get" action="/" class="relative" id="global-search-form">

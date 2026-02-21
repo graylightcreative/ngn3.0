@@ -62,24 +62,30 @@ body {
     overflow-x: hidden;
 }
 
-/* Player Rig Fixes (Mobile Style, Full Width Bar) */
+/* Player Rig Fixes (Mobile Style, Locked Bottom) */
 #ngn-player-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
-    left: 0 !important;
-    transform: none !important;
     height: 80px;
     padding: 0 24px;
-    background: rgba(5, 5, 5, 0.95);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
+    background: rgba(5, 5, 5, 0.9);
+    backdrop-filter: blur(30px);
+    border-top: 1px solid color-mix(in srgb, var(--primary) 20%, transparent);
+    z-index: 500;
+    display: flex;
+    align-items: center;
 }
 #ngn-player-container .ngn-player {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
+    width: 100%;
     height: 100%;
 }
 .ngn-player-artwork {

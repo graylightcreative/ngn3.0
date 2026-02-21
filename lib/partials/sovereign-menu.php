@@ -11,6 +11,22 @@
 
         <!-- Menu Grid -->
         <nav class="grid grid-cols-2 gap-6 mb-16">
+            <a href="/" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
+                <i class="bi bi-house-fill text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Home</span>
+            </a>
+            <a href="/charts" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
+                <i class="bi bi-bar-chart-fill text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Charts</span>
+            </a>
+            <a href="/releases" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
+                <i class="bi bi-vinyl-fill text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Music</span>
+            </a>
+            <a href="/posts" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
+                <i class="bi bi-newspaper text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
+                <span class="font-black uppercase tracking-widest text-sm text-white">News</span>
+            </a>
             <a href="/artists" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
                 <i class="bi bi-people-fill text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
                 <span class="font-black uppercase tracking-widest text-sm text-white">Artists</span>
