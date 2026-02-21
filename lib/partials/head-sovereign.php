@@ -1,9 +1,14 @@
 <?php
 /**
- * Sovereign Head Protocol v3.0.0
+ * Sovereign Head Protocol v3.1.0
  * Pure high-velocity metadata and assets.
  */
 $iconVersionQ = '?v=3.0.0';
+
+// Pull from ENV for reliability in partials
+$pColor = $_ENV['THEME_COLOR_PRIMARY'] ?? '#FF5F1F';
+$sColor = $_ENV['THEME_COLOR_SECONDARY'] ?? '#E64A00';
+$dColor = $_ENV['THEME_COLOR_DARK'] ?? '#0A0A0A';
 ?>
 <link rel="canonical" href="<?= "https://nextgennoise.com" . $_SERVER['REQUEST_URI'] ?>">
 
@@ -35,15 +40,15 @@ $iconVersionQ = '?v=3.0.0';
                 extend: { 
                     colors: { 
                         brand: { 
-                            DEFAULT: '<?= $GLOBALS['theme']['primary'] ?? '#FF5F1F' ?>', 
-                            dark: '<?= $GLOBALS['theme']['dark'] ?? '#E64A00' ?>',
-                            secondary: '<?= $GLOBALS['theme']['secondary'] ?? '#367208' ?>',
+                            DEFAULT: '<?= $pColor ?>', 
+                            dark: '<?= $dColor ?>',
+                            secondary: '<?= $sColor ?>',
                         },
                         theme: {
-                            danger: '<?= $GLOBALS['theme']['danger'] ?? '#ff4949' ?>',
-                            warning: '<?= $GLOBALS['theme']['warning'] ?? '#ffcc00' ?>',
-                            success: '<?= $GLOBALS['theme']['success'] ?? '#3fa307' ?>',
-                            info: '<?= $GLOBALS['theme']['info'] ?? '#4CAF50' ?>'
+                            danger: '<?= $_ENV['THEME_COLOR_DANGER'] ?? '#ff4949' ?>',
+                            warning: '<?= $_ENV['THEME_COLOR_WARNING'] ?? '#ffcc00' ?>',
+                            success: '<?= $_ENV['THEME_COLOR_SUCCESS'] ?? '#3fa307' ?>',
+                            info: '<?= $_ENV['THEME_COLOR_INFO'] ?? '#4CAF50' ?>'
                         }
                     },
                     fontFamily: {

@@ -1,6 +1,9 @@
+<?php
+$pColor = $_ENV['THEME_COLOR_PRIMARY'] ?? '#FF5F1F';
+?>
 <style>
 :root { 
-    --primary: <?= $GLOBALS['theme']['primary'] ?? '#FF5F1F' ?>; 
+    --primary: <?= $pColor ?>; 
     --charcoal: #050505; 
     --surface: #121212;
     --highlight: #1a1a1a;
@@ -16,7 +19,7 @@ html, body {
 body { 
     background-color: var(--charcoal) !important; 
     color: var(--text-main); 
-    font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
     overflow-x: hidden;
 }
 
@@ -32,7 +35,7 @@ body {
 .sp-card:hover { 
     background: var(--highlight);
     transform: translateY(-4px);
-    border-color: rgba(255, 95, 31, 0.2);
+    border-color: color-mix(in srgb, var(--primary) 20%, transparent);
 }
 
 /* Scrollbar Styling */
@@ -56,7 +59,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: margin-top 0.5s ease;
-    overflow-x: hidden; /* Prevent horizontal stretching */
+    overflow-x: hidden;
 }
 
 /* Player Rig Fixes (Mobile Style, Full Width Bar) */
@@ -68,7 +71,7 @@ body {
     padding: 0 24px;
     background: rgba(5, 5, 5, 0.95);
     backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255, 95, 31, 0.15);
+    border-top: 1px solid color-mix(in srgb, var(--primary) 15%, transparent);
 }
 #ngn-player-container .ngn-player {
     display: flex;
@@ -106,11 +109,12 @@ body {
     align-items: center;
     gap: 12px !important;
 }
-    .ngn-btn-play {
-        width: 42px !important;
-        height: 42px !important;
-        background: var(--primary) !important;
-        color: #000 !important;    border-radius: 50%;
+.ngn-btn-play {
+    width: 42px !important;
+    height: 42px !important;
+    background: var(--primary) !important;
+    color: #000 !important;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -160,4 +164,9 @@ body {
     animation: spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* Global Glow Utility */
+.glow-primary {
+    filter: drop-shadow(0 0 15px color-mix(in srgb, var(--primary) 40%, transparent));
+}
 </style>
