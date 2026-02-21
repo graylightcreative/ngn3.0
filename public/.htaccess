@@ -1,6 +1,10 @@
 RewriteEngine On
 Options -MultiViews -Indexes
 
+# Core Routes
+RewriteRule ^activation/?$ activation.php [L,QSA]
+RewriteRule ^forge/?$ forge.php [L,QSA]
+
 # ============================================================================
 # SUBDOMAIN ROUTING (Compartmentalization)
 # ============================================================================
@@ -25,9 +29,17 @@ RewriteRule ^(.*)$ /help/$1 [L,QSA]
 RewriteCond %{HTTP_HOST} ^my\.nextgennoise\.com$ [NC]
 RewriteRule ^(.*)$ /dashboard/$1 [L,QSA]
 
-# Route beta.nextgennoise.com to beta.php (Landing Page Only)
+# Route investors.nextgennoise.com to the special investors information page
+RewriteCond %{HTTP_HOST} ^investors\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ investors.php [L,QSA]
+
+# Route beta.nextgennoise.com to forge.php (Development Tracker - Legacy URL)
 RewriteCond %{HTTP_HOST} ^beta\.nextgennoise\.com$ [NC]
-RewriteRule ^$ beta.php [L]
+RewriteRule ^$ forge.php [L]
+
+# Route forge.nextgennoise.com to forge.php (Development Tracker)
+RewriteCond %{HTTP_HOST} ^forge\.nextgennoise\.com$ [NC]
+RewriteRule ^$ forge.php [L]
 
 # ============================================================================
 # HTTP CACHING & COMPRESSION
