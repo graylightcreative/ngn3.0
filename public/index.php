@@ -1117,6 +1117,13 @@ if ($view === 'post' && !empty($data['post'])) {
         background: var(--charcoal);
         min-height: 100vh;
         position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* PWA Banner Offset for Sticky Header */
+    #pwa-mobilizer:not(.hidden) + .app-frame header {
+        top: 72px; /* Height of banner */
     }
 
     /* Player Rig Fixes (Mobile Style, Full Width Bar) */
@@ -1230,11 +1237,13 @@ if ($view === 'post' && !empty($data['post'])) {
     <?php include 'app-nav.php'; ?>
     <?php include $root . 'lib/partials/sovereign-menu.php'; ?>
     <!-- Main Content Area -->
-    <main class="flex-1 content-container">
+    <main class="flex-1 content-container flex flex-col">
       <!-- Minimal Header -->
-      <header class="flex items-center justify-between px-6 h-16 sticky top-0 z-40 bg-black/60 backdrop-blur-xl border-b border-white/5">
+      <header class="flex items-center justify-between px-6 h-16 sticky top-0 z-40 bg-black/80 backdrop-blur-xl border-b border-white/5 w-full">
         <a href="/" class="flex-shrink-0">
-            <img src="/lib/images/site/2026/NGN-Emblem-Light.png" class="h-8 w-auto" alt="NGN">
+            <!-- Responsive Logo: Emblem on mobile, Full on Tablet+ -->
+            <img src="/lib/images/site/2026/NGN-Emblem-Light.png" class="h-8 w-auto lg:hidden" alt="NGN">
+            <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-8 w-auto hidden lg:block" alt="Next Generation Noise">
         </a>
         
         <div class="flex items-center gap-4">
