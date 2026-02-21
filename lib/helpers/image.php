@@ -10,18 +10,18 @@ if (!function_exists('post_image')) {
         if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
 
-        // Use absolute filesystem root for existence check
+        // Strip redundant prefix if DB has 'posts/filename.jpg'
+        $cleanName = str_replace('posts/', '', $filename);
+
         $projectRoot = dirname(__DIR__, 2);
 
-        // Targeted search paths (relative to web root)
         $candidates = [
-            '/uploads/posts/' . $filename,
-            '/lib/images/posts/' . $filename,
-            '/uploads/' . $filename
+            '/uploads/posts/' . $cleanName,
+            '/lib/images/posts/' . $cleanName,
+            '/uploads/' . $cleanName
         ];
 
         foreach ($candidates as $relPath) {
-            // Check in public/ (where the web server looks)
             if (file_exists($projectRoot . '/public' . $relPath)) {
                 return $relPath;
             }
@@ -40,14 +40,38 @@ if (!function_exists('user_image')) {
         $projectRoot = dirname(__DIR__, 2);
 
         $candidates = [
+            "/lib/images/users/{$slug}/{$filename}",
+            "/lib/images/users/{$filename}",
             "/uploads/artists/{$slug}/{$filename}",
             "/uploads/users/{$slug}/{$filename}",
-            "/uploads/labels/{$filename}",
-            "/uploads/stations/{$filename}",
-            "/uploads/venues/{$filename}",
             "/uploads/{$filename}",
-            "/lib/images/users/{$filename}",
-            "/lib/images/labels/{$filename}"
+            "/lib/images/labels/{$filename}",
+            "/lib/images/stations/{$filename}",
+            "/lib/images/venues/{$filename}"
+        ];
+
+        foreach ($candidates as $relPath) {
+            if (file_exists($projectRoot . '/public' . $relPath)) {
+                return $relPath;
+            }
+        }
+
+        return $default;
+    }
+}
+
+if (!function_exists('release_image')) {
+    function release_image(?string $filename): string {
+        $default = '/lib/images/site/2026/default-avatar.png';
+        if (empty($filename)) return $default;
+        if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
+
+        $projectRoot = dirname(__DIR__, 2);
+
+        $candidates = [
+            '/uploads/releases/' . $filename,
+            '/lib/images/releases/' . $filename,
+            '/uploads/' . $filename
         ];
 
         foreach ($candidates as $relPath) {

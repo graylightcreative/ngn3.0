@@ -399,7 +399,7 @@ if ($pdo) {
         } elseif ($view === 'releases') {
             $offset = ($page - 1) * $perPage;
             $where = $search !== '' ? "WHERE r.title LIKE :search" : '';
-            $sql = "SELECT r.*, r.cover_url as cover_image_url, a.name as artist_name FROM `ngn_2025`.`releases` r 
+            $sql = "SELECT r.*, a.name as artist_name FROM `ngn_2025`.`releases` r 
                     LEFT JOIN `ngn_2025`.`artists` a ON r.artist_id = a.id 
                     {$where} ORDER BY r.release_date DESC LIMIT :limit OFFSET :offset";
             $stmt = $pdo->prepare($sql);
@@ -408,6 +408,11 @@ if ($pdo) {
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
             $data['releases'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+            
+            // Map images using helper
+            foreach ($data['releases'] as &$r) {
+                $r['cover_image_url'] = release_image($r['cover_url'] ?? '');
+            }
             
             $sqlCount = "SELECT COUNT(*) FROM `ngn_2025`.`releases` r {$where}";
             $stmtCount = $pdo->prepare($sqlCount);
