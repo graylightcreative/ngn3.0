@@ -84,7 +84,7 @@ export class PlayerUI {
 
         <!-- Queue Toggle -->
         <div class="ngn-player-right">
-          <button class="ngn-btn ngn-btn-shredder" title="Shredder Mode (Stem Isolation)">
+          <button class="ngn-btn ngn-btn-shredder hidden" title="Shredder Mode (Stem Isolation)">
             <i class="bi bi-layers-half"></i>
             <span class="text-[8px] block font-black">SHREDDER</span>
           </button>
@@ -96,7 +96,7 @@ export class PlayerUI {
       </div>
 
       <!-- Shredder Mixer Panel (Overlay) -->
-      <div class="ngn-shredder-panel" style="display: none;">
+      <div class="ngn-shredder-panel" style="display: none;" aria-hidden="true">
         <div class="ngn-shredder-header">
           <h3 class="font-black tracking-tighter uppercase text-brand">Shredder_Node // v1.0</h3>
           <button class="ngn-btn ngn-btn-close-shredder">&times;</button>
