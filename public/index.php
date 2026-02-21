@@ -101,6 +101,10 @@ try {
         $data['chart_type'] = $type;
         $data['artist_rankings'] = get_top_rankings($pdo, 'artist', 50);
         $data['label_rankings'] = get_top_rankings($pdo, 'label', 50);
+
+    } elseif ($view === 'smr-charts') {
+        $data['smr_charts'] = get_smr_charts($pdo);
+        $data['smr_date'] = date('F j, Y');
     }
 
 } catch (\Throwable $e) {
@@ -137,14 +141,21 @@ function ngn_get(PDO $pdo, string $table, $id): ?array {
 }
 
 function get_top_rankings(PDO $pdo, string $type, int $limit = 10): array {
-    $sql = "SELECT i.score as Score, e.name as Name, e.slug as slug, e.image_url as image_url 
-            FROM `ngn_rankings_2025`.`ranking_items` i
-            JOIN `ngn_2025`.`{$type}s` e ON i.entity_id = e.id
-            WHERE i.entity_type = ?
-            ORDER BY i.score DESC LIMIT ?";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$type, $limit]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    global $config;
+    try {
+        $rankingsPdo = ConnectionFactory::named($config, 'rankings2025');
+        $sql = "SELECT i.score as Score, e.name as Name, e.slug as slug, e.image_url as image_url 
+                FROM `ngn_rankings_2025`.`ranking_items` i
+                JOIN `ngn_2025`.`{$type}s` e ON i.entity_id = e.id
+                WHERE i.entity_type = ?
+                ORDER BY i.score DESC LIMIT ?";
+        $stmt = $rankingsPdo->prepare($sql);
+        $stmt->execute([$type, $limit]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (\Throwable $e) {
+        error_log("Rankings Fetch Error: " . $e->getMessage());
+        return [];
+    }
 }
 
 function get_trending_artists(PDO $pdo, int $limit = 5): array {
@@ -197,6 +208,27 @@ function get_releases_list(PDO $pdo, string $search, int $page, int $perPage): a
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+}
+
+function get_smr_charts(PDO $pdo): array {
+    global $config;
+    try {
+        $smrPdo = ConnectionFactory::named($config, 'smr2025');
+        // Fetch latest chart data
+        $stmt = $smrPdo->query("SELECT * FROM `ngn_smr_2025`.`smr_chart_data` ORDER BY TWP ASC LIMIT 100");
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        
+        // Enrich with artist data from main DB
+        foreach ($rows as &$row) {
+            $stmt = $pdo->prepare("SELECT name, slug, image_url FROM `ngn_2025`.`artists` WHERE name = ? LIMIT 1");
+            $stmt->execute([$row['Artist']]);
+            $row['artist'] = $stmt->fetch(PDO::FETCH_ASSOC) ?: ['name' => $row['Artist'], 'slug' => '', 'image_url' => null];
+        }
+        return $rows;
+    } catch (\Throwable $e) {
+        error_log("SMR Fetch Error: " . $e->getMessage());
+        return [];
+    }
 }
 
 // SEO Metadata Protocol
