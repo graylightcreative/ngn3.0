@@ -136,7 +136,7 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
 <script src="/lib/js/site.js?v=<?= time() ?>"></script>
 
 <!-- NGN Player Initialization -->
-<script type="module" src="/public/js/player/player-init.js?v=<?= time() ?>"></script>
+<script type="module" src="/js/player/player-init.js?v=<?= time() ?>"></script>
 
 <script>
     window.NGN = window.NGN || {};

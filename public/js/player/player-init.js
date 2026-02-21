@@ -35,8 +35,8 @@ if (savedQueueState && savedQueueState.queue && savedQueueState.queue.length > 0
 const playerContainer = document.getElementById('ngn-player-container');
 if (playerContainer) {
   console.log('[NGN Player] Initializing UI...');
-  // Use dynamic import with timestamp to force fresh PlayerUI logic (bypasses module cache)
-  import(`./PlayerUI.js?v=${Date.now()}`).then(module => {
+  // Use absolute web path for dynamic import
+  import(`/js/player/PlayerUI.js?v=${Date.now()}`).then(module => {
     new module.PlayerUI(player, playerContainer);
   }).catch(err => {
     console.error('[NGN Player] Failed to load PlayerUI:', err);
