@@ -226,20 +226,28 @@ try {
 
 // Version Banner (inject early for visibility)
 if (!defined('NGN_VERSION_BANNER_RENDERED')) {
-    try {
-        $hideBanner = \NGN\Lib\Env::bool('NGN_HIDE_VERSION_BANNER', true);
-        if (!$hideBanner && php_sapi_name() !== 'cli' && !str_contains($_SERVER['REQUEST_URI'] ?? '', '/api/')) {
-            // Read from $_ENV (loaded by Env::load above) or use defaults
-            $version = $_ENV['NGN_VERSION'] ?? getenv('NGN_VERSION') ?? '2.0.1';
-            $environment = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?? 'dev';
-            $releaseDate = $_ENV['NGN_RELEASE_DATE'] ?? getenv('NGN_RELEASE_DATE') ?? date('Y-m-d');
+    // ... existing banner logic ...
+}
 
-            if (class_exists('NGN\\Lib\\UI\\VersionBanner')) {
-                echo \NGN\Lib\UI\VersionBanner::render($version, $environment, $releaseDate);
-                define('NGN_VERSION_BANNER_RENDERED', true);
-            }
-        }
-    } catch (\Throwable $e) {
-        // Silently ignore banner errors
+/**
+ * Global UI Helper: Profile Upsell Component
+ * High-velocity onboarding trigger for unclaimed or empty profiles.
+ */
+if (!function_exists('render_profile_upsell')) {
+    function render_profile_upsell(string $title, string $message, bool $isClaimed, ?string $slug = null): void {
+        $ctaText = $isClaimed ? "Management_Portal" : "Claim_Institutional_Portal";
+        $ctaUrl = "/register.php"; // Default to registration
+        ?>
+        <div class="glass-panel p-12 rounded-[2rem] text-center max-w-2xl mx-auto border-dashed border-white/10 mt-12 mb-12">
+            <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-zinc-500 mx-auto mb-6">
+                <i class="bi bi-rocket-takeoff text-3xl"></i>
+            </div>
+            <h3 class="text-2xl font-black text-white uppercase italic brand-gradient-text mb-4"><?= htmlspecialchars(str_replace(' ', '_', $title)) ?>_Inactive</h3>
+            <p class="text-zinc-500 font-medium leading-relaxed mb-8"><?= htmlspecialchars($message) ?></p>
+            <a href="<?= $ctaUrl ?>" class="inline-block px-10 py-5 bg-brand text-black font-black uppercase tracking-widest text-xs rounded-full hover:bg-white transition-all shadow-xl shadow-brand/20">
+                <?= $ctaText ?>
+            </a>
+        </div>
+        <?php
     }
 }

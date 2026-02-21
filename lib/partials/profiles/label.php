@@ -76,7 +76,7 @@ $scores = $label['scores'] ?? ['Score' => 0];
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <?php render_profile_upsell("Artist Roster", "Unify your roster on NGN 2.0. Aggregate your artists' scores, monitor collective reach, and optimize your label's growth.", $isClaimed, $labelSlug); ?>
+                    <?php render_profile_upsell("Artist Roster", "Unify your roster on the Sovereign fleet. Aggregate your artists' scores, monitor collective reach, and optimize institutional growth.", $isClaimed, $labelSlug); ?>
                 <?php endif; ?>
             </section>
 
