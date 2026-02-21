@@ -71,7 +71,7 @@
                 <div class="inline-flex items-center gap-3 px-4 py-1.5 bg-brand text-black font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-8 rounded-full shadow-xl shadow-brand/20">
                     <i class="bi bi-cpu-fill"></i> Hardware_Agnostic
                 </div>
-                <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] text-white uppercase break-words drop-shadow-2xl">Clarity<span class="text-brand">_VST</span></h1>
+                <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] uppercase break-words drop-shadow-2xl brand-gradient-text">Clarity<span class="text-brand">_VST</span></h1>
                 <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">The source of truth for high-fidelity audio processing. Coming soon to the fleet.</p>
                 <div class="flex flex-col sm:flex-row gap-6">
                     <a href="https://clarity.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all rounded-full shadow-2xl shadow-brand/30 text-center">Explore_Engine</a>
@@ -84,7 +84,7 @@
                 <div class="inline-flex items-center gap-3 px-4 py-1.5 bg-brand text-black font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-8 rounded-full shadow-xl shadow-brand/20">
                     <i class="bi bi-layers-half"></i> Stem_Isolation_v1.0
                 </div>
-                <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] text-white uppercase break-words drop-shadow-2xl">The<span class="text-brand">_Shredder</span></h1>
+                <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] uppercase break-words drop-shadow-2xl brand-gradient-text">The<span class="text-brand">_Shredder</span></h1>
                 <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">Real-time stem isolation and AI-driven remix architecture. Deconstruct the sound.</p>
                 <div class="flex flex-col sm:flex-row gap-6">
                     <a href="/register.php" class="bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all rounded-full shadow-2xl shadow-brand/30 text-center">Bunker_Access</a>
@@ -96,7 +96,7 @@
                 <div class="inline-flex items-center gap-3 px-4 py-1.5 bg-brand text-black font-black text-[10px] md:text-[11px] uppercase tracking-[0.2em] mb-8 rounded-full shadow-xl shadow-brand/20">
                     <i class="bi bi-tools"></i> Precision_Engineering
                 </div>
-                <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] text-white uppercase break-words drop-shadow-2xl">Shell<span class="text-brand">_Shock</span></h1>
+                <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] uppercase break-words drop-shadow-2xl brand-gradient-text">Shell<span class="text-brand">_Shock</span></h1>
                 <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">The world's first autonomous drum tuning system. Perfect pitch, verified by the Rig.</p>
                 <div class="flex flex-col sm:flex-row gap-6">
                     <a href="https://shellshock.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all rounded-full shadow-2xl shadow-brand/30 text-center">Explore_Shellshock</a>

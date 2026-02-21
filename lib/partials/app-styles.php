@@ -169,4 +169,16 @@ body {
 .glow-primary {
     filter: drop-shadow(0 0 15px color-mix(in srgb, var(--primary) 40%, transparent));
 }
+
+.glass {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.brand-gradient-text {
+    background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
 </style>
