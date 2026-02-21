@@ -131,25 +131,32 @@ try {
             try {
                 // Attempt to create PDO and FeatureFlagService for hot-reload support
                 if (class_exists('NGN\\Lib\\Services\\FeatureFlagService') && class_exists('NGN\\Lib\\Env')) {
-                    $dbCfg = [
-                        'host' => NGN\Lib\Env::get('DB_HOST', '127.0.0.1'),
-                        'port' => (int)(NGN\Lib\Env::get('DB_PORT', '3306') ?? '3306'),
-                        'name' => NGN\Lib\Env::get('DB_NAME', ''),
-                        'user' => NGN\Lib\Env::get('DB_USER', ''),
-                        'pass' => NGN\Lib\Env::get('DB_PASS', ''),
-                    ];
-                    if (!empty($dbCfg['name']) && !empty($dbCfg['user'])) {
-                        $pdo = new PDO(
-                            "mysql:host={$dbCfg['host']}:{$dbCfg['port']};dbname={$dbCfg['name']};charset=utf8mb4",
-                            $dbCfg['user'],
-                            $dbCfg['pass'],
-                            [PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT]
+                    $dbHost = NGN\Lib\Env::get('DB_HOST', '127.0.0.1');
+                    $dbPort = (int)(NGN\Lib\Env::get('DB_PORT', '3306') ?? '3306');
+                    $dbName = NGN\Lib\Env::get('DB_NAME', '');
+                    $dbUser = NGN\Lib\Env::get('DB_USER', '');
+                    $dbPass = NGN\Lib\Env::get('DB_PASS', '');
+
+                    if (!empty($dbName) && !empty($dbUser)) {
+                        // Use a short timeout for the maintenance guard DB check to prevent hanging
+                        $pdoMaint = new PDO(
+                            "mysql:host={$dbHost};port={$dbPort};dbname={$dbName};charset=utf8mb4",
+                            $dbUser,
+                            $dbPass,
+                            [
+                                PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
+                                PDO::ATTR_TIMEOUT => 1 // 1 second timeout
+                            ]
                         );
-                        $featureFlags = new NGN\Lib\Services\FeatureFlagService($pdo);
+                        // Check if table exists before using service
+                        $tableCheck = $pdoMaint->query("SHOW TABLES LIKE 'feature_flags'");
+                        if ($tableCheck && $tableCheck->rowCount() > 0) {
+                            $featureFlags = new NGN\Lib\Services\FeatureFlagService($pdoMaint);
+                        }
                     }
                 }
             } catch (\Throwable $e) {
-                // Silently ignore PDO/service errors; will fall back to Env
+                error_log("Bootstrap - Maintenance guard DB check failed: " . $e->getMessage());
             }
             $cfg = new NGN\Lib\Config($featureFlags);
         }
