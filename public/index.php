@@ -1459,6 +1459,9 @@ if ($view === 'post' && !empty($data['post'])) {
               <?php elseif ($view === 'integrations'): ?>
                 <?php include $root . 'lib/partials/view-integrations.php'; ?>
 
+              <?php elseif ($view === 'advertisers'): ?>
+                <?php include $root . 'lib/partials/view-advertiser.php'; ?>
+
       <?php elseif (in_array($view, ['artists', 'labels', 'stations', 'venues'])): ?>
         <!-- ENTITY LIST VIEW -->
         <div class="flex items-center justify-between mb-8">
@@ -1964,131 +1967,10 @@ if ($view === 'post' && !empty($data['post'])) {
 
   <?php include $root . 'lib/partials/dispute-modal.php'; ?>
 
-  <!-- GLOBAL MUSIC PLAYER -->
-  <div id="global-player" class="player-bar hidden">
-    <div class="flex items-center w-full max-w-[100vw] gap-4 lg:gap-8">
-        
-        <!-- Track Info -->
-        <div class="flex items-center gap-4 w-[30%] min-w-0">
-            <div class="w-14 h-14 rounded bg-zinc-800 flex-shrink-0 overflow-hidden shadow-lg">
-                <img id="player-art" src="<?= DEFAULT_AVATAR ?>" class="w-full h-full object-cover">
-            </div>
-            <div class="min-w-0">
-                <div id="player-title" class="text-sm font-black text-white truncate">Select a Track</div>
-                <div id="player-artist" class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest truncate">NextGenNoise</div>
-            </div>
-            <button class="text-zinc-500 hover:text-brand transition-colors ml-2"><i class="bi-heart"></i></button>
-        </div>
-
-        <!-- Controls & Progress -->
-        <div class="flex-1 flex flex-col items-center max-w-[40%]">
-            <div class="flex items-center gap-6 mb-2">
-                <button class="player-btn text-xl"><i class="bi-shuffle"></i></button>
-                <button class="player-btn text-2xl"><i class="bi-skip-start-fill"></i></button>
-                <button id="player-play-toggle" class="player-btn play shadow-xl"><i class="bi-play-fill text-2xl"></i></button>
-                <button class="player-btn text-2xl"><i class="bi-skip-end-fill"></i></button>
-                <button class="player-btn text-xl"><i class="bi-repeat"></i></button>
-            </div>
-            <div class="w-full flex items-center gap-3">
-                <span id="player-time-cur" class="text-[10px] font-mono text-zinc-500 w-10 text-right">0:00</span>
-                <div class="progress-bar flex-1" id="player-progress-container">
-                    <div id="player-progress" class="progress-fill"></div>
-                </div>
-                <span id="player-time-total" class="text-[10px] font-mono text-zinc-500 w-10">0:00</span>
-            </div>
-        </div>
-
-        <!-- Volume / Extra -->
-        <div class="hidden md:flex items-center justify-end gap-4 w-[30%]">
-            <button class="player-btn"><i class="bi-mic-fill"></i></button>
-            <button class="player-btn"><i class="bi-list-ul"></i></button>
-            <div class="flex items-center gap-2 w-32">
-                <i class="bi-volume-up text-zinc-500"></i>
-                <div class="progress-bar flex-1 h-1">
-                    <div class="progress-fill w-3/4"></div>
-                </div>
-            </div>
-            <button class="player-btn"><i class="bi-fullscreen"></i></button>
-        </div>
-    </div>
-  </div>
-
-  <audio id="audio-engine" class="hidden"></audio>
+  <!-- GLOBAL MUSIC PLAYER (Sovereign Command Center) -->
+  <?php require $root . 'lib/partials/player.php'; ?>
 
   <!-- Global Loader -->
-  <div class="loading-overlay" id="global-loader">
-    <div class="loading-spinner"></div>
-  </div>
-
-  <script>
-    const audio = document.getElementById('audio-engine');
-    const player = document.getElementById('global-player');
-    const playBtn = document.getElementById('player-play-toggle');
-    const playerTitle = document.getElementById('player-title');
-    const playerArtist = document.getElementById('player-artist');
-    const playerArt = document.getElementById('player-art');
-    const progressBar = document.getElementById('player-progress');
-    const timeCur = document.getElementById('player-time-cur');
-    const timeTotal = document.getElementById('player-time-total');
-
-    function formatTime(secs) {
-        if (!secs || isNaN(secs)) return "0:00";
-        const m = Math.floor(secs / 60);
-        const s = Math.floor(secs % 60);
-        return m + ":" + (s < 10 ? "0" : "") + s;
-    }
-
-    function playTrack(url, title, artist, art) {
-        if (!url) return;
-        
-        player.classList.remove('hidden');
-        audio.src = url;
-        audio.play();
-        
-        playerTitle.innerText = title;
-        playerArtist.innerText = artist;
-        if (art) playerArt.src = art;
-        
-        updatePlayIcon(true);
-    }
-
-    function togglePlay() {
-        if (audio.paused) {
-            audio.play();
-            updatePlayIcon(true);
-        } else {
-            audio.pause();
-            updatePlayIcon(false);
-        }
-    }
-
-    function updatePlayIcon(isPlaying) {
-        playBtn.innerHTML = isPlaying ? '<i class="bi-pause-fill text-2xl"></i>' : '<i class="bi-play-fill text-2xl"></i>';
-    }
-
-    playBtn.addEventListener('click', togglePlay);
-
-    audio.addEventListener('timeupdate', () => {
-        const pct = (audio.currentTime / audio.duration) * 100;
-        progressBar.style.width = pct + '%';
-        timeCur.innerText = formatTime(audio.currentTime);
-        timeTotal.innerText = formatTime(audio.duration);
-    });
-
-    // Add play events to all data-play-track elements
-    document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-play-track]');
-        if (btn) {
-            e.preventDefault();
-            playTrack(
-                btn.dataset.trackUrl,
-                btn.dataset.trackTitle,
-                btn.dataset.trackArtist,
-                btn.dataset.trackArt
-            );
-        }
-    });
-  </script>
 
   <?php require $root . 'lib/partials/global-footer.php'; ?>
 
