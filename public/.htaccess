@@ -164,6 +164,8 @@ RewriteRule ^video/([a-z0-9-]+)/?$ index.php?view=video&slug=$1 [L,QSA]
 RewriteRule ^videos/?$ index.php?view=videos [L,QSA]
 
 # Clean URLs for profiles
+RewriteRule ^partner/([a-z0-9_-]+)/?$ index.php?view=artist&slug=$1 [L,QSA]
+RewriteRule ^capital-group/([a-z0-9_-]+)/?$ index.php?view=label&slug=$1 [L,QSA]
 RewriteRule ^artist/([a-z0-9_-]+)/?$ index.php?view=artist&slug=$1 [L,QSA]
 RewriteRule ^label/([a-z0-9_-]+)/?$ index.php?view=label&slug=$1 [L,QSA]
 RewriteRule ^venue/([a-z0-9_-]+)/?$ index.php?view=venue&slug=$1 [L,QSA]
@@ -195,6 +197,9 @@ RewriteRule ^shows/?$ index.php?view=shows [L,QSA]
 RewriteRule ^shop/?$ index.php?view=shop [L,QSA]
 
 # Clean URLs for special pages
+RewriteRule ^charts/artists/?$ index.php?view=charts&type=artists [L,QSA]
+RewriteRule ^charts/labels/?$ index.php?view=charts&type=labels [L,QSA]
+RewriteRule ^charts/smr/?$ index.php?view=smr-charts [L,QSA]
 RewriteRule ^charts/?$ index.php?view=charts [L,QSA]
 RewriteRule ^smr-charts/?$ index.php?view=smr-charts [L,QSA]
 RewriteRule ^pricing/?$ index.php?view=pricing [L,QSA]

@@ -35,6 +35,10 @@ if (strpos($host, 'forge.') === 0 || strpos($host, 'beta.') === 0) {
     }
 }
 
+// Terminology Overrides
+if ($view === 'partner') $view = 'artist';
+if ($view === 'capital-group') $view = 'label';
+
 if (in_array($view, ['dashboard', 'profile']) && !$isLoggedIn) {
     header('Location: /login.php'); exit;
 }
@@ -102,12 +106,14 @@ try {
         }
 
     } elseif ($view === 'charts' || $view === 'smr-charts') {
-        $data['smr_charts'] = get_smr_charts($pdo);
-        $data['matched_artists'] = []; // Resolve layman-view warnings
+        $smr = get_smr_charts($pdo);
+        $data['smr_charts'] = $smr['items'];
+        $data['smr_date'] = $smr['date'];
+        $data['matched_artists'] = []; 
         if ($view === 'charts') {
             $data['chart_type'] = $_GET['type'] ?? 'artists';
-            $data['market_rankings'] = get_top_rankings($pdo, 'artist', 200);
-            $data['business_rankings'] = get_top_rankings($pdo, 'label', 200);
+            $data['partner_rankings'] = get_top_rankings($pdo, 'artist', 200);
+            $data['label_rankings'] = get_top_rankings($pdo, 'label', 200);
         }
 
     } elseif (in_array($view, ['artist', 'label', 'station', 'venue'])) {
@@ -288,11 +294,23 @@ function get_smr_charts(PDO $pdo): array {
     try {
         $smrPdo = ConnectionFactory::named($config, 'smr2025');
         $date = $smrPdo->query("SELECT MAX(window_date) FROM smr_chart")->fetchColumn();
-        if (!$date) return [];
+        if (!$date) return ['items' => [], 'date' => null];
         $stmt = $smrPdo->prepare("SELECT * FROM smr_chart WHERE window_date = ? ORDER BY tws DESC LIMIT 100");
         $stmt->execute([$date]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (\Throwable $e) { return []; }
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (!$rows) return ['items' => [], 'date' => $date];
+
+        // Enrichment
+        $ids = array_unique(array_column($rows, 'ArtistId'));
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $meta = $pdo->prepare("SELECT id, name, slug, image_url FROM artists WHERE id IN ($placeholders)");
+        $meta->execute($ids);
+        $map = []; foreach($meta->fetchAll(PDO::FETCH_ASSOC) as $m) $map[$m['id']] = $m;
+        foreach($rows as &$r) {
+            $r['artist'] = $map[$r['ArtistId']] ?? ['name' => 'Unknown Artist', 'slug' => '', 'image_url' => ''];
+        }
+        return ['items' => $rows, 'date' => $date];
+    } catch (\Throwable $e) { return ['items' => [], 'date' => null]; }
 }
 
 $seoTitle = "NextGenNoise // The Financial Engine for Independent Music";
