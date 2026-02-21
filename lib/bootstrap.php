@@ -20,6 +20,11 @@ if (is_file($__imageUtils)) {
     require_once $__imageUtils;
 }
 
+$__imageHelpers = $__root . '/lib/helpers/image.php';
+if (is_file($__imageHelpers)) {
+    require_once $__imageHelpers;
+}
+
 // 2) Defensive autoload guard for NGN\Lib\ classes when Composer is stale or classmap is wrong
 if (!class_exists('NGN\\Lib\\Env')) {
 //    spl_autoload_register(function ($class) use ($__root) {
