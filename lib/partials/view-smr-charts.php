@@ -1,21 +1,31 @@
 <?php
 /**
- * NGN 3.2.0 Radio Performance View (SMR)
- * Layman ROI Overhaul
+ * NGN 3.2.1 Radio Performance View (SMR)
+ * Categorized Intelligence: Artists, Labels, SMR, Stations, Venues
  */
 $smrData = $data['smr_charts'] ?? [];
 $smrDate = $data['smr_date'] ?? 'N/A';
 ?>
 <div class="mb-12">
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+    <div class="flex flex-col xl:flex-row xl:items-end justify-between gap-8 mb-12">
         <div>
             <div class="inline-block px-3 py-1 bg-brand text-black font-black text-[10px] uppercase tracking-widest mb-4 rounded-sm">Radio_Performance</div>
             <h1 class="text-5xl lg:text-7xl font-black tracking-tighter text-white uppercase italic">Radio Charts</h1>
             <p class="text-zinc-500 font-bold text-sm mt-4 max-w-xl">Global airplay tracking and listener reach across the entire radio network. Updated weekly.</p>
         </div>
-        <div class="text-right">
-            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-1">Performance Date</div>
-            <div class="text-xl font-black text-white"><?= $smrDate ?></div>
+
+        <!-- Tab Navigation (Synced with view-charts) -->
+        <div class="flex flex-wrap bg-zinc-900 p-1.5 rounded-2xl border border-white/5 backdrop-blur-xl gap-1">
+            <a href="/charts/artists" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-zinc-500 hover:text-white">Artists</a>
+            <a href="/charts/labels" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all text-zinc-500 hover:text-white">Labels</a>
+            <a href="/charts/smr" class="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all bg-brand text-black shadow-lg shadow-brand/20">SMR</a>
+            
+            <div class="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-700 cursor-not-allowed flex items-center gap-2">
+                Stations <span class="text-[8px] bg-white/5 px-1.5 py-0.5 rounded text-zinc-500">Soon</span>
+            </div>
+            <div class="px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-zinc-700 cursor-not-allowed flex items-center gap-2">
+                Venues <span class="text-[8px] bg-white/5 px-1.5 py-0.5 rounded text-zinc-500">Soon</span>
+            </div>
         </div>
     </div>
 
