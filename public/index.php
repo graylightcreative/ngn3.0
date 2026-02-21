@@ -1877,8 +1877,11 @@ if ($view === 'post' && !empty($data['post'])) {
 
             <div class="flex flex-col md:flex-row gap-12 mb-16 items-end">
                 <div class="w-full md:w-80 flex-shrink-0 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                    <img src="<?= htmlspecialchars(($release['cover_url'] ?? $release['cover_image_url'] ?? '') ?: DEFAULT_AVATAR) ?>" 
-                         class="w-full aspect-square object-cover rounded-2xl border border-white/5 group-hover:scale-105 transition-transform duration-1000" alt=""
+                    <?php 
+                        $relImg = release_image($release['cover_url'] ?? $release['cover_image_url'] ?? '', $release['artist']['slug'] ?? null);
+                    ?>
+                    <img src="<?= htmlspecialchars($relImg) ?>" 
+                         class="w-full aspect-square object-cover rounded-2xl border border-white/5 group-hover:scale-[1.02] transition-transform duration-1000" alt=""
                          onerror="this.src='<?= DEFAULT_AVATAR ?>'">
                 </div>
                 <div class="flex-1">
