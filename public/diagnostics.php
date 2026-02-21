@@ -1,35 +1,28 @@
 <?php
 header('Content-Type: text/plain');
-echo "Current Dir: " . __DIR__ . "\n";
-echo "Files in public/:\n";
-print_r(scandir(__DIR__));
-echo "\nFiles in root/:\n";
-print_r(scandir(dirname(__DIR__)));
-
 $root = dirname(__DIR__);
-$possibleLogs = [
-    $root . '/error_log',
-    $root . '/php_errors.log',
-    $root . '/storage/logs/error.log',
-    '/tmp/php_errors.log'
-];
+$logDir = $root . '/storage/logs/';
+$ngnLogs = glob($logDir . '*.log');
 
-foreach ($possibleLogs as $log) {
-    if (file_exists($log)) {
-        echo "\nFound log at $log:\n";
-        echo shell_exec("tail -n 50 " . escapeshellarg($log));
-    }
+if (!$ngnLogs) {
+    echo "No logs found in $logDir";
+    exit;
 }
 
-// Try reading recent NGN custom logs
-$ngnLogs = glob($root . '/storage/logs/*.log');
-if ($ngnLogs) {
-    echo "\nNGN custom logs found:\n";
-    foreach ($ngnLogs as $l) {
-        echo " - " . basename($l) . " (" . filesize($l) . " bytes)\n";
+// Sort by date/mtime
+usort($ngnLogs, function($a, $b) { return filemtime($b) - filemtime($a); });
+
+foreach ($ngnLogs as $logPath) {
+    $name = basename($logPath);
+    $size = filesize($logPath);
+    echo "--- LOG: $name ($size bytes) ---\n";
+    
+    // Read last 10KB of the file
+    $handle = fopen($logPath, "r");
+    if ($size > 10000) {
+        fseek($handle, -10000, SEEK_END);
     }
-    // Read the newest one
-    usort($ngnLogs, function($a, $b) { return filemtime($b) - filemtime($a); });
-    echo "\nContent of " . basename($ngnLogs[0]) . ":\n";
-    echo shell_exec("tail -n 100 " . escapeshellarg($ngnLogs[0]));
+    $content = fread($handle, 10000);
+    fclose($handle);
+    echo $content . "\n\n";
 }
