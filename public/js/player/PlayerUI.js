@@ -44,26 +44,26 @@ export class PlayerUI {
           <img class="ngn-player-artwork" src="/lib/images/site/default-avatar.png" alt="Album artwork">
           <div class="ngn-player-meta">
             <div class="ngn-player-title">Ready to play</div>
-            <div class="ngn-player-artist">NGN Player</div>
+            <div class="ngn-player-artist">NGN Sovereign Player</div>
           </div>
         </div>
 
         <!-- Main Controls -->
         <div class="ngn-player-controls">
           <button class="ngn-btn ngn-btn-shuffle" title="Shuffle queue">
-            <i class="fa fa-random"></i>
+            <i class="bi bi-shuffle"></i>
           </button>
           <button class="ngn-btn ngn-btn-prev" title="Previous track">
-            <i class="fa fa-step-backward"></i>
+            <i class="bi bi-skip-start-fill"></i>
           </button>
           <button class="ngn-btn ngn-btn-play ngn-btn-primary" title="Play">
-            <i class="fa fa-play"></i>
+            <i class="bi bi-play-fill"></i>
           </button>
           <button class="ngn-btn ngn-btn-next" title="Next track">
-            <i class="fa fa-step-forward"></i>
+            <i class="bi bi-skip-end-fill"></i>
           </button>
           <button class="ngn-btn ngn-btn-repeat" data-mode="none" title="Repeat mode">
-            <i class="fa fa-repeat"></i>
+            <i class="bi bi-repeat"></i>
           </button>
         </div>
 
@@ -77,7 +77,7 @@ export class PlayerUI {
         <!-- Volume Control -->
         <div class="ngn-player-volume">
           <button class="ngn-btn ngn-btn-mute" title="Mute">
-            <i class="fa fa-volume-up"></i>
+            <i class="bi bi-volume-up-fill"></i>
           </button>
           <input type="range" class="ngn-player-volume-slider" min="0" max="100" value="80" title="Volume">
         </div>
@@ -89,7 +89,7 @@ export class PlayerUI {
             <span class="text-[8px] block font-black">SHREDDER</span>
           </button>
           <button class="ngn-btn ngn-btn-queue" title="Show queue">
-            <i class="fa fa-list"></i>
+            <i class="bi bi-list-ul"></i>
             <span class="ngn-queue-count">0</span>
           </button>
         </div>
@@ -321,6 +321,23 @@ export class PlayerUI {
         const vol = e.target.value / 100;
         this.mixer.setStemVolume(stem, vol);
       });
+    });
+
+    // Global Interaction: Listen for [data-play-track] clicks across the site
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-play-track]');
+      if (btn) {
+        e.preventDefault();
+        const track = {
+          id: btn.dataset.trackId || 0,
+          title: btn.dataset.trackTitle || 'Unknown Track',
+          artist_name: btn.dataset.trackArtist || 'Unknown Artist',
+          cover_md: btn.dataset.trackArt || null,
+          mp3_url: btn.dataset.trackUrl // AudioPlayer might use this if direct URL
+        };
+        console.log('[PlayerUI] Loading track from click:', track.title);
+        this.player.loadTrack(track, true);
+      }
     });
 
     // Prevent seeking while loading

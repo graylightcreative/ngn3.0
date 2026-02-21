@@ -171,7 +171,7 @@ export class AudioPlayer {
    * Load a track and prepare for playback
    */
   async loadTrack(track, autoplay = this.config.autoplay) {
-    if (!track || !track.id) {
+    if (!track) {
       console.error('[AudioPlayer] Invalid track:', track);
       return;
     }
@@ -181,19 +181,26 @@ export class AudioPlayer {
       this.currentTrack = track;
       this.qualified30sTriggered = false;
 
-      // Fetch streaming token
-      const response = await fetch(`${this.config.apiBaseUrl}/tracks/${track.id}/token`);
-      if (!response.ok) {
-        throw new Error(`Failed to get streaming token: ${response.statusText}`);
+      let streamUrl = track.mp3_url || null;
+
+      // If no direct URL, fetch streaming token
+      if (!streamUrl && track.id) {
+        const response = await fetch(`${this.config.apiBaseUrl}/tracks/${track.id}/token`);
+        if (!response.ok) {
+          throw new Error(`Failed to get streaming token: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        if (!data.success || !data.data.url) {
+          throw new Error('No streaming URL returned');
+        }
+        streamUrl = data.data.url;
       }
 
-      const data = await response.json();
-      if (!data.success || !data.data.url) {
-        throw new Error('No streaming URL returned');
-      }
+      if (!streamUrl) throw new Error('No valid audio source found');
 
       // Set audio source
-      this.audio.src = data.data.url;
+      this.audio.src = streamUrl;
 
       // Emit trackchange event (required by media-session.js)
       this.emit('trackchange', {
