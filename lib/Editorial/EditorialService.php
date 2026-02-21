@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Lib\Editorial;
+namespace NGN\Lib\Editorial;
 
 use PDO;
 use Psr\Log\LoggerInterface; // Assuming Monolog is used for logging

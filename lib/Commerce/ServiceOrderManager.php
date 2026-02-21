@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Lib\Commerce;
+namespace NGN\Lib\Commerce;
 
 use PDO;
 use Psr\Log\LoggerInterface;

@@ -17,10 +17,11 @@ use NGN\Lib\Services\TicketService;
 use NGN\Lib\Services\TourService;
 use NGN\Lib\Services\BookingService;
 use NGN\Lib\Services\StripeConnectService;
+use NGN\Lib\Services\EmailService;
 use NGN\Lib\Legal\PlnPlaybackRepository;
 use NGN\Lib\Legal\PlnPlaybackService;
-use App\Lib\Editorial\EditorialService; // EditorialService namespace
-use App\Lib\Commerce\ServiceOrderManager; // ServiceOrderManager namespace
+use NGN\Lib\Editorial\EditorialService;
+use NGN\Lib\Commerce\ServiceOrderManager;
 use NGN\Lib\AI\MixFeedbackAssistant; // AI Mix Feedback
 use NGN\Lib\Sparks\Exception\InsufficientFundsException;
 use NGN\Lib\Sparks\SparkRepository;
@@ -29,8 +30,10 @@ use NGN\Lib\Commerce\ProductService;
 use NGN\Lib\Commerce\PrintfulService;
 use NGN\Lib\Commerce\OrderService;
 use NGN\Lib\Commerce\InvestmentService;
+use NGN\Lib\Engagement\EngagementService;
 use NGN\Lib\Posts\PostService;
 use NGN\Lib\Feed\FeedService;
+use NGN\Lib\Royalty\RoyaltyLedgerService;
 use NGN\Lib\Fans\LibraryService;
 use NGN\Lib\Services\Advertiser\AdvertiserService;
 use NGN\Lib\Stations\StationContentService;
@@ -41,6 +44,7 @@ use NGN\Lib\Stations\GeoBlockingService;
 use NGN\Lib\Stations\StationStreamService;
 use NGN\Lib\Services\Media\StreamingService;
 use NGN\Lib\Services\Royalties\PlaybackService;
+use NGN\Lib\Services\MetricsService;
 use NGN\Lib\Rankings\RankingService;
 use NGN\Lib\Writer\{ArticleService as WriterArticleService, SafetyFilterService};
 use NGN\Lib\Logging\LoggerFactory;
@@ -53,6 +57,7 @@ $router = new Router();
 
 // Instantiate Services (initialize each safely to prevent full API failure)
 $editorialService = null;
+$emailService = null;
 $serviceOrderManager = null;
 $productService = null;
 $printfulService = null;
@@ -84,6 +89,12 @@ $metricsService = null;
 $libraryService = null;
 $advertiserService = null;
 $timingMiddleware = null;
+
+try {
+    $emailService = new EmailService($pdo, $logger, $config);
+} catch (\Throwable $e) {
+    $logger->warning("Failed to initialize EmailService: " . $e->getMessage());
+}
 
 try {
     $editorialService = new EditorialService($pdo, $logger);
@@ -127,7 +138,7 @@ try {
 
 try {
     $eventService = new EventService($pdo);
-    $ticketService = new TicketService($pdo);
+    $ticketService = new TicketService($pdo, $emailService);
     $tourService = new TourService($pdo);
     $bookingService = new BookingService($pdo, $eventService);
 } catch (\Throwable $e) {
@@ -172,9 +183,15 @@ try {
 }
 
 try {
-    $playbackService = new PlaybackService($pdo);
+    $playbackService = new PlaybackService($config);
 } catch (\Throwable $e) {
     $logger->warning("Failed to initialize PlaybackService: " . $e->getMessage());
+}
+
+try {
+    $metricsService = new MetricsService($pdo);
+} catch (\Throwable $e) {
+    $logger->warning("Failed to initialize MetricsService: " . $e->getMessage());
 }
 
 try {
@@ -1282,6 +1299,31 @@ $router->get('/rankings/genres', function (Request $request) use ($rankingServic
     }
 });
 
+// GET /api/v1/charts/latest - Public latest chart run
+$router->get('/charts/latest', function (Request $request) use ($config) {
+    try {
+        $chart = $request->query('chart', 'ngn:artists:weekly');
+        $parts = explode(':', $chart);
+        $type = $parts[1] ?? 'artists';
+        $interval = $parts[2] ?? 'weekly';
+
+        $rankingService = new \NGN\Lib\Rankings\RankingService($config);
+        $data = $rankingService->list($type, $interval, 1, 100);
+
+        return new JsonResponse([
+            'success' => true,
+            'data' => [
+                'items' => $data['items'],
+                'total' => $data['total'],
+                'chart' => $chart,
+                'run_at' => date('Y-m-d H:i:s')
+            ]
+        ]);
+    } catch (\Throwable $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 // ============================================
 // ENGAGEMENT API ENDPOINTS
 // ============================================
@@ -1691,23 +1733,22 @@ $router->post('/royalties/eqs-distribution', function (Request $request) use ($r
 
 // POST /api/v1/investments/checkout - Create investment and checkout session
 $router->post('/investments/checkout', function (Request $request) use ($investmentService, $tokenSvc) {
-    // Auth required
+    // Optional Auth
     $currentUser = getCurrentUser($tokenSvc, $request);
-    if (!$currentUser) {
-        return new JsonResponse(['success' => false, 'message' => 'Authentication required.'], 401);
-    }
+    $userId = $currentUser ? $currentUser['userId'] : null;
 
-    $userId = $currentUser['userId'];
-    $amountCents = (int)$request->param('amount_cents');
-    $email = trim((string)$request->param('email'));
+    $body = json_decode($request->body(), true) ?: [];
+    
+    $amountCents = (int)($body['amount_cents'] ?? $request->param('amount_cents'));
+    $email = trim((string)($body['email'] ?? $request->param('email')));
 
     // Build URLs (use environment or request to get base URL)
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $host = $_SERVER['HTTP_HOST'] ?? 'nextgennation.com';
     $baseUrl = "{$protocol}://{$host}";
 
-    $successUrl = $request->param('success_url') ?: "{$baseUrl}/investments/success";
-    $cancelUrl = $request->param('cancel_url') ?: "{$baseUrl}/investments/cancel";
+    $successUrl = $body['success_url'] ?? $request->param('success_url') ?: "{$baseUrl}/investments/success";
+    $cancelUrl = $body['cancel_url'] ?? $request->param('cancel_url') ?: "{$baseUrl}/investments/cancel";
 
     // Validate required fields
     if (!$amountCents || $amountCents < 50000) {
@@ -1841,7 +1882,7 @@ $router->get('/investments', function (Request $request) use ($investmentService
 // SUBSCRIPTION & TIER API ENDPOINTS
 // ═══════════════════════════════════════════════════════════════
 
-$router->post('/subscriptions/create-checkout-session', function(Request $request) use ($pdo, $tokenSvc) {
+$router->post('/subscriptions/create-checkout-session', function(Request $request) use ($pdo, $tokenSvc, $config) {
     $currentUser = getCurrentUser($tokenSvc, $request);
     if (!$currentUser) {
         return new JsonResponse(['success' => false, 'message' => 'Authentication required.'], 401);
@@ -1877,27 +1918,35 @@ $router->post('/subscriptions/create-checkout-session', function(Request $reques
             return new JsonResponse(['success' => false, 'message' => 'Tier does not have pricing configured. Please contact support.'], 400);
         }
 
-        // Initialize Stripe
-        \Stripe\Stripe::setApiKey(Env::get('STRIPE_SECRET_KEY'));
-
-        // Create checkout session with Stripe price ID
-        $checkout_session = \Stripe\Checkout\Session::create([
-            'payment_method_types' => ['card'],
-            'line_items' => [[
-                'price' => $priceId,
-                'quantity' => 1,
-            ]],
+        // Delegate to Chancellor Handshake
+        $chancellor = new \NGN\Lib\Services\Graylight\ChancellorHandshakeService($config);
+        $payload = [
+            'type' => 'CHECKOUT_SESSION',
+            'user_id' => $currentUser['userId'],
             'mode' => 'subscription',
+            'line_items' => [
+                [
+                    'price' => $priceId,
+                    'quantity' => 1
+                ]
+            ],
+            'client_reference_id' => $currentUser['userId'],
             'success_url' => Env::get('APP_URL') . '/dashboard/station/tier.php?success=true',
             'cancel_url' => Env::get('APP_URL') . '/dashboard/station/tier.php?canceled=true',
-            'client_reference_id' => $currentUser['userId'],
             'metadata' => [
                 'tier_id' => $tierId,
                 'user_id' => $currentUser['userId'],
+                'type' => 'subscription'
             ]
-        ]);
+        ];
 
-        return new JsonResponse(['success' => true, 'session_id' => $checkout_session->id, 'url' => $checkout_session->url]);
+        $result = $chancellor->authorizeCheckout($payload);
+
+        if (!$result['success']) {
+            return new JsonResponse(['success' => false, 'message' => $result['error'] ?? 'Handshake failed'], 400);
+        }
+
+        return new JsonResponse(['success' => true, 'session_id' => $result['session_id'], 'url' => $result['url']]);
 
     } catch (\Throwable $e) {
         error_log("Stripe Checkout error: " . $e->getMessage());

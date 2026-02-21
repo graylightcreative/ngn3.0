@@ -34,6 +34,15 @@ class Config
     public function appEnv(): string { return Env::get('APP_ENV', 'production') ?? 'production'; }
     public function appDebug(): bool { return Env::bool('APP_DEBUG', false); }
     public function appVersion(): string { return Env::get('APP_VERSION', '0.0.0') ?? '0.0.0'; }
+
+    /**
+     * Generic getter for environment variables (used by some older services)
+     */
+    public function get(string $key, mixed $default = null): mixed
+    {
+        return Env::get($key, $default);
+    }
+
     public function baseUrl(): string { 
         $base = Env::get('BASEURL', Env::get('APP_URL'));
         if ($base) return rtrim($base, '/');
