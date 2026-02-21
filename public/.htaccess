@@ -35,11 +35,11 @@ RewriteRule ^(.*)$ investors.php [L,QSA]
 
 # Route beta.nextgennoise.com to forge.php (Development Tracker - Legacy URL)
 RewriteCond %{HTTP_HOST} ^beta\.nextgennoise\.com$ [NC]
-RewriteRule ^$ forge.php [L]
+RewriteRule ^/?$ forge.php [L]
 
 # Route forge.nextgennoise.com to forge.php (Development Tracker)
 RewriteCond %{HTTP_HOST} ^forge\.nextgennoise\.com$ [NC]
-RewriteRule ^$ forge.php [L]
+RewriteRule ^/?$ forge.php [L]
 
 # ============================================================================
 # HTTP CACHING & COMPRESSION

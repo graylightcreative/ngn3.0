@@ -26,6 +26,15 @@ $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $search = isset($_GET['q']) ? trim($_GET['q']) : '';
 $perPage = 24;
 
+// Host-based Routing Fallbacks
+$host = $_SERVER['HTTP_HOST'] ?? '';
+if (strpos($host, 'forge.') === 0 || strpos($host, 'beta.') === 0) {
+    if (empty($_GET['view'])) {
+        require_once __DIR__ . '/forge.php';
+        exit;
+    }
+}
+
 if (in_array($view, ['dashboard', 'profile']) && !$isLoggedIn) {
     header('Location: /login.php'); exit;
 }
