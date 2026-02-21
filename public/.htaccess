@@ -151,6 +151,9 @@ RewriteBase /
 RewriteRule ^video/([a-z0-9-]+)/?$ index.php?view=video&slug=$1 [L,QSA]
 RewriteRule ^videos/?$ index.php?view=videos [L,QSA]
 
+# Asset pass-through for lib/images
+RewriteRule ^lib/images/(.*)$ ../lib/images/$1 [L]
+
 # Clean URLs for profiles
 RewriteRule ^artist/([a-z0-9-]+)/?$ index.php?view=artist&slug=$1 [L,QSA]
 RewriteRule ^label/([a-z0-9-]+)/?$ index.php?view=label&slug=$1 [L,QSA]

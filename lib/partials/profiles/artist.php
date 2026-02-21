@@ -183,10 +183,7 @@ $scores = $artist['scores'] ?? ['Score' => 0];
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <?php foreach ($entity['posts'] as $post): ?>
                         <?php 
-                            $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
-                            if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
-                                $postImg = "/uploads/{$postImg}";
-                            }
+                            $postImg = post_image($post['featured_image_url'] ?? '');
                         ?>
                         <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col bg-zinc-900/30 rounded-2xl overflow-hidden border border-white/5 hover:border-brand/50 transition-all">
                             <div class="aspect-video relative overflow-hidden">

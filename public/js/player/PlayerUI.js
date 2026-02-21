@@ -14,7 +14,9 @@ import { ShredderMixer } from './ShredderMixer.js';
 export class PlayerUI {
   constructor(player, container) {
     this.player = player;
-    this.container = document.querySelector(container) || document.getElementById(container);
+    this.container = (typeof container === 'string') 
+        ? (document.querySelector(container) || document.getElementById(container))
+        : container;
     
     // Initialize Mixer
     this.mixer = new ShredderMixer();

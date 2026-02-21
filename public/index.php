@@ -1364,7 +1364,7 @@ if ($view === 'post' && !empty($data['post'])) {
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <?php foreach ($data['posts'] as $post): ?>
             <?php 
-                $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
+                $postImg = post_image($post['featured_image_url'] ?? '');
             ?>
             <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col">
               <div class="aspect-video rounded-xl overflow-hidden mb-4 border border-white/5">
