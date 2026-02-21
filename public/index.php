@@ -220,7 +220,7 @@ if ($view === 'post' && !empty($data['post'])) {
   <title><?= $seoTitle ?></title>
   <meta name="description" content="<?= $seoDesc ?>">
   
-  <?php include $root . 'lib/partials/head.php'; ?>
+  <?php include $root . 'lib/partials/head-sovereign.php'; ?>
   <?php include $root . 'lib/partials/app-styles.php'; ?>
 </head>
 
