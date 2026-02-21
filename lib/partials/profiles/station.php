@@ -7,24 +7,8 @@ $stationName = $station['name'] ?? 'Unknown Station';
 $stationSlug = $station['slug'] ?? '';
 $isClaimed = !empty($station['user_id']); // Stations use user_id for ownership in core schema
 
-// Robust Image Detection
-$stationImg = DEFAULT_AVATAR;
-if (!empty($station['image_url'])) {
-    if (str_starts_with($station['image_url'], 'http') || str_starts_with($station['image_url'], '/')) {
-        $stationImg = $station['image_url'];
-    } else {
-        $paths = [
-            "/uploads/stations/{$stationSlug}/{$station['image_url']}",
-            "/uploads/users/{$stationSlug}/{$station['image_url']}"
-        ];
-        foreach ($paths as $p) {
-            if (file_exists(dirname(__DIR__, 3) . '/public' . $p)) {
-                $stationImg = $p;
-                break;
-            }
-        }
-    }
-}
+// Use Authoritative Image Helper
+$stationImg = user_image($stationSlug, $station['image_url'] ?? null);
 
 $bio = $station['bio'] ?? '';
 $scores = $station['scores'] ?? ['Score' => 0];

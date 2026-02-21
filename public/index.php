@@ -15,7 +15,8 @@ use NGN\Lib\Controllers\RankingController;
 use NGN\Lib\Services\FleetAuthService;
 
 // Default avatar for all entities (NGN Emblem 2026)
-define('DEFAULT_AVATAR', '/lib/images/site/default-avatar.png');
+define('DEFAULT_AVATAR', '/lib/images/site/2026/default-avatar.png');
+define('DEFAULT_POST', '/lib/images/site/2026/NGN-Emblem-Light.png');
 
 // Database connections
 $pdo = null;

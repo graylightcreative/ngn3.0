@@ -7,24 +7,8 @@ $labelName = $label['name'] ?? 'Unknown Label';
 $labelSlug = $label['slug'] ?? '';
 $isClaimed = !empty($label['claimed']);
 
-// Robust Image Detection
-$labelImg = DEFAULT_AVATAR;
-if (!empty($label['image_url'])) {
-    if (str_starts_with($label['image_url'], 'http') || str_starts_with($label['image_url'], '/')) {
-        $labelImg = $label['image_url'];
-    } else {
-        $paths = [
-            "/uploads/labels/{$labelSlug}/{$label['image_url']}",
-            "/uploads/users/{$labelSlug}/{$label['image_url']}"
-        ];
-        foreach ($paths as $p) {
-            if (file_exists(dirname(__DIR__, 3) . '/public' . $p)) {
-                $labelImg = $p;
-                break;
-            }
-        }
-    }
-}
+// Use Authoritative Image Helper
+$labelImg = user_image($labelSlug, $label['image_url'] ?? null);
 
 $bio = $label['bio'] ?? '';
 $scores = $label['scores'] ?? ['Score' => 0];
