@@ -152,19 +152,19 @@ RewriteRule ^video/([a-z0-9-]+)/?$ index.php?view=video&slug=$1 [L,QSA]
 RewriteRule ^videos/?$ index.php?view=videos [L,QSA]
 
 # Clean URLs for profiles
-RewriteRule ^artist/([a-z0-9-]+)/?$ index.php?view=artist&slug=$1 [L,QSA]
-RewriteRule ^label/([a-z0-9-]+)/?$ index.php?view=label&slug=$1 [L,QSA]
-RewriteRule ^venue/([a-z0-9-]+)/?$ index.php?view=venue&slug=$1 [L,QSA]
-RewriteRule ^station/([a-z0-9-]+)/?$ index.php?view=station&slug=$1 [L,QSA]
+RewriteRule ^artist/([a-z0-9_-]+)/?$ index.php?view=artist&slug=$1 [L,QSA]
+RewriteRule ^label/([a-z0-9_-]+)/?$ index.php?view=label&slug=$1 [L,QSA]
+RewriteRule ^venue/([a-z0-9_-]+)/?$ index.php?view=venue&slug=$1 [L,QSA]
+RewriteRule ^station/([a-z0-9_-]+)/?$ index.php?view=station&slug=$1 [L,QSA]
 
 # Clean URLs for index.php content pages
 RewriteRule ^dashboard/integrations/?$ index.php?view=integrations [L,QSA]
-RewriteRule ^agreement/([a-z0-9-]+)/?$ index.php?view=agreement&slug=$1 [L,QSA]
-RewriteRule ^post/([a-z0-9-]+)/?$ index.php?view=post&slug=$1 [L,QSA]
-RewriteRule ^show/([a-z0-9-]+)/?$ index.php?view=show&slug=$1 [L,QSA]
-RewriteRule ^release/([a-z0-9-]+)/?$ index.php?view=release&slug=$1 [L,QSA]
-RewriteRule ^song/([a-z0-9-]+)/?$ index.php?view=song&slug=$1 [L,QSA]
-RewriteRule ^product/([a-z0-9-]+)/?$ index.php?view=product&slug=$1 [L,QSA]
+RewriteRule ^agreement/([a-z0-9_-]+)/?$ index.php?view=agreement&slug=$1 [L,QSA]
+RewriteRule ^post/([a-z0-9_-]+)/?$ index.php?view=post&slug=$1 [L,QSA]
+RewriteRule ^show/([a-z0-9_-]+)/?$ index.php?view=show&slug=$1 [L,QSA]
+RewriteRule ^release/([a-z0-9_-]+)/?$ index.php?view=release&slug=$1 [L,QSA]
+RewriteRule ^song/([a-z0-9_-]+)/?$ index.php?view=song&slug=$1 [L,QSA]
+RewriteRule ^product/([a-z0-9_-]+)/?$ index.php?view=product&slug=$1 [L,QSA]
 
 # Clean URLs for user profiles
 RewriteRule ^@([a-zA-Z0-9_-]+)/?$ index.php?view=user&username=$1 [L,QSA]

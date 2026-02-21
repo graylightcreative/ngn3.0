@@ -1538,11 +1538,11 @@ if ($view === 'post' && !empty($data['post'])) {
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <?php foreach ($items as $post): ?>
           <?php 
-              $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
+              $postImg = post_image($post['featured_image_url'] ?? '');
           ?>
           <a href="/post/<?= htmlspecialchars(($post['slug'] ?? $post['id']) ?? '') ?>" class="group flex flex-col sp-card border border-white/5">
             <div class="aspect-video rounded-xl overflow-hidden mb-6 shadow-2xl">
-              <img src="<?= htmlspecialchars($postImg ?? DEFAULT_AVATAR) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
+              <img src="<?= htmlspecialchars($postImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_POST ?>'">
             </div>
             <div class="flex-1">
                 <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-3">Feature Article</div>
@@ -1591,14 +1591,11 @@ if ($view === 'post' && !empty($data['post'])) {
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           <?php foreach ($items as $release): ?>
           <?php 
-              $releaseImg = ($release['cover_url'] ?? $release['cover_image_url'] ?? '') ?: DEFAULT_AVATAR; 
-              if ($releaseImg && !str_starts_with($releaseImg, 'http') && !str_starts_with($releaseImg, '/')) {
-                  $releaseImg = "/uploads/releases/{$releaseImg}";
-              }
+              $releaseImg = release_image($release['cover_url'] ?? $release['cover_image_url'] ?? '', $release['artist_slug'] ?? null);
           ?>
           <a href="/release/<?= htmlspecialchars($release['slug'] ?? $release['id']) ?>" class="group flex flex-col sp-card border border-white/5">
             <div class="aspect-square rounded-xl overflow-hidden mb-4 relative shadow-2xl">
-              <img src="<?= htmlspecialchars($releaseImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+              <img src="<?= htmlspecialchars($releaseImg) ?>" alt="" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 bg-zinc-800" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
               <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <i class="bi-play-fill text-5xl text-white"></i>
               </div>
