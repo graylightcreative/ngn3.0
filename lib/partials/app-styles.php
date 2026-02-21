@@ -8,6 +8,11 @@
     --text-sub: #a7a7a7;
 }
 
+html, body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
 body { 
     background-color: var(--charcoal) !important; 
     color: var(--text-main); 
@@ -51,6 +56,7 @@ body {
     display: flex;
     flex-direction: column;
     transition: margin-top 0.5s ease;
+    overflow-x: hidden; /* Prevent horizontal stretching */
 }
 
 /* Player Rig Fixes (Mobile Style, Full Width Bar) */

@@ -39,7 +39,7 @@
                 <div class="inline-flex items-center gap-3 px-3 py-1 bg-brand text-black font-black text-[9px] md:text-[10px] uppercase tracking-widest mb-6 md:mb-8 rounded-sm">
                     <i class="bi bi-cpu-fill"></i> Hardware_Agnostic
                 </div>
-                <h1 class="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 tracking-tighter leading-[0.9] text-white uppercase">Clarity<span class="text-brand">_VST</span></h1>
+                <h1 class="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 tracking-tighter leading-[0.9] text-white uppercase break-words">Clarity<span class="text-brand">_VST</span></h1>
                 <p class="text-base md:text-xl text-zinc-400 font-medium mb-8 md:mb-12 max-w-2xl leading-relaxed">The source of truth for high-fidelity audio processing. Coming soon.</p>
                 <div class="flex flex-col sm:flex-row gap-4 md:gap-6">
                     <a href="https://clarity.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-8 md:px-12 py-4 md:py-5 uppercase text-[10px] md:text-xs tracking-widest hover:bg-white transition-all rounded-full shadow-2xl shadow-brand/20 text-center">Learn_More</a>
@@ -52,7 +52,7 @@
                 <div class="inline-flex items-center gap-3 px-3 py-1 bg-brand text-black font-black text-[9px] md:text-[10px] uppercase tracking-widest mb-6 md:mb-8 rounded-sm">
                     <i class="bi bi-layers-half"></i> Stem_Isolation_v1.0
                 </div>
-                <h1 class="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 tracking-tighter leading-[0.9] text-white uppercase">The<span class="text-brand">_Shredder</span></h1>
+                <h1 class="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 tracking-tighter leading-[0.9] text-white uppercase break-words">The<span class="text-brand">_Shredder</span></h1>
                 <p class="text-base md:text-xl text-zinc-400 font-medium mb-8 md:mb-12 max-w-2xl leading-relaxed">Real-time stem isolation and AI-driven remix architecture. Deconstruct sound.</p>
                 <div class="flex flex-col sm:flex-row gap-4 md:gap-6">
                     <a href="/register.php" class="bg-brand text-black font-black px-8 md:px-12 py-4 md:py-5 uppercase text-[10px] md:text-xs tracking-widest hover:bg-white transition-all rounded-full shadow-2xl shadow-brand/20 text-center">Bunker_Access</a>
@@ -64,7 +64,7 @@
                 <div class="inline-flex items-center gap-3 px-3 py-1 bg-brand text-black font-black text-[9px] md:text-[10px] uppercase tracking-widest mb-6 md:mb-8 rounded-sm">
                     <i class="bi bi-shield-lock-fill"></i> Sovereign_CMS
                 </div>
-                <h1 class="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 tracking-tighter leading-[0.9] text-white uppercase">Shell<span class="text-brand">_Shock</span></h1>
+                <h1 class="text-5xl md:text-7xl lg:text-9xl font-black mb-6 md:mb-8 tracking-tighter leading-[0.9] text-white uppercase break-words">Shell<span class="text-brand">_Shock</span></h1>
                 <p class="text-base md:text-xl text-zinc-400 font-medium mb-8 md:mb-12 max-w-2xl leading-relaxed">The administrative core of the Empire. Deploy stores in seconds.</p>
                 <div class="flex flex-col sm:flex-row gap-4 md:gap-6">
                     <a href="https://shellshock.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-8 md:px-12 py-4 md:py-5 uppercase text-[10px] md:text-xs tracking-widest hover:bg-white transition-all rounded-full shadow-2xl shadow-brand/20 text-center">Explore_Console</a>

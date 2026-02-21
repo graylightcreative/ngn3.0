@@ -11,7 +11,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
         <!-- Fan Acquisition -->
-        <div class="bg-brand p-12 rounded-[2.5rem] flex flex-col justify-between group shadow-2xl shadow-brand/10">
+        <div class="bg-brand p-8 md:p-12 rounded-[2.5rem] flex flex-col justify-between group shadow-2xl shadow-brand/10">
             <div>
                 <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-brand mb-8 group-hover:scale-110 transition-transform">
                     <i class="bi bi-person-heart text-3xl"></i>
