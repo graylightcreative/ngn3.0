@@ -11,7 +11,6 @@
  */
 
 import { AudioPlayer } from './AudioPlayer.js';
-import { PlayerUI } from './PlayerUI.js';
 import { setupMediaSession } from './media-session-init.js';
 import { PlayerStorage } from './Storage.js';
 import { PlaybackTracker } from './playback-tracker.js';
@@ -36,7 +35,12 @@ if (savedQueueState && savedQueueState.queue && savedQueueState.queue.length > 0
 const playerContainer = document.getElementById('ngn-player-container');
 if (playerContainer) {
   console.log('[NGN Player] Initializing UI...');
-  new PlayerUI(player, playerContainer);
+  // Use dynamic import with timestamp to force fresh PlayerUI logic (bypasses module cache)
+  import(`./PlayerUI.js?v=${Date.now()}`).then(module => {
+    new module.PlayerUI(player, playerContainer);
+  }).catch(err => {
+    console.error('[NGN Player] Failed to load PlayerUI:', err);
+  });
 } else {
   console.warn('[NGN Player] Container #ngn-player-container not found');
 }
