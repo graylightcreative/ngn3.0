@@ -1,61 +1,61 @@
 <?php
 /**
- * Image Resolution Helper
+ * Image Resolution Helper - High Integrity
  * Bible Ref: Chapter 10 (Writer Engine) // Image Integrity
  */
 
 if (!function_exists('post_image')) {
     function post_image(?string $filename): string {
-        if (empty($filename)) return '/lib/images/site/default-post.jpg';
+        $default = '/lib/images/site/2026/NGN-Emblem-Light.png';
+        if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
 
+        // Use absolute filesystem root for existence check
         $projectRoot = dirname(__DIR__, 2);
 
-        // Optimized priority search
-        $searchPaths = [
-            '/public/uploads/posts/' . $filename,
-            '/public/uploads/' . $filename,
+        // Targeted search paths (relative to web root)
+        $candidates = [
+            '/uploads/posts/' . $filename,
             '/lib/images/posts/' . $filename,
-            '/public/lib/images/posts/' . $filename
+            '/uploads/' . $filename
         ];
 
-        foreach ($searchPaths as $path) {
-            if (file_exists($projectRoot . $path)) {
-                return str_replace('/public', '', $path);
+        foreach ($candidates as $relPath) {
+            // Check in public/ (where the web server looks)
+            if (file_exists($projectRoot . '/public' . $relPath)) {
+                return $relPath;
             }
         }
 
-        error_log("[ImageHelper] Failed to resolve post image: " . $filename . " (Checked in " . $projectRoot . ")");
-        return '/lib/images/site/default-post.jpg';
+        return $default;
     }
 }
 
 if (!function_exists('user_image')) {
     function user_image(?string $slug, ?string $filename): string {
-        if (empty($filename)) return '/lib/images/site/default-avatar.png';
+        $default = '/lib/images/site/2026/default-avatar.png';
+        if (empty($filename)) return $default;
         if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
 
         $projectRoot = dirname(__DIR__, 2);
 
-        $searchPaths = [
-            "/public/uploads/artists/{$slug}/{$filename}",
-            "/public/uploads/users/{$slug}/{$filename}",
-            "/public/uploads/labels/{$filename}",
-            "/public/uploads/stations/{$filename}",
-            "/public/uploads/venues/{$filename}",
-            "/public/uploads/{$filename}",
+        $candidates = [
+            "/uploads/artists/{$slug}/{$filename}",
+            "/uploads/users/{$slug}/{$filename}",
+            "/uploads/labels/{$filename}",
+            "/uploads/stations/{$filename}",
+            "/uploads/venues/{$filename}",
+            "/uploads/{$filename}",
             "/lib/images/users/{$filename}",
-            "/lib/images/labels/{$filename}",
-            "/public/lib/images/users/{$filename}",
-            "/public/lib/images/labels/{$filename}"
+            "/lib/images/labels/{$filename}"
         ];
 
-        foreach ($searchPaths as $path) {
-            if (file_exists($projectRoot . $path)) {
-                return str_replace('/public', '', $path);
+        foreach ($candidates as $relPath) {
+            if (file_exists($projectRoot . '/public' . $relPath)) {
+                return $relPath;
             }
         }
 
-        return '/lib/images/site/default-avatar.png';
+        return $default;
     }
 }
