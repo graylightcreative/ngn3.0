@@ -41,56 +41,43 @@ export class PlayerUI {
       <div class="ngn-player">
         <!-- Track Info -->
         <div class="ngn-player-track-info">
-          <img class="ngn-player-artwork" src="/lib/images/site/default-avatar.png" alt="Album artwork">
+          <img class="ngn-player-artwork" src="/lib/images/site/2026/default-avatar.png" alt="Album artwork">
           <div class="ngn-player-meta">
-            <div class="ngn-player-title">Ready to play</div>
-            <div class="ngn-player-artist">NGN Sovereign Player</div>
+            <div class="ngn-player-title truncate font-black">Ready to play</div>
+            <div class="ngn-player-artist truncate text-[10px] text-zinc-500 uppercase tracking-widest">NGN Sovereign Player</div>
           </div>
         </div>
 
         <!-- Main Controls -->
         <div class="ngn-player-controls">
-          <button class="ngn-btn ngn-btn-shuffle" title="Shuffle queue">
-            <i class="bi bi-shuffle"></i>
-          </button>
           <button class="ngn-btn ngn-btn-prev" title="Previous track">
-            <i class="bi bi-skip-start-fill"></i>
+            <i class="bi bi-skip-start-fill text-xl"></i>
           </button>
           <button class="ngn-btn ngn-btn-play ngn-btn-primary" title="Play">
-            <i class="bi bi-play-fill"></i>
+            <i class="bi bi-play-fill text-3xl"></i>
           </button>
           <button class="ngn-btn ngn-btn-next" title="Next track">
-            <i class="bi bi-skip-end-fill"></i>
-          </button>
-          <button class="ngn-btn ngn-btn-repeat" data-mode="none" title="Repeat mode">
-            <i class="bi bi-repeat"></i>
+            <i class="bi bi-skip-end-fill text-xl"></i>
           </button>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="ngn-player-progress">
-          <span class="ngn-player-time-current">0:00</span>
-          <input type="range" class="ngn-player-seek" min="0" max="100" value="0" title="Seek track">
-          <span class="ngn-player-time-total">0:00</span>
-        </div>
-
-        <!-- Volume Control -->
-        <div class="ngn-player-volume">
-          <button class="ngn-btn ngn-btn-mute" title="Mute">
-            <i class="bi bi-volume-up-fill"></i>
-          </button>
-          <input type="range" class="ngn-player-volume-slider" min="0" max="100" value="80" title="Volume">
+        <!-- Hidden elements for state compatibility -->
+        <div class="hidden">
+            <input type="range" class="ngn-player-seek" min="0" max="100" value="0">
+            <input type="range" class="ngn-player-volume-slider" min="0" max="100" value="80">
+            <span class="ngn-player-time-current">0:00</span>
+            <span class="ngn-player-time-total">0:00</span>
+            <button class="ngn-btn ngn-btn-shuffle"></button>
+            <button class="ngn-btn ngn-btn-repeat" data-mode="none"></button>
+            <button class="ngn-btn ngn-btn-mute"></button>
+            <button class="ngn-btn ngn-btn-shredder"></button>
         </div>
 
         <!-- Queue Toggle -->
         <div class="ngn-player-right">
-          <button class="ngn-btn ngn-btn-shredder hidden" title="Shredder Mode (Stem Isolation)">
-            <i class="bi bi-layers-half"></i>
-            <span class="text-[8px] block font-black">SHREDDER</span>
-          </button>
           <button class="ngn-btn ngn-btn-queue" title="Show queue">
-            <i class="bi bi-list-ul"></i>
-            <span class="ngn-queue-count">0</span>
+            <i class="bi bi-list-ul text-xl"></i>
+            <span class="ngn-queue-count text-[9px] font-black absolute -top-1 -right-1 bg-brand text-black w-4 h-4 rounded-full flex items-center justify-center">0</span>
           </button>
         </div>
       </div>

@@ -1126,36 +1126,63 @@ if ($view === 'post' && !empty($data['post'])) {
         transform: none !important;
         height: 80px;
         padding: 0 24px;
+        background: rgba(5, 5, 5, 0.95);
+        backdrop-filter: blur(20px);
+        border-top: 1px solid rgba(255, 95, 31, 0.15);
     }
     #ngn-player-container .ngn-player {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 24px;
-        max-width: 1400px;
+        gap: 16px;
+        max-width: 800px;
         margin: 0 auto;
+        height: 100%;
     }
     .ngn-player-artwork {
         width: 48px !important;
         height: 48px !important;
-        border-radius: 6px;
+        border-radius: 8px;
+        object-cover: cover;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
     }
     .ngn-player-track-info {
-        width: auto !important;
-        flex: 0 1 300px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
         min-width: 0;
     }
     .ngn-player-meta {
-        font-size: 12px;
+        flex: 1;
+        min-width: 0;
+    }
+    .ngn-player-title {
+        font-size: 13px !important;
+        line-height: 1.2;
     }
     .ngn-player-controls {
-        gap: 16px !important;
-        flex: 1;
-        justify-content: center;
+        display: flex;
+        align-items: center;
+        gap: 12px !important;
     }
     .ngn-btn-play {
-        width: 44px !important;
-        height: 44px !important;
+        width: 42px !important;
+        height: 42px !important;
+        background: #FF5F1F !important;
+        color: #000 !important;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .ngn-btn-prev, .ngn-btn-next {
+        color: #fff !important;
+        opacity: 0.7;
+    }
+    .ngn-btn-queue {
+        position: relative;
+        color: #fff !important;
     }
     
     /* Progress Bar (Show on larger mobile/tablet+) */
