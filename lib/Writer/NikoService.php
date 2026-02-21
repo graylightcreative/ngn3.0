@@ -68,6 +68,13 @@ class NikoService
             'errors' => 0,
         ];
 
+        // 1. Check AI Policy & Killswitch
+        $policy = new \NGN\Lib\AI\SovereignAIPolicy($this->config);
+        if (!$policy->isAIEnabled()) {
+            $this->logger->warning("AI Activation Restricted: Killswitch is ACTIVE. Anomalies will remain in queue.");
+            return $result;
+        }
+
         try {
             // Get unassigned anomalies
             $sql = "

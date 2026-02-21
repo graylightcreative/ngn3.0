@@ -624,6 +624,39 @@ $router->put('/admin/entities/:type/:id', function (Request $request) use ($conf
     }
 });
 
+// ===== CHART ROUTES =====
+// GET /api/v1/admin/charts/latest-run - Get latest rankings for a chart
+$router->get('/admin/charts/latest-run', function (Request $request) use ($config, $tokenSvc) {
+    $currentUser = getCurrentUser($tokenSvc, $request);
+    if (!$currentUser || $currentUser['role'] !== 'admin') {
+        return new JsonResponse(['success' => false, 'message' => 'Unauthorized'], 403);
+    }
+
+    try {
+        $chart = $request->query('chart');
+        // Map chart slug to entity type and interval
+        // ngn:artists:weekly
+        $parts = explode(':', $chart ?? '');
+        $type = $parts[1] ?? 'artists';
+        $interval = $parts[2] ?? 'weekly';
+
+        $rankingService = new \NGN\Lib\Rankings\RankingService($config);
+        $data = $rankingService->list($type, $interval, 1, 100);
+
+        return new JsonResponse([
+            'success' => true,
+            'data' => [
+                'items' => $data['items'],
+                'total' => $data['total'],
+                'chart' => $chart,
+                'run_at' => date('Y-m-d H:i:s')
+            ]
+        ]);
+    } catch (Exception $e) {
+        return new JsonResponse(['success' => false, 'error' => $e->getMessage()], 500);
+    }
+});
+
 // ===== SYSTEM ROUTES =====
 $router->get('/admin/system/health', function (Request $request) use ($config) {
     try {

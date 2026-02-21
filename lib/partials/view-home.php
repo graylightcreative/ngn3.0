@@ -7,6 +7,7 @@
 
 <?php include $root . 'lib/partials/story-engine.php'; ?>
 <?php include $root . 'lib/partials/stats-ticker.php'; ?>
+<?php include $root . 'lib/partials/ai-goal-hud.php'; ?>
 
 <!-- Sovereign Stations: Institutional Radio -->
 <section class="mb-16 relative">
@@ -81,6 +82,8 @@
         </div>
     </div>
 </section>
+
+<?php include $root . 'lib/partials/ad-signal.php'; ?>
 
 <!-- Sovereign Release Radar: New Music Drops -->
 <section class="mb-16 relative">
@@ -185,7 +188,7 @@
             <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Institutional Engagement Monitoring</p>
         </div>
         <div class="hidden md:block h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent mx-8"></div>
-        <a href="/artists" class="px-6 py-2 rounded-full border border-brand/30 text-[10px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0 shadow-[0_0_15px_rgba(255,95,31,0.2)]">View_Fleet</a>
+        <a href="/artists" class="px-6 py-2 rounded-full border border-brand/30 text-[10px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0 shadow-[0_0_15px_rgba(255,95,31,0.2)]">View_Alliance</a>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
     <?php foreach ($data['trending_artists'] as $artist): ?>

@@ -32,7 +32,7 @@ class RankingCalculator
     private function isInvestor(int $userId): bool
     {
         try {
-            $stmt = $this->pdoPrimary->prepare("SELECT is_investor FROM `ngn_2025`.`users` WHERE id = ? LIMIT 1");
+            $stmt = $this->pdoPrimary->prepare("SELECT is_investor FROM `users` WHERE id = ? LIMIT 1");
             $stmt->execute([$userId]);
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -67,7 +67,7 @@ class RankingCalculator
             }
 
             $stmt = $this->pdoPrimary->prepare(
-                "SELECT user_id FROM `ngn_2025`.`{$tableName}` WHERE id = :entityId LIMIT 1"
+                "SELECT user_id FROM `{$tableName}` WHERE id = :entityId LIMIT 1"
             );
             $stmt->execute([
                 ':entityId' => $entityId,
@@ -144,7 +144,7 @@ class RankingCalculator
     {
         // Check if window exists
         $stmt = $this->pdoRankings->prepare(
-            'SELECT id FROM `ngn_rankings_2025`.`ranking_windows` 
+            'SELECT id FROM `ranking_windows` 
              WHERE `interval` = :interval AND window_start = :start LIMIT 1'
         );
         $stmt->execute([':interval' => $interval, ':start' => $start]);
@@ -156,7 +156,7 @@ class RankingCalculator
 
         // Create new window
         $ins = $this->pdoRankings->prepare(
-            'INSERT INTO `ngn_rankings_2025`.`ranking_windows` (`interval`, window_start, window_end) 
+            'INSERT INTO `ranking_windows` (`interval`, window_start, window_end) 
              VALUES (:interval, :start, :end)'
         );
         $ins->execute([':interval' => $interval, ':start' => $start, ':end' => $end]);
@@ -167,7 +167,7 @@ class RankingCalculator
     private function getPreviousWindow(string $interval, string $currentStart): ?int
     {
         $stmt = $this->pdoRankings->prepare(
-            'SELECT id FROM `ngn_rankings_2025`.`ranking_windows` 
+            'SELECT id FROM `ranking_windows` 
              WHERE `interval` = :interval AND window_start < :start 
              ORDER BY window_start DESC LIMIT 1'
         );
@@ -179,9 +179,9 @@ class RankingCalculator
 
     private function computeArtistRankings(int $windowId, ?int $prevWindowId): int
     {
-        // Get all artists from ngn_2025
+        // Get all artists from primary
         $artists = $this->pdoCore->query(
-            'SELECT id, slug, name, claimed FROM `ngn_2025`.`artists` WHERE status = "active" ORDER BY id'
+            'SELECT id, slug, name, claimed FROM `artists` WHERE status = "active" ORDER BY id'
         )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$artists) return 0;
@@ -190,7 +190,7 @@ class RankingCalculator
         $prevRanks = [];
         if ($prevWindowId) {
             $stmt = $this->pdoRankings->prepare(
-                'SELECT entity_id, rank FROM `ngn_rankings_2025`.`ranking_items` 
+                'SELECT entity_id, rank FROM `ranking_items` 
                  WHERE window_id = :wid AND entity_type = "artist"'
             );
             $stmt->execute([':wid' => $prevWindowId]);
@@ -214,14 +214,14 @@ class RankingCalculator
 
         // Clear existing items for this window
         $del = $this->pdoRankings->prepare(
-            'DELETE FROM `ngn_rankings_2025`.`ranking_items` 
+            'DELETE FROM `ranking_items` 
              WHERE window_id = :wid AND entity_type = "artist"'
         );
         $del->execute([':wid' => $windowId]);
 
         // Insert ranked items
         $ins = $this->pdoRankings->prepare(
-            'INSERT INTO `ngn_rankings_2025`.`ranking_items`
+            'INSERT INTO `ranking_items`
              (window_id, entity_type, entity_id, `rank`, score, prev_rank, deltas)
              VALUES (:wid, "artist", :eid, :rank, :score, :prev_rank, :deltas)'
         );
@@ -271,9 +271,9 @@ class RankingCalculator
 
     private function computeLabelRankings(int $windowId, ?int $prevWindowId): int
     {
-        // Get all labels from ngn_2025
+        // Get all labels from primary
         $labels = $this->pdoCore->query(
-            'SELECT id, slug, name, claimed FROM `ngn_2025`.`labels` WHERE status = "active" ORDER BY id'
+            'SELECT id, slug, name, claimed FROM `labels` WHERE status = "active" ORDER BY id'
         )->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$labels) return 0;
@@ -282,7 +282,7 @@ class RankingCalculator
         $prevRanks = [];
         if ($prevWindowId) {
             $stmt = $this->pdoRankings->prepare(
-                'SELECT entity_id, rank FROM `ngn_rankings_2025`.`ranking_items` 
+                'SELECT entity_id, rank FROM `ranking_items` 
                  WHERE window_id = :wid AND entity_type = "label"'
             );
             $stmt->execute([':wid' => $prevWindowId]);
@@ -304,14 +304,14 @@ class RankingCalculator
 
         // Clear existing items for this window
         $del = $this->pdoRankings->prepare(
-            'DELETE FROM `ngn_rankings_2025`.`ranking_items` 
+            'DELETE FROM `ranking_items` 
              WHERE window_id = :wid AND entity_type = "label"'
         );
         $del->execute([':wid' => $windowId]);
 
         // Insert ranked items
         $ins = $this->pdoRankings->prepare(
-            'INSERT INTO `ngn_rankings_2025`.`ranking_items`
+            'INSERT INTO `ranking_items`
              (window_id, entity_type, entity_id, `rank`, score, prev_rank, deltas)
              VALUES (:wid, "label", :eid, :rank, :score, :prev_rank, :deltas)'
         );

@@ -25,7 +25,7 @@ fi
 # Configuration
 # Remove 'sh ' prefix if it exists in the connection string from .env
 CLEAN_SSH_CONN=$(echo $SSH_CONNECTION_STRING | sed 's/^sh //')
-REMOTE_PROJECT_ROOT="/www/wwwroot/beta.nextgennoise.com"
+REMOTE_PROJECT_ROOT="/www/wwwroot/nextgennoise"
 
 # --- Functions ---
 

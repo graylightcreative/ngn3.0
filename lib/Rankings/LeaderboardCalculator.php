@@ -112,8 +112,8 @@ class LeaderboardCalculator
                 rw.interval,
                 rw.window_start,
                 rw.window_end
-            FROM `ngn_rankings_2025`.`ranking_items` ri
-            INNER JOIN `ngn_rankings_2025`.`ranking_windows` rw ON ri.window_id = rw.id
+            FROM `ranking_items` ri
+            INNER JOIN `ranking_windows` rw ON ri.window_id = rw.id
             WHERE ri.window_id = :window_id
             AND ri.entity_type = :entity_type
         ';
@@ -127,7 +127,7 @@ class LeaderboardCalculator
         if ($category && $entityType !== 'genre') {
             // For genre filtering, we need to check genre_clusters or entity genres
             $query .= ' AND ri.entity_id IN (
-                SELECT a.id FROM `ngn_2025`.`cdm_' . $entityType . 's` a
+                SELECT a.id FROM `cdm_' . $entityType . 's` a
                 WHERE JSON_CONTAINS(a.genres_json, JSON_QUOTE(:genre))
             )';
             $params[':genre'] = $category;
@@ -211,7 +211,7 @@ class LeaderboardCalculator
      */
     private function getEntityDetails(string $entityType, int $entityId): ?array
     {
-        $table = '`ngn_2025`.`cdm_' . $entityType . 's`';
+        $table = '`cdm_' . $entityType . 's`';
 
         $query = "SELECT id, slug, name, image_url, genres_json FROM $table WHERE id = ? LIMIT 1";
         $stmt = $this->pdoDev->prepare($query);
@@ -256,7 +256,7 @@ class LeaderboardCalculator
         }
 
         $query = '
-            SELECT id FROM `ngn_rankings_2025`.`ranking_windows`
+            SELECT id FROM `ranking_windows`
             WHERE `interval` = :interval
             AND window_start = :start
             ORDER BY id DESC
@@ -287,7 +287,7 @@ class LeaderboardCalculator
     ): ?array {
         $query = '
             SELECT cached_data, cached_at, expires_at
-            FROM `ngn_2025`.`leaderboard_cache`
+            FROM `leaderboard_cache`
             WHERE leaderboard_type = :type
             AND ranking_interval = :interval
             AND window_id = :window_id
@@ -341,7 +341,7 @@ class LeaderboardCalculator
         $expiresAt = date('Y-m-d H:i:s', time() + self::CACHE_TTL);
 
         $query = '
-            INSERT INTO `ngn_2025`.`leaderboard_cache`
+            INSERT INTO `leaderboard_cache`
             (leaderboard_type, ranking_interval, window_id, category, cached_data, total_count, entries_count, cached_at, expires_at)
             VALUES (:type, :interval, :window_id, :category, :data, :total, :count, NOW(), :expires_at)
             ON DUPLICATE KEY UPDATE
@@ -385,7 +385,7 @@ class LeaderboardCalculator
         $entityType = rtrim($leaderboardType, 's');
 
         $query = '
-            INSERT INTO `ngn_2025`.`leaderboard_snapshots`
+            INSERT INTO `leaderboard_snapshots`
             (leaderboard_type, ranking_interval, window_id, category, entity_id, rank, score, previous_rank, rank_movement, trend, snapshot_at)
             VALUES (:type, :interval, :window_id, :category, :entity_id, :rank, :score, :prev_rank, :movement, :trend, NOW())
             ON DUPLICATE KEY UPDATE
@@ -422,7 +422,7 @@ class LeaderboardCalculator
     public function updateCachedRanks(string $leaderboardType = 'artists'): int
     {
         $entityType = rtrim($leaderboardType, 's');
-        $table = '`ngn_2025`.`cdm_' . $entityType . 's`';
+        $table = '`cdm_' . $entityType . 's`';
 
         // Get current monthly window
         $windowId = $this->getCurrentWindowId('monthly');
@@ -438,9 +438,9 @@ class LeaderboardCalculator
                     ri.entity_id,
                     ri.rank,
                     ri.score,
-                    (SELECT prev_rank FROM `ngn_rankings_2025`.`ranking_items`
+                    (SELECT prev_rank FROM `ranking_items`
                      WHERE window_id = :window_id AND entity_type = :entity_type AND entity_id = ri.entity_id LIMIT 1) as prev_rank
-                FROM `ngn_rankings_2025`.`ranking_items` ri
+                FROM `ranking_items` ri
                 WHERE ri.window_id = :window_id
                 AND ri.entity_type = :entity_type
             ) ranked ON e.id = ranked.entity_id
@@ -494,7 +494,7 @@ class LeaderboardCalculator
                 lf.rank,
                 lf.featured_reason,
                 lf.featured_order
-            FROM `ngn_2025`.`leaderboard_featured` lf
+            FROM `leaderboard_featured` lf
             WHERE lf.window_id = :window_id
             AND lf.ranking_interval = :interval
             AND (lf.featured_until IS NULL OR lf.featured_until > NOW())
@@ -553,7 +553,7 @@ class LeaderboardCalculator
                 ri.score,
                 ri.prev_rank,
                 (COALESCE(ri.prev_rank, 999999) - ri.rank) as rank_jump
-            FROM `ngn_rankings_2025`.`ranking_items` ri
+            FROM `ranking_items` ri
             WHERE ri.window_id = :window_id
             AND ri.entity_type = :entity_type
             AND ri.prev_rank IS NOT NULL
@@ -635,7 +635,7 @@ class LeaderboardCalculator
             // Get artists with rank changes
             $query = "
                 SELECT DISTINCT user_id
-                FROM ngn_2025.cdm_artists
+                FROM cdm_artists
                 WHERE last_rank_monthly IS NOT NULL
                   AND current_rank_monthly IS NOT NULL
                   AND last_rank_monthly != current_rank_monthly

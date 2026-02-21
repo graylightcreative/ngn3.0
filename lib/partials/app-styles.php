@@ -23,6 +23,14 @@ body {
     overflow-x: hidden;
 }
 
+/* Prevent long words (like those with underscores) from overflowing on mobile */
+h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
 /* Spotify-style Card */
 .sp-card { 
     background: var(--surface); 

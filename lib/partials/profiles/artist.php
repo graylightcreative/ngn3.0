@@ -212,6 +212,7 @@ $scores = $artist['scores'] ?? ['Score' => 0];
 
         <!-- Sidebar Info -->
         <div class="lg:col-span-4 space-y-12">
+            <?php include __DIR__ . '/../ad-signal.php'; ?>
             <!-- About -->
             <section class="sp-card border border-white/5 p-8">
                 <h2 class="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">About</h2>

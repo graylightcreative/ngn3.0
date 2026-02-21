@@ -30,7 +30,7 @@ require_once $root.'/lib/bootstrap.php';
 (async function(){
   const el = document.getElementById('out');
   try{
-    const r = await fetch('/api/v1/admin/charts/latest-run?chart='+encodeURIComponent('ngn:artists:weekly'), {headers:{'Authorization': localStorage.getItem('ngn_admin_token')?('Bearer '+localStorage.getItem('ngn_admin_token')):''}});
+    const r = await fetch('/api/v1/charts/latest?chart='+encodeURIComponent('ngn:artists:weekly'));
     const j = await r.json();
     el.textContent = JSON.stringify(j?.data||j,null,2);
   }catch(e){ el.textContent = 'Failed to load sample: '+(e?.message||e); }

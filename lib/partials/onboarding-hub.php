@@ -51,7 +51,7 @@
             <div class="glass-panel p-6 md:p-8 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between group gap-6">
                 <div class="flex items-center gap-6">
                     <div class="w-14 h-14 rounded-xl vibrant-icon-wrapper flex items-center justify-center text-brand flex-shrink-0">
-                        <i class="bi bi-record-vinyl-fill text-2xl"></i>
+                        <i class="bi bi-vinyl-fill text-2xl"></i>
                     </div>
                     <div>
                         <h4 class="text-2xl font-black text-white uppercase tracking-tight mb-1 group-hover:text-brand transition-colors">Labels</h4>

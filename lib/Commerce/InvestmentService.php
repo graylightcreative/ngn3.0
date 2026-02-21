@@ -5,6 +5,7 @@ namespace NGN\Lib\Commerce;
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Commerce\Exception\InvestmentException;
+use NGN\Lib\Services\Graylight\ChancellorHandshakeService;
 use PDO;
 
 /**
@@ -15,7 +16,7 @@ class InvestmentService
     private Config $config;
     private PDO $read;
     private PDO $write;
-    private string $stripeSecretKey;
+    private ChancellorHandshakeService $chancellor;
 
     /**
      * Constructor.
@@ -27,21 +28,13 @@ class InvestmentService
         $this->config = $config;
         $this->read = ConnectionFactory::read($config);
         $this->write = ConnectionFactory::write($config);
-
-        // Load Stripe key from environment
-        $this->stripeSecretKey = (string)(getenv('STRIPE_SECRET_KEY') ?: '');
-
-        // Initialize Stripe
-        if ($this->stripeSecretKey && class_exists('\Stripe\Stripe')) {
-            \Stripe\Stripe::setApiKey($this->stripeSecretKey);
-            \Stripe\Stripe::setApiVersion('2023-10-16');
-        }
+        $this->chancellor = new ChancellorHandshakeService($config);
     }
 
     /**
      * Creates a Stripe Checkout Session for an investment.
      *
-     * @param int $userId The ID of the user making the investment.
+     * @param int|null $userId The ID of the user making the investment.
      * @param string $email User email address.
      * @param int $amountCents The investment amount in cents.
      * @param string $successUrl URL to redirect on success.
@@ -50,7 +43,7 @@ class InvestmentService
      * @throws \InvalidArgumentException If the investment amount is invalid.
      */
     public function createSession(
-        int $userId,
+        ?int $userId,
         string $email,
         int $amountCents,
         string $successUrl,
@@ -96,13 +89,10 @@ class InvestmentService
                 return ['success' => false, 'error' => 'Failed to create investment record'];
             }
 
-            // --- Step 3: Create Stripe Checkout Session ---
-            if (!$this->stripeSecretKey || !class_exists('\Stripe\Stripe')) {
-                return ['success' => false, 'error' => 'Stripe not configured'];
-            }
-
-            $session = \Stripe\Checkout\Session::create([
-                'mode' => 'payment',
+            // --- Step 3: Create Checkout Session via Chancellor ---
+            $payload = [
+                'type' => 'CHECKOUT_SESSION',
+                'user_id' => $userId,
                 'customer_email' => $email,
                 'line_items' => [
                     [
@@ -127,15 +117,14 @@ class InvestmentService
                     'investment_id' => (string)$investmentId,
                     'user_id' => (string)$userId,
                     'type' => 'investment',
-                ],
-                'payment_intent_data' => [
-                    'metadata' => [
-                        'investment_id' => (string)$investmentId,
-                        'user_id' => (string)$userId,
-                        'type' => 'investment',
-                    ],
-                ],
-            ]);
+                ]
+            ];
+
+            $result = $this->chancellor->authorizeCheckout($payload);
+
+            if (!$result['success']) {
+                return ['success' => false, 'error' => $result['error'] ?? 'Chancellor auth failed'];
+            }
 
             // --- Step 4: Update investment record with session ID ---
             $stmt = $this->write->prepare(
@@ -144,15 +133,15 @@ class InvestmentService
                 WHERE id = :id"
             );
             $stmt->execute([
-                ':sessionId' => $session->id,
+                ':sessionId' => $result['session_id'],
                 ':id' => $investmentId,
             ]);
 
             return [
                 'success' => true,
-                'url' => $session->url,
+                'url' => $result['url'],
                 'investment_id' => $investmentId,
-                'session_id' => $session->id,
+                'session_id' => $result['session_id'],
             ];
 
         } catch (\PDOException $e) {

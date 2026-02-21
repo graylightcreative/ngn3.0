@@ -30,9 +30,16 @@ class ChancellorHandshakeService
      */
     public function authorizeCheckout(array $payload): array
     {
-        // 1. Prepare Payload with Mandatory tenant_id
+        // 1. Prepare Payload with Mandatory tenant_id and Sovereign Stripe Keys
         if (!isset($payload['metadata'])) $payload['metadata'] = [];
         $payload['metadata']['tenant_id'] = 23; // NextGenNoise Fixed ID
+
+        // Attach Custom Sovereign Stripe Keys for BYOK processing
+        $payload['stripe_config'] = [
+            'secret_key' => Env::get('STRIPE_SECRET_KEY', ''),
+            'webhook_secret' => Env::get('STRIPE_WEBHOOK_SECRET', ''),
+            'publishable_key' => Env::get('STRIPE_PUBLISHABLE_KEY', '')
+        ];
 
         $jsonPayload = json_encode($payload);
         $timestamp = time();

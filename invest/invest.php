@@ -44,7 +44,7 @@ $roiData = calculate_fixed_note_payout($initialAmount, $baseApy, $termYears);
 
 // Financial Forecast KPIs
 $forecast = [
-        ['metric' => 'Active B2B Users', 'baseline' => '100 (Pilot)', 'target' => '5,000+ (Labels/Stations)'],
+        ['metric' => 'Active B2B Nodes', 'baseline' => '100 (Pilot)', 'target' => '5,000+ (Labels/Stations)'],
         ['metric' => 'Annual Booking GMV', 'baseline' => '$0', 'target' => '$5M+ (Tours Epic)'],
         ['metric' => 'Commerce Margin', 'baseline' => '40% (Dropship)', 'target' => '60%+ (In-House DTG)'],
         ['metric' => 'Target Exit Valuation', 'baseline' => '$5M - $10M', 'target' => '$100M+ (IPO Readiness)'],
@@ -133,6 +133,7 @@ $forecast = [
     </style>
 </head>
 <body class="cyber-bg min-h-screen pb-12">
+<?php include __DIR__ . '/../lib/partials/pwa-mobilizer.php'; ?>
 
 <!-- NAVIGATION -->
 <nav class="sticky top-0 z-50 bg-black/95 backdrop-blur-md border-b border-neutral-800 no-print">
@@ -182,14 +183,14 @@ $forecast = [
 
         <!-- TITLE BLOCK -->
         <div class="text-center mb-12">
-            <div class="inline-block px-3 py-1 mb-4 border border-purple-500/30 rounded-full bg-purple-900/10">
-                <span class="text-purple-400 text-xs font-bold tracking-widest uppercase">Interest-Bearing Note</span>
+            <div class="inline-block px-3 py-1 mb-4 border border-brand/30 rounded-full bg-brand/10">
+                <span class="text-brand text-xs font-bold tracking-widest uppercase">Asset Class: Sovereign Note</span>
             </div>
-            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight">
-                NGN COMMUNITY <span class="neon-text-green">CAPITAL</span>
+            <h1 class="text-4xl md:text-6xl font-black text-white mb-4 tracking-tight uppercase italic">
+                Sovereign Node <span class="text-brand">Allocation</span>
             </h1>
-            <p class="text-neutral-400 max-w-2xl mx-auto text-sm md:text-base">
-                **Legal Note:** This is a **Simple Promissory Note (Debt)**, not equity. It provides a fixed **<?= $baseApy * 100 ?>% APY** interest rate, payable over the 5-year term.
+            <p class="text-neutral-400 max-w-2xl mx-auto text-sm md:text-base font-mono">
+                **Sovereign Handshake:** This is a **Sovereign Note (Debt Asset)**, not equity. It equips the Vanguard Network with a fixed **<?= $baseApy * 100 ?>% APY** target return, plus passive XP accumulation over the 5-year term.
             </p>
         </div>
 
@@ -197,54 +198,51 @@ $forecast = [
 
             <!-- COLUMN 1: CALCULATOR (STICKY) -->
             <div id="calculator-column" class="lg:col-span-1 space-y-6 no-print">
-                <div class="card-bg p-6 rounded-2xl sticky lg:top-24 border-t-4 border-emerald-500 shadow-2xl">
-                    <h3 class="text-xl font-bold text-white brand-font mb-6 flex items-center gap-2">
-                        <span class="text-emerald-400">⚡</span> Payout Calculator
+                <div class="card-bg p-6 rounded-2xl sticky lg:top-24 border-t-4 border-brand shadow-2xl">
+                    <h3 class="text-xl font-bold text-white brand-font mb-6 flex items-center gap-2 uppercase italic">
+                        <span class="text-brand">⚡</span> Quest Calculator
                     </h3>
 
                     <form id="investment-form" class="space-y-6">
                         <div>
-                            <label for="investment-amount" class="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2">
-                                Investment Principal (Min $<?= $minimumInvestment ?>)
+                            <label for="investment-amount" class="block text-xs font-bold text-neutral-400 uppercase tracking-widest mb-2 font-mono">
+                                Resource Allocation (Min $<?= $minimumInvestment ?>)
                             </label>
                             <div class="relative">
                                 <span class="absolute left-4 top-3 text-neutral-500">$</span>
                                 <input type="number" id="investment-amount" name="amount" value="<?= $initialAmount ?>" min="<?= $minimumInvestment ?>" step="50" required
-                                       class="input-cyber w-full pl-8 p-3 rounded-lg text-lg font-mono font-bold">
+                                       class="w-full bg-black border border-white/10 rounded-lg py-3 pl-8 pr-4 text-lg font-mono font-bold text-brand focus:border-brand focus:ring-1 focus:ring-brand outline-none transition-all">
                             </div>
                         </div>
 
                         <div class="bg-black/50 p-4 rounded-xl border border-neutral-800 space-y-4">
                             <div class="flex justify-between items-center pb-4 border-b border-neutral-800">
-                                <span class="text-sm text-neutral-400">Principal Return</span>
+                                <span class="text-sm text-neutral-400 font-mono">Base Nodes</span>
                                 <span id="principal-return" class="font-mono text-white">$<?= number_format($initialAmount, 0) ?></span>
                             </div>
                             <div class="flex justify-between items-center">
-                                <span class="text-sm text-neutral-400">Total Interest (<?= $baseApy * 100 ?>%)</span>
-                                <span id="total-interest" class="font-mono text-emerald-400 font-bold">+$<?= number_format($roiData['interest'], 0) ?></span>
+                                <span class="text-sm text-neutral-400 font-mono">Projected ROI (<?= $baseApy * 100 ?>%)</span>
+                                <span id="total-interest" class="font-mono text-brand font-bold">+$<?= number_format($roiData['interest'], 0) ?></span>
                             </div>
                             <div class="flex justify-between items-center pt-2">
-                                <span class="text-sm text-purple-400">Quarterly Payout</span>
-                                <span id="quarterly-payout" class="font-mono text-purple-400 font-bold">$<?= number_format($roiData['quarterlyPayout'], 0) ?></span>
+                                <span class="text-sm text-zinc-500 font-mono uppercase tracking-widest">XP Generation</span>
+                                <span id="quarterly-payout" class="font-mono text-brand font-bold">0 XP</span>
                             </div>
                         </div>
 
-                        <div class="bg-emerald-900/20 p-4 rounded-xl border border-emerald-500/30 text-center">
-                            <span class="block text-xs text-emerald-400 uppercase tracking-widest mb-1">Total 5-Year Return</span>
+                        <div class="bg-brand/10 p-4 rounded-xl border border-brand/30 text-center">
+                            <span class="block text-xs text-brand uppercase tracking-widest mb-1">Total Sovereign Return</span>
                             <span id="total-return" class="block text-3xl font-black text-white brand-font">$<?= number_format($roiData['totalReturn'], 0) ?></span>
                         </div>
                     </form>
 
                     <div class="mt-8 space-y-3">
-                        <button id="invest-button" class="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold rounded-lg uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all transform hover:scale-105">
-                            Secure Promissory Note
-                        </button>
-                        <button id="print-proposal-button" class="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 font-bold rounded-lg uppercase tracking-widest text-xs border border-neutral-700 transition-colors">
-                            Download PDF Proposal
+                        <button id="invest-button" class="w-full py-4 bg-brand hover:bg-white text-black font-black rounded-lg uppercase tracking-widest text-sm shadow-[0_0_20px_rgba(255,85,0,0.4)] transition-all transform hover:scale-105">
+                            Equip Sovereign Node
                         </button>
                     </div>
-                    <p class="text-[10px] text-neutral-600 text-center mt-4">
-                        Payments processed securely via Stripe Connect.
+                    <p class="text-[10px] text-neutral-600 text-center mt-4 uppercase tracking-widest font-mono">
+                        Chancellor Handshake via Stripe Connect.
                     </p>
                 </div>
             </div>
@@ -409,10 +407,11 @@ $forecast = [
         function updateCalculator() {
             let amount = parseFloat(amountInput.value) || 0;
             const roi = calculateROI(amount);
+            const xpGen = Math.floor(amount * 10);
 
             principalReturn.textContent = formatter.format(roi.principal);
             totalInterest.textContent = '+' + formatter.format(roi.interest);
-            quarterlyPayout.textContent = formatter.format(roi.quarterlyPayout);
+            quarterlyPayout.textContent = xpGen.toLocaleString() + ' XP';
             totalReturn.textContent = formatter.format(roi.totalReturn);
             allocationAmountDisplay.textContent = formatter.format(roi.principal).replace('$', '').trim();
         }
@@ -435,32 +434,65 @@ $forecast = [
         investButton.addEventListener('click', function(e) {
             e.preventDefault();
             let amount = parseInt(amountInput.value) || minimumInvestment;
+            
+            // Custom Sovereign Notification
+            const showSysNotify = (msg) => {
+                const toast = document.createElement('div');
+                toast.className = 'fixed top-4 left-1/2 -translate-x-1/2 bg-black/90 border border-brand/50 text-brand px-6 py-3 rounded-lg shadow-[0_0_20px_rgba(255,85,0,0.3)] font-mono text-[10px] uppercase tracking-widest z-[9999] backdrop-blur-xl';
+                toast.innerHTML = `<i class="bi bi-exclamation-triangle-fill mr-2"></i> System_Alert: ${msg}`;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
+            };
+
             if (amount < minimumInvestment) {
-                alert('Minimum investment is $' + minimumInvestment);
+                showSysNotify('Minimum allocation is $' + minimumInvestment);
                 amountInput.value = minimumInvestment;
                 return;
             }
 
-            const email = window.prompt('Enter your email to secure your Promissory Note allocation:');
+            const email = window.prompt('Enter your email to secure your Sovereign Node allocation:');
             if (!email) return;
 
             this.disabled = true;
             this.textContent = 'Processing...';
-            this.classList.remove('from-emerald-600', 'to-emerald-500');
-            this.classList.add('bg-neutral-600', 'cursor-not-allowed');
+            this.classList.remove('bg-brand', 'text-black');
+            this.classList.add('bg-neutral-600', 'cursor-not-allowed', 'text-white');
 
-            // Simulate API call for demo purposes (Replace with actual fetch in production)
-            setTimeout(() => {
-                const redirectUrl = `https://nextgennoise.com/api/v1/investments/checkout?amount=${amount}&email=${encodeURIComponent(email)}`;
-                // In a real app, you'd POST to an endpoint that returns a Stripe URL.
-                // For this static/demo file, we'll alert the action.
-                alert(`Redirecting to Stripe for $${amount} investment...`);
+            const payload = {
+                amount_cents: amount * 100,
+                email: email,
+                success_url: window.location.origin + '/invest/index.php?status=success',
+                cancel_url: window.location.origin + '/invest/invest.php?status=cancelled'
+            };
+
+            fetch('/api/v1/investments/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data && data.data.url) {
+                    window.location.href = data.data.url;
+                } else {
+                    showSysNotify('Handshake failed: ' + (data.message || 'Unknown error'));
+                    this.disabled = false;
+                    this.textContent = 'Equip Sovereign Node';
+                    this.classList.add('bg-brand', 'text-black');
+                    this.classList.remove('bg-neutral-600', 'cursor-not-allowed', 'text-white');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showSysNotify('Network anomaly detected. Handshake aborted.');
                 this.disabled = false;
-                this.textContent = 'Secure Promissory Note';
-                this.classList.add('from-emerald-600', 'to-emerald-500');
-                this.classList.remove('bg-neutral-600', 'cursor-not-allowed');
-                // window.location.href = redirectUrl;
-            }, 1000);
+                this.textContent = 'Equip Sovereign Node';
+                this.classList.add('bg-brand', 'text-black');
+                this.classList.remove('bg-neutral-600', 'cursor-not-allowed', 'text-white');
+            });
         });
 
         // Init

@@ -101,36 +101,38 @@ class DonationService
 
             $donationId = (int)$this->write->lastInsertId();
 
-            // Create Stripe Payment Intent if configured
-            $stripeKey = getenv('STRIPE_SECRET_KEY');
-            if ($stripeKey && class_exists('\Stripe\Stripe')) {
-                \Stripe\Stripe::setApiKey($stripeKey);
-                
-                $intent = \Stripe\PaymentIntent::create([
-                    'amount' => $amountCents,
-                    'currency' => $currency,
-                    'metadata' => [
-                        'donation_id' => $donationId,
-                        'entity_type' => $data['entity_type'],
-                        'entity_id' => $data['entity_id'],
-                        'type' => 'one_time',
-                    ],
-                    'description' => "NGN Donation to {$data['entity_type']} #{$data['entity_id']}",
-                    'automatic_payment_methods' => ['enabled' => true],
-                ]);
+            // Delegate to Chancellor Handshake
+            $chancellor = new \NGN\Lib\Services\Graylight\ChancellorHandshakeService($this->config);
+            $payload = [
+                'type' => 'PAYMENT_INTENT',
+                'user_id' => $data['user_id'] ?? null,
+                'customer_email' => $data['email'] ?? null,
+                'amount' => $amountCents,
+                'currency' => $currency,
+                'description' => "NGN Donation to {$data['entity_type']} #{$data['entity_id']}",
+                'metadata' => [
+                    'donation_id' => $donationId,
+                    'entity_type' => $data['entity_type'],
+                    'entity_id' => $data['entity_id'],
+                    'type' => 'one_time',
+                ]
+            ];
 
+            $result = $chancellor->authorizeCheckout($payload);
+
+            if ($result['success'] && isset($result['payment_intent_id'])) {
                 // Update donation with payment intent
                 $updateSql = "UPDATE `ngn_2025`.`donations` SET stripe_payment_intent_id = :pi WHERE id = :id";
                 $updateStmt = $this->write->prepare($updateSql);
-                $updateStmt->bindValue(':pi', $intent->id);
+                $updateStmt->bindValue(':pi', $result['payment_intent_id']);
                 $updateStmt->bindValue(':id', $donationId, PDO::PARAM_INT);
                 $updateStmt->execute();
 
                 return [
                     'success' => true,
                     'id' => $donationId,
-                    'payment_intent_id' => $intent->id,
-                    'client_secret' => $intent->client_secret,
+                    'payment_intent_id' => $result['payment_intent_id'],
+                    'client_secret' => $result['client_secret'] ?? null,
                 ];
             }
 
@@ -187,63 +189,60 @@ class DonationService
 
             $donationId = (int)$this->write->lastInsertId();
 
-            // Create Stripe subscription if configured
-            $stripeKey = getenv('STRIPE_SECRET_KEY');
-            if ($stripeKey && class_exists('\Stripe\Stripe')) {
-                \Stripe\Stripe::setApiKey($stripeKey);
+            // Delegate to Chancellor Handshake
+            $chancellor = new \NGN\Lib\Services\Graylight\ChancellorHandshakeService($this->config);
+            
+            // Build absolute URLs for checkout
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'nextgennation.com';
+            $baseUrl = "{$protocol}://{$host}";
+            
+            $payload = [
+                'type' => 'CHECKOUT_SESSION',
+                'user_id' => $data['user_id'] ?? null,
+                'customer_email' => $data['email'],
+                'mode' => 'subscription',
+                'line_items' => [
+                    [
+                        'price_data' => [
+                            'currency' => $currency,
+                            'product_data' => [
+                                'name' => "NGN Support for {$data['entity_type']} #{$data['entity_id']}"
+                            ],
+                            'unit_amount' => $amountCents,
+                            'recurring' => ['interval' => $interval]
+                        ],
+                        'quantity' => 1
+                    ]
+                ],
+                'success_url' => $baseUrl . '/donation/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url' => $baseUrl . '/donation/cancel',
+                'metadata' => [
+                    'donation_id' => $donationId,
+                    'entity_type' => $data['entity_type'],
+                    'entity_id' => $data['entity_id'],
+                    'type' => 'subscription'
+                ]
+            ];
 
-                // Get or create customer
-                $customers = \Stripe\Customer::search(['query' => "email:'{$data['email']}'", 'limit' => 1]);
-                if (!empty($customers->data)) {
-                    $customer = $customers->data[0];
-                } else {
-                    $customer = \Stripe\Customer::create([
-                        'email' => $data['email'],
-                        'name' => $data['donor_name'] ?? null,
-                        'metadata' => ['source' => 'ngn_donation'],
-                    ]);
-                }
+            $result = $chancellor->authorizeCheckout($payload);
 
-                // Create price for this amount
-                $price = \Stripe\Price::create([
-                    'unit_amount' => $amountCents,
-                    'currency' => $currency,
-                    'recurring' => ['interval' => $interval],
-                    'product_data' => [
-                        'name' => "NGN Donation to {$data['entity_type']} #{$data['entity_id']}",
-                    ],
-                ]);
-
-                // Create subscription with payment
-                $sub = \Stripe\Subscription::create([
-                    'customer' => $customer->id,
-                    'items' => [['price' => $price->id]],
-                    'payment_behavior' => 'default_incomplete',
-                    'expand' => ['latest_invoice.payment_intent'],
-                    'metadata' => [
-                        'donation_id' => $donationId,
-                        'entity_type' => $data['entity_type'],
-                        'entity_id' => $data['entity_id'],
-                    ],
-                ]);
-
-                // Update donation with subscription info
+            if ($result['success'] && isset($result['session_id'])) {
+                // Update donation with subscription session info
                 $updateSql = "UPDATE `ngn_2025`.`donations` 
-                              SET stripe_subscription_id = :sub, stripe_customer_id = :cust 
+                              SET stripe_session_id = :sid 
                               WHERE id = :id";
                 $updateStmt = $this->write->prepare($updateSql);
-                $updateStmt->bindValue(':sub', $sub->id);
-                $updateStmt->bindValue(':cust', $customer->id);
+                $updateStmt->bindValue(':sid', $result['session_id']);
                 $updateStmt->bindValue(':id', $donationId, PDO::PARAM_INT);
                 $updateStmt->execute();
-
-                $clientSecret = $sub->latest_invoice->payment_intent->client_secret ?? null;
 
                 return [
                     'success' => true,
                     'id' => $donationId,
-                    'subscription_id' => $sub->id,
-                    'client_secret' => $clientSecret,
+                    'subscription_id' => null, // Available after webhook confirmation
+                    'session_id' => $result['session_id'],
+                    'url' => $result['url'] ?? null
                 ];
             }
 

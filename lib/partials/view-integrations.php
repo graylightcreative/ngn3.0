@@ -11,7 +11,7 @@ $seo = $data['oracle_seo'] ?? null;
     <div class="flex items-center justify-between mb-12">
         <div>
             <h1 class="text-4xl font-black uppercase tracking-tighter text-white">Sovereign_Integrations</h1>
-            <p class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1 italic">Fleet Ecosystem Handshake Status</p>
+            <p class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1 italic">Sovereign Ecosystem Handshake Status</p>
         </div>
         <div class="px-4 py-2 rounded-full glass border-brand/20">
             <span class="w-2 h-2 rounded-full bg-brand inline-block mr-2 animate-pulse"></span>
@@ -75,7 +75,7 @@ $seo = $data['oracle_seo'] ?? null;
         </div>
     </div>
 
-    <!-- CORE FLEET NODES -->
+    <!-- CORE SOVEREIGN NODES -->
     <h2 class="text-xs font-black text-zinc-600 uppercase tracking-[0.4em] mb-10 pl-2 font-mono">Infrastructure_Nodes</h2>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
         <div class="glass p-8 rounded-[2rem] border-brand/10 relative overflow-hidden group">
@@ -87,7 +87,7 @@ $seo = $data['oracle_seo'] ?? null;
                 <div class="text-[9px] font-black text-green-500 uppercase tracking-widest font-mono">Connected</div>
             </div>
             <h3 class="text-lg font-black text-white uppercase mb-2">Beacon_ID</h3>
-            <p class="text-xs text-zinc-500 font-medium leading-relaxed">Centralized identity and SSO handshake for the Graylight Fleet.</p>
+            <p class="text-xs text-zinc-500 font-medium leading-relaxed">Centralized identity and SSO handshake for the Sovereign Alliance.</p>
         </div>
 
         <div class="glass p-8 rounded-[2rem] border-white/5 group">

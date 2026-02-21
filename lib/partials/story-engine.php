@@ -72,7 +72,7 @@
                     <i class="bi bi-cpu-fill"></i> Hardware_Agnostic
                 </div>
                 <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 tracking-tighter leading-[0.85] uppercase break-words drop-shadow-2xl brand-gradient-text">Clarity<span class="text-brand">_VST</span></h1>
-                <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">The source of truth for high-fidelity audio processing. Coming soon to the fleet.</p>
+                <p class="text-lg md:text-2xl text-zinc-400 font-medium mb-12 max-w-2xl leading-relaxed">The source of truth for high-fidelity audio processing. Coming soon to the Alliance.</p>
                 <div class="flex flex-col sm:flex-row gap-6">
                     <a href="https://clarity.nextgennoise.com" target="_blank" class="bg-brand text-black font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white hover:scale-105 transition-all rounded-full shadow-2xl shadow-brand/30 text-center">Explore_Engine</a>
                     <a href="/register.php" class="bg-white/5 border border-white/10 text-white font-black px-12 py-5 uppercase text-xs tracking-widest hover:bg-white/10 hover:border-white/20 transition-all rounded-full text-center">Join_Waiting_List</a>

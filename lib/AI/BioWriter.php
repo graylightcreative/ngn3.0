@@ -46,6 +46,12 @@ class BioWriter
      */
     public function generate(int $userId, array $params): array
     {
+        // 1. Check AI Policy & Killswitch
+        $policy = new \NGN\Lib\AI\SovereignAIPolicy($this->config);
+        if (!$policy->isAIEnabled()) {
+            throw new \NGN\Lib\AI\ForbiddenException($policy->getPolicyStatement());
+        }
+
         // --- Parameter Validation ---
         $artistName = $params['artist_name'] ?? null;
         $genre = $params['genre'] ?? null;

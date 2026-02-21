@@ -33,7 +33,15 @@ try {
     echo "  Table Exists: " . ($tables ? "YES" : "NO") . "\n";
     
     $count = $rankPdo->query("SELECT COUNT(*) FROM ranking_items")->fetchColumn();
-    echo "  Row Count: $count\n";
+    echo "  Raw Row Count: $count\n";
+
+    echo "\n[Testing get_top_rankings helper]:\n";
+    $_GET['debug_rankings'] = 1;
+    $rankings = get_top_rankings($pdo, 'artist', 5);
+    echo "  Artist Rankings Found: " . count($rankings) . "\n";
+    if (count($rankings) > 0) {
+        echo "  Sample: " . $rankings[0]['Name'] . " (Score: " . $rankings[0]['Score'] . ")\n";
+    }
 
 } catch (\Throwable $e) {
     echo "[ERROR]: " . $e->getMessage() . "\n";

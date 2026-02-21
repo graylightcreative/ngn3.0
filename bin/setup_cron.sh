@@ -21,7 +21,7 @@
 # The NGN_ROOT should be the absolute path to your project's root directory on the server.
 #
 PHP_BIN=/usr/bin/php
-NGN_ROOT=/www/wwwroot/beta.nextgennoise.com # <-- VERIFY THIS PATH
+NGN_ROOT=/www/wwwroot/nextgennoise
 LOG_DIR_LEGACY=$NGN_ROOT/storage/logs
 LOG_DIR_CRON=$NGN_ROOT/storage/cron_logs
 

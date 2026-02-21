@@ -25,11 +25,15 @@
             </a>
             <a href="/posts" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
                 <i class="bi bi-newspaper text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
-                <span class="font-black uppercase tracking-widest text-sm text-white">News</span>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Intelligence</span>
             </a>
-            <a href="/artists" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
+            <a href="/activation" class="p-6 rounded-3xl bg-white/5 border border-white/10 flex flex-col gap-4 hover:bg-emerald-500/10 hover:border-emerald-500/20 transition-all group">
+                <i class="bi bi-lightning-charge-fill text-3xl text-zinc-500 group-hover:text-emerald-500 transition-colors"></i>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Impact</span>
+            </a>
+            <a href="/partners" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
                 <i class="bi bi-people-fill text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>
-                <span class="font-black uppercase tracking-widest text-sm text-white">Artists</span>
+                <span class="font-black uppercase tracking-widest text-sm text-white">Partners</span>
             </a>
             <a href="/labels" class="p-6 rounded-3xl bg-white/5 border border-white/5 flex flex-col gap-4 hover:bg-brand/10 hover:border-brand/20 transition-all group">
                 <i class="bi bi-record-circle-fill text-3xl text-zinc-500 group-hover:text-brand transition-colors"></i>

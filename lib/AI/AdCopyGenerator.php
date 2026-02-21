@@ -36,6 +36,12 @@ class AdCopyGenerator
      */
     public function generate(int $userId, array $params): array
     {
+        // 1. Check AI Policy & Killswitch
+        $policy = new \NGN\Lib\AI\SovereignAIPolicy($this->config);
+        if (!$policy->isAIEnabled()) {
+            throw new \NGN\Lib\AI\ForbiddenException($policy->getPolicyStatement());
+        }
+
         // Parameters validation
         $trackName = $params['track_name'] ?? null;
         $releaseDate = $params['release_date'] ?? null;

@@ -23,7 +23,7 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
       </div>
       <h2 class="text-3xl font-black text-white mb-4 tracking-tighter uppercase italic">Join_The_Movement</h2>
       <p class="text-zinc-400 text-sm leading-relaxed font-medium">
-        Deploy your credentials to the Sovereign fleet. Get exclusive intelligence, verified charts, and private community access.
+        Deploy your credentials to the Sovereign Alliance. Get exclusive intelligence, verified charts, and private community access.
       </p>
     </div>
 
@@ -90,9 +90,9 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
                     <span class="w-2 h-px bg-brand mr-3"></span> Institutional
                 </h4>
                 <ul class="space-y-4 text-[11px] font-bold uppercase tracking-widest">
-                    <li><a href="/?view=investors" class="text-zinc-500 hover:text-brand transition-all">Investor_Terminal</a></li>
+                    <li><a href="https://investors.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">Investor_Terminal</a></li>
                     <li><a href="https://boardroom.nextgennoise.com" class="text-zinc-500 hover:text-brand transition-all">The_Boardroom</a></li>
-                    <li><a href="/beta" class="text-zinc-500 hover:text-brand transition-all">System_Manifest</a></li>
+                    <li><a href="/forge" class="text-zinc-500 hover:text-brand transition-all">System_Manifest</a></li>
                     <li><a href="/pricing" class="text-brand hover:text-white transition-all">Secure_Entry</a></li>
                 </ul>
             </div>
@@ -100,7 +100,7 @@ $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
             <!-- Column 4: Sovereign Nodes -->
             <div>
                 <h4 class="text-[10px] font-mono text-white uppercase tracking-[0.4em] mb-8 font-bold flex items-center">
-                    <span class="w-2 h-px bg-brand mr-3"></span> The Fleet
+                    <span class="w-2 h-px bg-brand mr-3"></span> Sovereign Nodes
                 </h4>
                 <ul class="space-y-4 text-[10px] font-mono uppercase tracking-[0.2em]">
                     <li><a href="https://beacon.graylightcreative.com" class="text-zinc-600 hover:text-brand transition-all">Beacon_ID</a></li>
