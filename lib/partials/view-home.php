@@ -1,7 +1,7 @@
 <?php
 /**
- * NGN Sovereign Home View v3.1.1
- * Mobile-Optimized Discovery & Onboarding
+ * NGN Sovereign Home View v3.2.0
+ * Layman ROI Overhaul: Partners, Labs, Rankings
  */
 ?>
 
@@ -9,7 +9,7 @@
 <?php include $root . 'lib/partials/stats-ticker.php'; ?>
 <?php include $root . 'lib/partials/ai-goal-hud.php'; ?>
 
-<!-- Sovereign Stations: Institutional Radio -->
+<!-- Sovereign Stations: Production Labs -->
 <section class="mb-16 relative">
     <!-- Badass Separator -->
     <div class="absolute -top-10 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-30"></div>
@@ -17,7 +17,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8 relative z-10">
         <div>
-            <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Institutional_Stations</h2>
+            <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Production_Labs</h2>
             <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Live Global Airplay Tracking</p>
         </div>
         <div class="hidden md:block h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent mx-8"></div>
@@ -49,7 +49,7 @@
                         <div class="w-12 h-12 md:w-16 md:h-16 bg-brand text-black rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(255,95,31,0.5)] group-hover:scale-110 transition-transform">
                             <i class="bi bi-play-fill text-2xl md:text-3xl ml-1"></i>
                         </div>
-                        <span class="text-[9px] md:text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Institutional Radio</span>
+                        <span class="text-[9px] md:text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Production Lab 01</span>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                     <div class="w-12 h-12 md:w-16 md:h-16 bg-white text-black rounded-full flex items-center justify-center shadow-[0_10px_30px_rgba(255,255,255,0.3)] group-hover:scale-110 transition-transform">
                         <i class="bi bi-play-fill text-2xl md:text-3xl ml-1"></i>
                     </div>
-                    <span class="text-[9px] md:text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Mississippi_Operator</span>
+                    <span class="text-[9px] md:text-[10px] font-black text-white/60 uppercase tracking-[0.3em]">Production Lab 02</span>
                 </div>
             </div>
         </div>
@@ -92,7 +92,7 @@
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8 relative z-10">
         <div>
             <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Release_Radar</h2>
-            <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Institutional Music Distribution</p>
+            <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Global Music Distribution</p>
         </div>
         <div class="hidden md:block h-px flex-1 bg-gradient-to-r from-zinc-700 to-transparent mx-8"></div>
         <a href="/releases" class="px-6 py-2 rounded-full border border-white/20 text-[10px] font-black text-white hover:bg-white hover:text-black uppercase tracking-widest transition-all shrink-0">View_Drops</a>
@@ -177,27 +177,27 @@
     </div>
 </section>
 
-<!-- Trending Artists -->
-<?php if (!empty($data['trending_artists'])): ?>
+<!-- Trending Partners -->
+<?php if (!empty($data['trending_partners'])): ?>
 <section class="mb-16 relative separator-slash">
     <div class="absolute -top-10 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-30"></div>
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8 relative z-10">
         <div>
-            <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Trending_Artists</h2>
-            <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Institutional Engagement Monitoring</p>
+            <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Trending_Partners</h2>
+            <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Global Performance Monitoring</p>
         </div>
         <div class="hidden md:block h-px flex-1 bg-gradient-to-r from-brand/20 to-transparent mx-8"></div>
-        <a href="/artists" class="px-6 py-2 rounded-full border border-brand/30 text-[10px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0 shadow-[0_0_15px_rgba(255,95,31,0.2)]">View_Alliance</a>
+        <a href="/partners" class="px-6 py-2 rounded-full border border-brand/30 text-[10px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0 shadow-[0_0_15px_rgba(255,95,31,0.2)]">View_All</a>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
-    <?php foreach ($data['trending_artists'] as $artist): ?>
+    <?php foreach ($data['trending_partners'] as $artist): ?>
     <?php 
         $artSlug = $artist['slug'] ?? $artist['Slug'] ?? '';
         $artImg  = $artist['image_url'] ?? $artist['Image'] ?? '';
         $artistImg = user_image($artSlug, $artImg);
     ?>
-    <a href="/artist/<?= htmlspecialchars($artSlug ?: $artist['id']) ?>" class="group glass-panel border border-white/5 flex flex-col p-3 md:p-4 rounded-3xl hover:-translate-y-2 transition-transform duration-300">
+    <a href="/partner/<?= htmlspecialchars($artSlug ?: $artist['id']) ?>" class="group glass-panel border border-white/5 flex flex-col p-3 md:p-4 rounded-3xl hover:-translate-y-2 transition-transform duration-300">
         <div class="relative aspect-square mb-4 shadow-2xl rounded-2xl overflow-hidden border border-white/10">
         <img src="<?= htmlspecialchars($artistImg) ?>" alt="" class="w-full h-full object-cover bg-zinc-800 group-hover:scale-110 group-hover:opacity-80 transition-all duration-500" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
         <button class="absolute bottom-3 right-3 w-10 h-10 md:w-12 md:h-12 bg-brand text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all shadow-[0_10px_30px_rgba(255,95,31,0.5)]">
@@ -205,7 +205,7 @@
         </button>
         </div>
         <div class="font-black truncate text-white text-sm md:text-lg group-hover:text-brand transition-colors"><?= htmlspecialchars($artist['name'] ?? $artist['Name'] ?? 'Unknown Artist') ?></div>
-        <div class="text-[9px] md:text-[10px] font-bold text-brand uppercase tracking-[0.2em] mt-1 glow-primary"><?= htmlspecialchars($artist['engagement_count'] ?? '0') ?> signals</div>
+        <div class="text-[9px] md:text-[10px] font-bold text-brand uppercase tracking-[0.2em] mt-1 glow-primary"><?= htmlspecialchars($artist['engagement_count'] ?? '0') ?> Growth Units</div>
     </a>
     <?php endforeach; ?>
     </div>
@@ -215,20 +215,20 @@
 <?php include $root . 'lib/partials/onboarding-hub.php'; ?>
 
 <!-- Latest News -->
-<?php if (!empty($data['posts'])): ?>
+<?php if (!empty($data['news_reports'])): ?>
 <section class="mb-16 relative">
     <div class="absolute -top-10 left-0 right-0 h-px bg-gradient-to-r from-transparent via-zinc-700 to-transparent opacity-50"></div>
 
     <div class="flex flex-wrap items-center justify-between gap-4 mb-8 relative z-10">
         <div>
-            <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Intelligence_Newswire</h2>
-            <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Real-time Industry Reporting</p>
+            <h2 class="text-2xl md:text-4xl font-black tracking-tighter text-white uppercase italic brand-gradient-text drop-shadow-xl">Market_Reports</h2>
+            <p class="text-zinc-400 font-mono text-[9px] md:text-[10px] uppercase tracking-[0.3em] mt-2 glow-primary">Real-time Industry Intelligence</p>
         </div>
         <div class="hidden md:block h-px flex-1 bg-gradient-to-r from-zinc-700 to-transparent mx-8"></div>
-        <a href="/posts" class="px-6 py-2 rounded-full border border-white/20 text-[10px] font-black text-white hover:bg-white hover:text-black uppercase tracking-widest transition-all shrink-0">Show_All</a>
+        <a href="/market-reports" class="px-6 py-2 rounded-full border border-white/20 text-[10px] font-black text-white hover:bg-white hover:text-black uppercase tracking-widest transition-all shrink-0">Show_All</a>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-    <?php foreach ($data['posts'] as $post): ?>
+    <?php foreach ($data['news_reports'] as $post): ?>
     <?php 
         $postImg = post_image($post['featured_image_url'] ?? '');
     ?>
@@ -249,21 +249,21 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 mb-16 relative separator-slash">
     <div class="absolute -top-10 left-0 right-0 h-px bg-gradient-to-r from-transparent via-brand to-transparent opacity-30"></div>
 
-    <!-- Artists Chart -->
-    <?php if (!empty($data['artist_rankings'])): ?>
+    <!-- Partners Chart -->
+    <?php if (!empty($data['partner_rankings'])): ?>
     <div class="glass-panel p-6 md:p-8 rounded-[2rem]">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <h2 class="text-2xl font-black tracking-tighter text-white brand-gradient-text drop-shadow-lg">Top_Artists</h2>
-        <a href="/charts" class="px-4 py-2 rounded-full border border-brand/30 text-[9px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0">View All →</a>
+        <h2 class="text-2xl font-black tracking-tighter text-white brand-gradient-text drop-shadow-lg">Top_Partners</h2>
+        <a href="/charts/artists" class="px-4 py-2 rounded-full border border-brand/30 text-[9px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0">View All →</a>
         </div>
         <div class="overflow-hidden">
         <table class="w-full">
             <tbody>
-                <?php foreach (array_slice($data['artist_rankings'], 0, 5) as $i => $ranking): ?>
+                <?php foreach (array_slice($data['partner_rankings'], 0, 5) as $i => $ranking): ?>
                 <tr class="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
                 <td class="py-4 pr-4 text-xs font-black <?= $i < 3 ? 'text-brand glow-primary' : 'text-zinc-600' ?>"><?= $i + 1 ?></td>
                 <td class="py-4">
-                    <a href="/artist/<?= htmlspecialchars($ranking['slug'] ?? '') ?>" class="text-white group-hover:text-brand font-black text-sm md:text-base transition-colors">
+                    <a href="/partner/<?= htmlspecialchars($ranking['slug'] ?? '') ?>" class="text-white group-hover:text-brand font-black text-sm md:text-base transition-colors">
                     <?= htmlspecialchars($ranking['Name'] ?? 'Unknown') ?>
                     </a>
                 </td>
@@ -281,7 +281,7 @@
     <div class="glass-panel p-6 md:p-8 rounded-[2rem]">
         <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
         <h2 class="text-2xl font-black tracking-tighter text-white brand-gradient-text drop-shadow-lg">Top_Labels</h2>
-        <a href="/charts?type=labels" class="px-4 py-2 rounded-full border border-brand/30 text-[9px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0">View All →</a>
+        <a href="/charts/labels" class="px-4 py-2 rounded-full border border-brand/30 text-[9px] font-black text-brand hover:bg-brand hover:text-black uppercase tracking-widest transition-all shrink-0">View All →</a>
         </div>
         <div class="overflow-hidden">
         <table class="w-full">
@@ -290,7 +290,7 @@
                 <tr class="border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors group">
                 <td class="py-4 pr-4 text-xs font-black <?= $i < 3 ? 'text-brand glow-primary' : 'text-zinc-600' ?>"><?= $i + 1 ?></td>
                 <td class="py-4">
-                    <a href="/label/<?= htmlspecialchars($label['slug'] ?? '') ?>" class="text-white group-hover:text-brand font-black text-sm md:text-base transition-colors">
+                    <a href="/capital-group/<?= htmlspecialchars($label['slug'] ?? '') ?>" class="text-white group-hover:text-brand font-black text-sm md:text-base transition-colors">
                     <?= htmlspecialchars($label['Name'] ?? 'Unknown') ?>
                     </a>
                 </td>

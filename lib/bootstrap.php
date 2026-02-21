@@ -258,3 +258,74 @@ if (!function_exists('render_profile_upsell')) {
         <?php
     }
 }
+
+/**
+ * Global UI Helper: Audit / Prove It Section
+ */
+if (!function_exists('render_audit_section')) {
+    function render_audit_section(array $auditData): void {
+        $factors = $auditData['factors'] ?? [];
+        if (empty($factors)) return;
+        ?>
+        <section class="sp-card border border-white/5 p-8 relative overflow-hidden group">
+            <div class="absolute top-0 right-0 p-4 opacity-10">
+                <i class="bi bi-shield-check text-6xl"></i>
+            </div>
+            <h2 class="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] mb-8">Data_Integrity // Prove_It</h2>
+            <div class="space-y-6">
+                <?php foreach ($factors as $f): ?>
+                <div class="flex items-center justify-between group/row">
+                    <div>
+                        <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1"><?= htmlspecialchars($f['label']) ?></div>
+                        <div class="text-sm font-bold text-white"><?= htmlspecialchars($f['status'] ?? 'Verified') ?></div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs font-black text-brand">+<?= number_format($f['value'] ?? 0) ?></div>
+                        <div class="text-[8px] font-black text-zinc-600 uppercase tracking-widest">Impact</div>
+                    </div>
+                </div>
+                <div class="h-px w-full bg-white/5"></div>
+                <?php endforeach; ?>
+            </div>
+            <div class="mt-8 pt-6 border-t border-dashed border-white/10">
+                <p class="text-[9px] text-zinc-600 font-mono italic leading-relaxed">
+                    Source of truth anchored to Graylight Nexus. All signals verified for data integrity.
+                </p>
+            </div>
+        </section>
+        <?php
+    }
+}
+
+/**
+ * Global UI Helper: Recent Spins Section
+ */
+if (!function_exists('render_recent_spins')) {
+    function render_recent_spins(array $spins, string $type = 'artist'): void {
+        if (empty($spins)) return;
+        ?>
+        <section class="sp-card border border-white/5 p-8">
+            <h2 class="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] mb-8">Live_Signal // Radio_Rotation</h2>
+            <div class="space-y-6">
+                <?php foreach ($spins as $spin): ?>
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 rounded bg-brand/10 flex items-center justify-center text-brand">
+                        <i class="bi bi-broadcast"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-sm font-black text-white truncate"><?= htmlspecialchars($spin['song_title'] ?? 'Unknown Track') ?></div>
+                        <div class="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                            <?= $type === 'artist' ? htmlspecialchars($spin['station_name'] ?? 'Unknown Station') : htmlspecialchars($spin['artist_name'] ?? 'Unknown Artist') ?>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-black text-zinc-400"><?= date('H:i', strtotime($spin['played_at'])) ?></div>
+                        <div class="text-[8px] font-black text-brand uppercase"><?= date('M j', strtotime($spin['played_at'])) ?></div>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php
+    }
+}

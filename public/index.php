@@ -141,9 +141,15 @@ try {
                 // RECENT SPINS (Artist & Station)
                 if (in_array($view, ['artist', 'station'])) {
                     $col = ($view === 'artist') ? 'artist_id' : 'station_id';
-                    $stmt = $pdoSpins->prepare("SELECT * FROM station_spins WHERE {$col} = ? ORDER BY played_at DESC LIMIT 10");
+                    $stmt = $pdoSpins->prepare("SELECT * FROM station_spins WHERE {$col} = ? ORDER BY played_at DESC LIMIT 20");
                     $stmt->execute([$entity['id']]);
                     $spins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Special Logic for JC's Kick Ass Rock Show (Station ID 12)
+                    if ($view === 'station' && $entity['id'] == 12) {
+                        // Merging logic if needed, but primary source is now station_spins
+                    }
+
                     if (!empty($spins)) {
                         $ids = ($view === 'artist') ? array_unique(array_column($spins, 'station_id')) : array_unique(array_column($spins, 'artist_id'));
                         $placeholders = implode(',', array_fill(0, count($ids), '?'));
@@ -163,6 +169,22 @@ try {
                             }
                         }
                         $data['entity']['recent_spins'] = $spins;
+                    }
+                }
+
+                // ROSTERS (Label & Station)
+                if ($view === 'label') {
+                    $stmt = $pdo->prepare("SELECT id, name, slug, image_url FROM artists WHERE label_id = ? AND status = 'active' ORDER BY name ASC");
+                    $stmt->execute([$entity['id']]);
+                    $data['entity']['roster'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                } elseif ($view === 'station') {
+                    // Current rotation artists as 'roster'
+                    if (!empty($data['entity']['recent_spins'])) {
+                        $rosterIds = array_unique(array_column($data['entity']['recent_spins'], 'artist_id'));
+                        $placeholders = implode(',', array_fill(0, count($rosterIds), '?'));
+                        $stmt = $pdo->prepare("SELECT id, name, slug, image_url FROM artists WHERE id IN ($placeholders)");
+                        $stmt->execute($rosterIds);
+                        $data['entity']['roster'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     }
                 }
 

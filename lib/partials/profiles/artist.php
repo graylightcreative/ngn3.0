@@ -212,6 +212,10 @@ $scores = $artist['scores'] ?? ['Score' => 0];
 
         <!-- Sidebar Info -->
         <div class="lg:col-span-4 space-y-12">
+            <?php 
+                if (!empty($entity['audit'])) render_audit_section($entity['audit']);
+                if (!empty($entity['recent_spins'])) render_recent_spins($entity['recent_spins'], 'artist');
+            ?>
             <?php include __DIR__ . '/../ad-signal.php'; ?>
             <!-- About -->
             <section class="sp-card border border-white/5 p-8">

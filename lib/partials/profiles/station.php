@@ -82,19 +82,19 @@ $scores = $station['scores'] ?? ['Score' => 0];
                     <h2 class="text-3xl font-black tracking-tight text-white">Live Rotation</h2>
                 </div>
                 
-                <?php if (!empty($station['smr_rankings'])): ?>
-                    <div class="bg-zinc-900/30 rounded-3xl border border-white/5 overflow-hidden">
+                <?php if (!empty($entity['recent_spins'])): ?>
+                    <div class="bg-zinc-900/30 rounded-3xl border border-white/5 overflow-hidden mb-12">
                         <div class="divide-y divide-white/5">
-                            <?php foreach (array_slice($station['smr_rankings'], 0, 10) as $spin): ?>
+                            <?php foreach ($entity['recent_spins'] as $spin): ?>
                             <div class="flex items-center gap-6 p-6 hover:bg-white/5 transition-all group">
                                 <div class="w-12 h-12 rounded-lg overflow-hidden bg-zinc-800 flex-shrink-0 relative">
                                     <i class="bi-music-note-beamed absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-zinc-700"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="font-black text-lg truncate text-white group-hover:text-emerald-400 transition-colors"><?= htmlspecialchars($spin['Song'] ?? 'Unknown Track') ?></div>
-                                    <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($spin['Artist'] ?? 'Unknown Artist') ?></div>
+                                    <div class="font-black text-lg truncate text-white group-hover:text-emerald-400 transition-colors"><?= htmlspecialchars($spin['song_title'] ?? 'Unknown Track') ?></div>
+                                    <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($spin['artist_name'] ?? 'Unknown Artist') ?></div>
                                 </div>
-                                <div class="text-xs font-mono text-zinc-600 font-bold"><?= !empty($spin['chart_date']) ? date('H:i', strtotime($spin['chart_date'])) : '' ?></div>
+                                <div class="text-xs font-mono text-zinc-600 font-bold"><?= !empty($spin['played_at']) ? date('H:i', strtotime($spin['played_at'])) : '' ?></div>
                             </div>
                             <?php endforeach; ?>
                         </div>
@@ -104,17 +104,37 @@ $scores = $station['scores'] ?? ['Score' => 0];
                 <?php endif; ?>
             </section>
 
+            <!-- Partner Roster -->
+            <section>
+                <div class="flex items-center justify-between mb-8">
+                    <h2 class="text-3xl font-black tracking-tight text-white">The Partners</h2>
+                </div>
+                <?php if (!empty($entity['roster'])): ?>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        <?php foreach ($entity['roster'] as $artist): ?>
+                        <?php $artistImg = user_image($artist['slug'] ?? '', $artist['image_url'] ?? null); ?>
+                        <a href="/artist/<?= htmlspecialchars($artist['slug'] ?? '') ?>" class="group sp-card border border-white/5">
+                            <div class="aspect-square rounded-full overflow-hidden mb-4 border-2 border-zinc-800 group-hover:border-emerald-500 transition-all shadow-xl relative">
+                                <img src="<?= htmlspecialchars($artistImg) ?>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                            </div>
+                            <div class="font-black text-sm truncate text-white text-center group-hover:text-emerald-400 transition-colors"><?= htmlspecialchars($artist['name'] ?? 'Partner') ?></div>
+                        </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <p class="text-zinc-500 italic">No partners identified in recent rotation.</p>
+                <?php endif; ?>
+            </section>
+
             <!-- Latest Posts -->
             <section>
-                <h2 class="text-3xl font-black mb-8 tracking-tight">Station News</h2>
+                <h2 class="text-3xl font-black mb-8 tracking-tight text-white">Station News</h2>
                 <?php if (!empty($entity['posts'])): ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <?php foreach ($entity['posts'] as $post): ?>
                         <?php 
-                            $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
-                            if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
-                                $postImg = "/uploads/{$postImg}";
-                            }
+                            $postImg = post_image($post['featured_image_url'] ?? '');
                         ?>
                         <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col bg-zinc-900/30 rounded-2xl overflow-hidden border border-white/5 hover:border-emerald-500 transition-all">
                             <div class="aspect-video relative overflow-hidden">
@@ -136,6 +156,9 @@ $scores = $station['scores'] ?? ['Score' => 0];
 
         <!-- Sidebar Info -->
         <div class="lg:col-span-4 space-y-12">
+            <?php 
+                if (!empty($entity['audit'])) render_audit_section($entity['audit']);
+            ?>
             <!-- About -->
             <section class="sp-card border border-white/5 p-8">
                 <h2 class="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">Profile</h2>

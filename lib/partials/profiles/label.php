@@ -57,10 +57,10 @@ $scores = $label['scores'] ?? ['Score' => 0];
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 px-4">
         <div class="lg:col-span-8 space-y-20">
             
-            <!-- Artist Roster -->
+            <!-- Partner Roster -->
             <section>
                 <div class="flex items-center justify-between mb-8">
-                    <h2 class="text-3xl font-black tracking-tight text-white">The Roster</h2>
+                    <h2 class="text-3xl font-black tracking-tight text-white">The Partners</h2>
                 </div>
                 <?php if (!empty($label['roster'])): ?>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -71,12 +71,12 @@ $scores = $label['scores'] ?? ['Score' => 0];
                                 <img src="<?= htmlspecialchars($artistImg) ?>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
                                 <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                             </div>
-                            <div class="font-black text-sm truncate text-white text-center group-hover:text-blue-400 transition-colors"><?= htmlspecialchars($artist['name'] ?? 'Artist') ?></div>
+                            <div class="font-black text-sm truncate text-white text-center group-hover:text-blue-400 transition-colors"><?= htmlspecialchars($artist['name'] ?? 'Partner') ?></div>
                         </a>
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <?php render_profile_upsell("Artist Roster", "Unify your roster on the Sovereign Alliance. Aggregate your artists' scores, monitor collective reach, and optimize institutional growth.", $isClaimed, $labelSlug); ?>
+                    <?php render_profile_upsell("Partner Roster", "Unify your roster on the alliance. Aggregate your partners' scores, monitor collective reach, and optimize strategic growth.", $isClaimed, $labelSlug); ?>
                 <?php endif; ?>
             </section>
 
@@ -89,10 +89,7 @@ $scores = $label['scores'] ?? ['Score' => 0];
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
                         <?php foreach ($label['releases'] as $release): ?>
                         <?php 
-                            $releaseImg = ($release['cover_image_url'] ?? $release['cover_url'] ?? '') ?: DEFAULT_AVATAR; 
-                            if ($releaseImg && !str_starts_with($releaseImg, 'http') && !str_starts_with($releaseImg, '/')) {
-                                $releaseImg = "/uploads/releases/{$releaseImg}";
-                            }
+                            $releaseImg = release_image($release['cover_image_url'] ?? $release['cover_url'] ?? '', null); 
                         ?>
                         <div class="group">
                             <div class="aspect-square rounded-2xl overflow-hidden mb-4 shadow-2xl relative border border-white/5 group-hover:border-blue-500 transition-colors">
@@ -105,21 +102,18 @@ $scores = $label['scores'] ?? ['Score' => 0];
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <?php render_profile_upsell("Catalog Management", "Showcase your entire catalog. Link merchandise, track royalties, and use our AI Coach to find the perfect release timing.", $isClaimed, $labelSlug); ?>
+                    <?php render_profile_upsell("Catalog Management", "Showcase your entire catalog. Link merchandise, track royalties, and use our AI Analyst to find the perfect release timing.", $isClaimed, $labelSlug); ?>
                 <?php endif; ?>
             </section>
 
             <!-- Latest Posts -->
             <section>
-                <h2 class="text-3xl font-black mb-8 tracking-tight">Press & News</h2>
+                <h2 class="text-3xl font-black mb-8 tracking-tight text-white">Press & News</h2>
                 <?php if (!empty($entity['posts'])): ?>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <?php foreach ($entity['posts'] as $post): ?>
                         <?php 
-                            $postImg = $post['featured_image_url'] ?? DEFAULT_AVATAR;
-                            if ($postImg && !str_starts_with($postImg, 'http') && !str_starts_with($postImg, '/')) {
-                                $postImg = "/uploads/{$postImg}";
-                            }
+                            $postImg = post_image($post['featured_image_url'] ?? '');
                         ?>
                         <a href="/post/<?= htmlspecialchars($post['slug'] ?? $post['id']) ?>" class="group flex flex-col bg-zinc-900/30 rounded-2xl overflow-hidden border border-white/5 hover:border-blue-500 transition-all">
                             <div class="aspect-video relative overflow-hidden">
@@ -133,7 +127,7 @@ $scores = $label['scores'] ?? ['Score' => 0];
                         <?php endforeach; ?>
                     </div>
                 <?php else: ?>
-                    <?php render_profile_upsell("Label News Feed", "Publish label updates, signing announcements, and tour press releases directly to your followers.", $isClaimed, $labelSlug); ?>
+                    <?php render_profile_upsell("Market Reports", "Publish label updates, signing announcements, and tour press releases directly to your followers.", $isClaimed, $labelSlug); ?>
                 <?php endif; ?>
             </section>
 
@@ -141,6 +135,9 @@ $scores = $label['scores'] ?? ['Score' => 0];
 
         <!-- Sidebar Info -->
         <div class="lg:col-span-4 space-y-12">
+            <?php 
+                if (!empty($entity['audit'])) render_audit_section($entity['audit']);
+            ?>
             <!-- About -->
             <section class="sp-card border border-white/5 p-8">
                 <h2 class="text-xs font-black text-zinc-500 uppercase tracking-[0.3em] mb-6">About</h2>
