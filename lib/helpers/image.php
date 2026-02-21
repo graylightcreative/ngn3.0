@@ -1,8 +1,7 @@
 <?php
 /**
- * Authoritative Image Resolution Helper - Aggressive Discovery v3
- * Resolves images by searching known compartmentalized directories.
- * This version prioritizes SLUG discovery if image_url is empty.
+ * Authoritative Image Resolution Helper - Absolute Robustness v2
+ * Bible Ref: Chapter 10 (Writer Engine) // Image Integrity
  */
 
 if (!function_exists('resolve_ngn_image')) {
@@ -16,46 +15,68 @@ if (!function_exists('resolve_ngn_image')) {
         $default = $defaults[$type] ?? $defaults['post'];
         $projectRoot = dirname(__DIR__, 2);
 
-        // 1. Define base directories to search
-        $baseDirs = [
-            'post'    => ['/lib/images/posts/', '/uploads/posts/'],
-            'user'    => ['/lib/images/users/', '/lib/images/labels/', '/lib/images/stations/', '/lib/images/venues/'],
-            'release' => ['/lib/images/releases/', '/uploads/releases/']
+        // 1. Define SEARCH MATRIX (Relative to project root)
+        $searchMatrix = [
+            'post' => [
+                '/public/lib/images/posts/',
+                '/lib/images/posts/',
+                '/public/uploads/posts/',
+                '/storage/uploads/posts/',
+                '/public/uploads/',
+                '/storage/uploads/'
+            ],
+            'user' => [
+                '/public/lib/images/users/',
+                '/lib/images/users/',
+                '/public/lib/images/labels/',
+                '/lib/images/labels/',
+                '/public/lib/images/stations/',
+                '/lib/images/stations/',
+                '/public/lib/images/venues/',
+                '/lib/images/venues/',
+                '/public/lib/images/artists/',
+                '/lib/images/artists/',
+                '/public/uploads/users/',
+                '/storage/uploads/users/'
+            ],
+            'release' => [
+                '/public/lib/images/releases/',
+                '/lib/images/releases/',
+                '/public/uploads/releases/',
+                '/storage/uploads/releases/'
+            ]
         ];
 
-        $dirs = $baseDirs[$type] ?? $baseDirs['post'];
+        $dirs = $searchMatrix[$type] ?? $searchMatrix['post'];
 
-        // 2. FILENAME RESOLUTION (If provided)
+        // 2. FILENAME RESOLUTION
         if (!empty($filename) && !str_starts_with($filename, 'http')) {
             $cleanName = basename($filename);
-            
             foreach ($dirs as $dir) {
-                $paths = [];
-                if ($slug) $paths[] = $dir . $slug . '/' . $cleanName;
-                $paths[] = $dir . $cleanName;
+                $candidates = [];
+                if ($slug) $candidates[] = $projectRoot . $dir . $slug . '/' . $cleanName;
+                $candidates[] = $projectRoot . $dir . $cleanName;
 
-                foreach ($paths as $relPath) {
-                    if (file_exists($projectRoot . '/public' . $relPath) || file_exists($projectRoot . $relPath)) {
-                        return $relPath;
+                foreach ($candidates as $absPath) {
+                    if (file_exists($absPath)) {
+                        $webPath = str_replace([$projectRoot . '/public', $projectRoot], '', $absPath);
+                        return '/' . ltrim($webPath, '/');
                     }
                 }
             }
         }
 
-        // 3. AGGRESSIVE SLUG DISCOVERY (Fallback or Primary if filename empty)
-        // If DB has no image_url, we scan the slug directory for ANY valid image.
+        // 3. SLUG-BASED DISCOVERY (FALLBACK)
         if ($slug) {
             foreach ($dirs as $dir) {
                 $slugDir = $projectRoot . $dir . $slug;
-                if (!is_dir($slugDir)) {
-                    $slugDir = $projectRoot . '/public' . $dir . $slug;
-                }
-
                 if (is_dir($slugDir)) {
                     $files = scandir($slugDir);
                     foreach ($files as $f) {
                         if ($f[0] !== '.' && preg_match('/\.(jpg|jpeg|png|webp|gif)$/i', $f)) {
-                            return $dir . $slug . '/' . $f;
+                            $absPath = $slugDir . '/' . $f;
+                            $webPath = str_replace([$projectRoot . '/public', $projectRoot], '', $absPath);
+                            return '/' . ltrim($webPath, '/');
                         }
                     }
                 }

@@ -1317,16 +1317,18 @@ if ($view === 'post' && !empty($data['post'])) {
           <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
             <?php foreach ($data['trending_artists'] as $artist): ?>
             <?php 
-                $artistImg = user_image($artist['slug'] ?? '', $artist['image_url'] ?? '');
+                $artSlug = $artist['slug'] ?? $artist['Slug'] ?? '';
+                $artImg  = $artist['image_url'] ?? $artist['Image'] ?? '';
+                $artistImg = user_image($artSlug, $artImg);
             ?>
-            <a href="/artist/<?= htmlspecialchars($artist['slug'] ?? $artist['id']) ?>" class="group sp-card border border-white/5 flex flex-col">
+            <a href="/artist/<?= htmlspecialchars($artSlug ?: $artist['id']) ?>" class="group sp-card border border-white/5 flex flex-col">
               <div class="relative aspect-square mb-4 shadow-2xl">
                 <img src="<?= htmlspecialchars($artistImg) ?>" alt="" class="w-full h-full object-cover rounded-xl bg-zinc-800 shadow-xl group-hover:scale-[1.02] transition-transform duration-500" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
                 <button class="absolute bottom-3 right-3 w-12 h-12 bg-brand text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-xl shadow-black/40">
                     <i class="bi-play-fill text-2xl"></i>
                 </button>
               </div>
-              <div class="font-black truncate text-white"><?= htmlspecialchars($artist['name'] ?? 'Unknown Artist') ?></div>
+              <div class="font-black truncate text-white"><?= htmlspecialchars($artist['name'] ?? $artist['Name'] ?? 'Unknown Artist') ?></div>
               <div class="text-xs font-bold text-zinc-500 uppercase tracking-tighter mt-1"><?= htmlspecialchars($artist['engagement_count'] ?? '0') ?> signals</div>
             </a>
             <?php endforeach; ?>
@@ -1344,13 +1346,15 @@ if ($view === 'post' && !empty($data['post'])) {
           <div class="grid grid-cols-3 md:grid-cols-6 gap-6">
             <?php foreach ($data['labels'] as $label): ?>
             <?php 
-                $labelImg = user_image($label['slug'] ?? '', $label['image_url'] ?? '');
+                $labSlug = $label['slug'] ?? $label['Slug'] ?? '';
+                $labImg  = $label['image_url'] ?? $label['Image'] ?? '';
+                $labelImg = user_image($labSlug, $labImg);
             ?>
-            <a href="/label/<?= htmlspecialchars($label['slug'] ?? $label['id']) ?>" class="group text-center">
+            <a href="/label/<?= htmlspecialchars($labSlug ?: $label['id']) ?>" class="group text-center">
               <div class="relative w-full aspect-square mb-3">
                 <img src="<?= htmlspecialchars($labelImg) ?>" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
               </div>
-              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($label['name'] ?? 'Unknown Label') ?></div>
+              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($label['name'] ?? $label['Name'] ?? 'Unknown Label') ?></div>
             </a>
             <?php endforeach; ?>
           </div>
@@ -1486,17 +1490,19 @@ if ($view === 'post' && !empty($data['post'])) {
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
           <?php foreach ($items as $item): ?>
           <?php
-            $imgUrl = user_image($item['slug'] ?? '', $item['image_url'] ?? null);
+            $itemSlug = $item['slug'] ?? $item['Slug'] ?? '';
+            $itemImg  = $item['image_url'] ?? $item['Image'] ?? null;
+            $imgUrl   = user_image($itemSlug, $itemImg);
           ?>
-          <a href="/<?= rtrim($view, 's') ?>/<?= htmlspecialchars($item['slug'] ?? $item['id']) ?>" class="group sp-card border border-white/5">
+          <a href="/<?= rtrim($view, 's') ?>/<?= htmlspecialchars($itemSlug ?: ($item['id'] ?? '')) ?>" class="group sp-card border border-white/5">
             <div class="aspect-square mb-4 shadow-2xl relative">
                 <img src="<?= htmlspecialchars($imgUrl) ?>" alt="" class="w-full h-full object-cover <?= $view === 'labels' ? 'rounded-full' : 'rounded-xl' ?> bg-zinc-800 shadow-xl group-hover:scale-[1.02] transition-transform duration-500" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
                 <button class="absolute bottom-2 right-2 w-10 h-10 bg-brand text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
                     <i class="bi-play-fill text-xl"></i>
                 </button>
             </div>
-            <div class="font-black text-sm truncate text-white"><?= htmlspecialchars($item['name'] ?? $item['title'] ?? 'Unknown') ?></div>
-            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($item['city'] ?? 'Active') ?></div>
+            <div class="font-black text-sm truncate text-white"><?= htmlspecialchars($item['name'] ?? $item['Name'] ?? $item['title'] ?? 'Unknown') ?></div>
+            <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($item['city'] ?? $item['City'] ?? 'Active') ?></div>
           </a>
           <?php endforeach; ?>
         </div>

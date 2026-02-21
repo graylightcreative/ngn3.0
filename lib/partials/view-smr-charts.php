@@ -42,7 +42,10 @@ $smrDate = $data['smr_date'] ?? 'N/A';
                         </td>
                         <td class="px-8 py-6">
                             <div class="flex items-center gap-6">
-                                <img src="<?= htmlspecialchars($row['artist']['image_url'] ?? DEFAULT_AVATAR) ?>" class="w-12 h-12 rounded-lg object-cover shadow-xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                                <?php 
+                                    $rowImg = user_image($row['artist']['slug'] ?? '', $row['artist']['image_url'] ?? null);
+                                ?>
+                                <img src="<?= htmlspecialchars($rowImg) ?>" class="w-12 h-12 rounded-lg object-cover shadow-xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
                                 <div>
                                     <div class="font-black text-white group-hover:text-[#FF5F1F] transition-colors"><?= htmlspecialchars($row['Song']) ?></div>
                                     <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1"><?= htmlspecialchars($row['artist']['name']) ?></div>

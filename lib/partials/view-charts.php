@@ -38,9 +38,12 @@ $rankings = ($chartType === 'labels') ? ($data['label_rankings'] ?? []) : ($data
                     </td>
                     <td class="px-8 py-6">
                         <div class="flex items-center gap-6">
-                            <img src="<?= htmlspecialchars($item['image_url'] ?? DEFAULT_AVATAR) ?>" class="w-14 h-14 rounded-xl object-cover shadow-2xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
+                            <?php 
+                                $itemImg = user_image($item['slug'] ?? $item['Slug'] ?? '', $item['image_url'] ?? $item['Image'] ?? null);
+                            ?>
+                            <img src="<?= htmlspecialchars($itemImg) ?>" class="w-14 h-14 rounded-xl object-cover shadow-2xl group-hover:scale-105 transition-transform" onerror="this.src='<?= DEFAULT_AVATAR ?>'">
                             <div>
-                                <div class="font-black text-white text-lg group-hover:text-[#FF5F1F] transition-colors"><?= htmlspecialchars($item['Name'] ?? 'Unknown') ?></div>
+                                <div class="font-black text-white text-lg group-hover:text-[#FF5F1F] transition-colors"><?= htmlspecialchars($item['Name'] ?? $item['name'] ?? 'Unknown') ?></div>
                                 <div class="text-[10px] font-black text-zinc-500 uppercase tracking-widest mt-1">Active Signaling</div>
                             </div>
                         </div>
