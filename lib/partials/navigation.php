@@ -55,6 +55,17 @@
                 <i class="bi-megaphone-fill text-2xl <?= $view === 'advertisers' ? 'text-[#FF5F1F]' : '' ?>"></i> Advertisers
             </a>
         </nav>
+
+        <!-- PWA SOVEREIGN CTA -->
+        <div class="mt-10">
+            <button onclick="window.NGN_PWA.install()" class="w-full py-4 bg-zinc-900 hover:bg-zinc-800 text-white rounded-2xl border border-white/5 flex flex-col items-center gap-2 group transition-all">
+                <div class="flex items-center gap-3">
+                    <i class="bi-phone text-xl text-[#FF5F1F] group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[10px] font-black uppercase tracking-[0.2em]">Deploy_Sovereign_App</span>
+                </div>
+                <span class="text-[8px] font-bold text-zinc-600 uppercase tracking-widest">The Spotify Killer // v3.0.0</span>
+            </button>
+        </div>
     </div>
 
     <!-- SIDEBAR BILLBOARD (Ad Engine) -->
