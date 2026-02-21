@@ -635,7 +635,7 @@ if ($pdo) {
             ];
         } elseif ($view === 'post' && (isset($_GET['slug']) || isset($_GET['id']))) {
             $identifier = trim($_GET['slug'] ?? $_GET['id']);
-            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, tags, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :slug OR id = :id) AND status = :status LIMIT 1');
+            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :slug OR id = :id) AND status = :status LIMIT 1');
             $stmt->execute([':slug' => $identifier, ':id' => $identifier, ':status' => 'published']);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -803,8 +803,13 @@ if ($pdo) {
                     $entity['collaborators'] = []; // Placeholder
 
                     // Get artist mentions/references in posts
-                    $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE author_id = :authorId OR (title LIKE :namePattern1 OR content LIKE :namePattern2 OR tags LIKE :namePattern3) ORDER BY published_at DESC LIMIT 20');
-                    $stmt->execute([':authorId' => $entity['id'], ':namePattern1' => '%' . $entity['name'] . '%', ':namePattern2' => '%' . $entity['name'] . '%', ':namePattern3' => '%' . $entity['name'] . '%']);
+                                        $stmt = $pdo->prepare('SELECT id, slug, title, published_at FROM `ngn_2025`.`posts` WHERE author_id = :authorId OR (title LIKE :namePattern1 OR content LIKE :namePattern2) ORDER BY published_at DESC LIMIT 20');
+                                        $stmt->execute([
+                                            ':authorId' => $entity['id'],
+                                            ':namePattern1' => '%' . $entity['name'] . '%',
+                                            ':namePattern2' => '%' . $entity['name'] . '%'
+                                        ]);
+                    
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Get label information
@@ -855,14 +860,14 @@ if ($pdo) {
                     $entity['videos'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
 
                     // Posts mentioning this label
-                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = :labelId1) OR (author_id = :labelId2) OR (title LIKE :labelNamePattern1 OR content LIKE :labelNamePattern2 OR tags LIKE :labelNamePattern3) ORDER BY published_at DESC LIMIT 20');
-                    $stmt->execute([
-                        ':labelId1' => $entity['id'], 
-                        ':labelId2' => $entity['id'], 
-                        ':labelNamePattern1' => '%' . $entity['name'] . '%',
-                        ':labelNamePattern2' => '%' . $entity['name'] . '%',
-                        ':labelNamePattern3' => '%' . $entity['name'] . '%'
-                    ]);
+                                        $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "label" AND entity_id = :labelId1) OR (author_id = :labelId2) OR (title LIKE :labelNamePattern1 OR content LIKE :labelNamePattern2) ORDER BY published_at DESC LIMIT 20');
+                                        $stmt->execute([
+                                            ':labelId1' => $entity['id'],
+                                            ':labelId2' => $entity['id'],
+                                            ':labelNamePattern1' => '%' . $entity['name'] . '%',
+                                            ':labelNamePattern2' => '%' . $entity['name'] . '%'
+                                        ]);
+                    
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
 
@@ -917,14 +922,14 @@ if ($pdo) {
                     }
 
                     // Posts mentioning this station
-                    $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = :stationId1) OR (author_id = :stationId2) OR (title LIKE :stationNamePattern1 OR content LIKE :stationNamePattern2 OR tags LIKE :stationNamePattern3) ORDER BY published_at DESC LIMIT 10');
-                    $stmt->execute([
-                        ':stationId1' => $entity['id'], 
-                        ':stationId2' => $entity['id'], 
-                        ':stationNamePattern1' => '%' . $entity['name'] . '%',
-                        ':stationNamePattern2' => '%' . $entity['name'] . '%',
-                        ':stationNamePattern3' => '%' . $entity['name'] . '%'
-                    ]);
+                                        $stmt = $pdo->prepare('SELECT id, slug, title, COALESCE(content, excerpt) as body, featured_image_url, published_at FROM `ngn_2025`.`posts` WHERE (entity_type = "station" AND entity_id = :stationId1) OR (author_id = :stationId2) OR (title LIKE :stationNamePattern1 OR content LIKE :stationNamePattern2) ORDER BY published_at DESC LIMIT 10');
+                                        $stmt->execute([
+                                            ':stationId1' => $entity['id'],
+                                            ':stationId2' => $entity['id'],
+                                            ':stationNamePattern1' => '%' . $entity['name'] . '%',
+                                            ':stationNamePattern2' => '%' . $entity['name'] . '%'
+                                        ]);
+                    
                     $entity['posts'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
                 }
 
