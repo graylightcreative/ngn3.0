@@ -1333,71 +1333,102 @@ if ($view === 'post' && !empty($data['post'])) {
         $featuredPosts = get_ngn_posts($pdo, '', 1, 4);
         ?>
         <?php include 'hero_new.php'; ?>
-        <!-- Stats Grid (Spotify-style cards) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
-          <div class="sp-card border border-white/5">
-            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Artists</div>
-            <div class="text-4xl font-black text-white"><?= number_format($counts['artists']) ?></div>
+        <!-- High-Velocity Stats Ticker -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+          <div class="bg-white/5 border border-white/5 p-6 rounded-2xl group hover:border-brand/30 transition-all">
+            <div class="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2 group-hover:text-brand transition-colors">Artists_In_Fleet</div>
+            <div class="text-3xl font-black text-white leading-none"><?= number_format($counts['artists']) ?></div>
           </div>
-          <div class="sp-card border border-white/5">
-            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Labels</div>
-            <div class="text-4xl font-black text-white"><?= number_format($counts['labels']) ?></div>
+          <div class="bg-white/5 border border-white/5 p-6 rounded-2xl group hover:border-brand/30 transition-all">
+            <div class="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2 group-hover:text-brand transition-colors">Institutional_Labels</div>
+            <div class="text-3xl font-black text-white leading-none"><?= number_format($counts['labels']) ?></div>
           </div>
-          <div class="sp-card border border-white/5">
-            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Stations</div>
-            <div class="text-4xl font-black text-white"><?= number_format($counts['stations']) ?></div>
+          <div class="bg-white/5 border border-white/5 p-6 rounded-2xl group hover:border-brand/30 transition-all">
+            <div class="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2 group-hover:text-brand transition-colors">Broadcasting_Stations</div>
+            <div class="text-3xl font-black text-white leading-none"><?= number_format($counts['stations']) ?></div>
           </div>
-          <div class="sp-card border border-white/5">
-            <div class="text-sm font-black text-zinc-500 uppercase tracking-widest mb-2">Venues</div>
-            <div class="text-4xl font-black text-white"><?= number_format($counts['venues']) ?></div>
+          <div class="bg-white/5 border border-white/5 p-6 rounded-2xl group hover:border-brand/30 transition-all">
+            <div class="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-2 group-hover:text-brand transition-colors">Verified_Venues</div>
+            <div class="text-3xl font-black text-white leading-none"><?= number_format($counts['venues']) ?></div>
           </div>
         </div>
 
-        <!-- Stream Now Section -->
-        <?php if (!empty($data['songs'])): ?>
-        <section class="mb-12">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-black tracking-tight text-white">Stream Now</h2>
-            <a href="/songs" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
+        <!-- Pressurized Discovery -->
+        <section class="mb-16">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-3xl font-black tracking-tight text-white uppercase italic">Sovereign_Discovery</h2>
+            <div class="h-px flex-1 bg-white/5 mx-8"></div>
+            <a href="/releases" class="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-widest transition-colors">View_Archive</a>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Featured Station -->
-            <div class="sp-card border border-brand/30 bg-brand/5 flex flex-col justify-center p-8 relative overflow-hidden group cursor-pointer"
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Featured Station: THE RAGE -->
+            <div class="relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-brand/20"
                  data-play-track
                  data-track-url="https://ice1.somafm.com/groovesalad-256-mp3"
                  data-track-title="The Rage Online"
-                 data-track-artist="Live Radio"
-                 data-track-art="/lib/images/site/radio-icon.jpg">
-                <div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-1000">
-                    <i class="bi-broadcast text-9xl text-brand"></i>
-                </div>
-                <div class="text-[10px] font-black text-brand uppercase tracking-[0.2em] mb-2">Currently On Air</div>
-                <h3 class="text-2xl font-black text-white mb-4">The Rage Online</h3>
-                <button class="bg-brand text-black w-12 h-12 rounded-full flex items-center justify-center shadow-xl">
-                    <i class="bi-play-fill text-2xl"></i>
-                </button>
-            </div>
-
-            <?php foreach (array_slice($data['songs'], 0, 2) as $song): ?>
-            <div class="group sp-card border border-white/5 flex items-center gap-6 cursor-pointer"
-                 data-play-track
-                 data-track-url="<?= htmlspecialchars($song['mp3_url'] ?? '') ?>"
-                 data-track-title="<?= htmlspecialchars($song['title'] ?? 'Unknown Track') ?>"
-                 data-track-artist="<?= htmlspecialchars($song['artist_name'] ?? 'NGN Artist') ?>"
-                 data-track-art="<?= htmlspecialchars($song['cover_url'] ?? DEFAULT_AVATAR) ?>">
-                <div class="relative w-20 h-20 flex-shrink-0 shadow-2xl">
-                    <img src="<?= htmlspecialchars(($song['cover_url'] ?? null) ?: DEFAULT_AVATAR) ?>" class="w-full h-full object-cover rounded-lg">
-                    <div class="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                        <i class="bi-play-fill text-3xl text-white"></i>
+                 data-track-artist="Sovereign Broadcast"
+                 data-track-art="/lib/images/users/the-rage-online/The Rage Slash Bitly.png">
+                <img src="/lib/images/users/the-rage-online/The Rage Slash Bitly.png" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="w-2 h-2 bg-brand rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-black text-brand uppercase tracking-widest">Live_Signal</span>
+                    </div>
+                    <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">The Rage<br>Online</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Institutional Radio</span>
+                        <div class="w-12 h-12 bg-brand text-black rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-all">
+                            <i class="bi-play-fill text-2xl ml-1"></i>
+                        </div>
                     </div>
                 </div>
-                <div class="flex-1 min-w-0">
-                    <div class="font-black text-white text-lg truncate"><?= htmlspecialchars($song['title'] ?? 'Untitled') ?></div>
-                    <div class="text-zinc-500 font-bold uppercase tracking-widest text-[10px] mt-1"><?= htmlspecialchars($song['artist_name'] ?? 'Unknown Artist') ?></div>
+            </div>
+
+            <!-- New Release: Heroes and Villains -->
+            <div class="relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5"
+                 data-play-track
+                 data-track-id="1"
+                 data-track-title="Evermore"
+                 data-track-artist="Heroes and Villains"
+                 data-track-art="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg">
+                <img src="/lib/images/releases/heroes-and-villains/evermore-single-cover-1200x1200.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                    <div class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">New_Drop</div>
+                    <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Evermore</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Heroes and Villains</span>
+                        <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-all">
+                            <i class="bi-play-fill text-2xl ml-1"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <?php endforeach; ?>
+
+            <!-- New Release: Heroes and Villains #2 -->
+            <div class="relative aspect-square rounded-[2rem] overflow-hidden group cursor-pointer border border-white/5"
+                 data-play-track
+                 data-track-id="2"
+                 data-track-title="Alone Together"
+                 data-track-artist="Heroes and Villains"
+                 data-track-art="/lib/images/posts/heroes-and-villains/from-the-wastelands-heart-a-new-anthem-alone-together-arrives-november-29th.jpg">
+                <img src="/lib/images/posts/heroes-and-villains/from-the-wastelands-heart-a-new-anthem-alone-together-arrives-november-29th.jpg" class="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110">
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent"></div>
+                <div class="absolute inset-0 p-8 flex flex-col justify-end">
+                    <div class="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3">Trending_Now</div>
+                    <h3 class="text-3xl font-black text-white uppercase tracking-tighter mb-4">Alone Together</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[9px] font-black text-white/40 uppercase tracking-[0.3em]">Heroes and Villains</span>
+                        <div class="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-all">
+                            <i class="bi-play-fill text-2xl ml-1"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
           </div>
+        </section>
         </section>
         <?php endif; ?>
 
@@ -1429,30 +1460,63 @@ if ($view === 'post' && !empty($data['post'])) {
         </section>
         <?php endif; ?>
 
-        <!-- Top Labels -->
-        <?php if (!empty($data['labels'])): ?>
-        <section class="mb-12">
-          <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl font-black tracking-tight text-white">Top Labels</h2>
-            <a href="/labels" class="text-sm font-black text-zinc-500 hover:text-white uppercase tracking-widest">Show All</a>
-          </div>
-          <div class="grid grid-cols-3 md:grid-cols-6 gap-6">
-            <?php foreach ($data['labels'] as $label): ?>
-            <?php 
-                $labSlug = $label['slug'] ?? $label['Slug'] ?? '';
-                $labImg  = $label['image_url'] ?? $label['Image'] ?? '';
-                $labelImg = user_image($labSlug, $labImg);
-            ?>
-            <a href="/label/<?= htmlspecialchars($labSlug ?: $label['id']) ?>" class="group text-center">
-              <div class="relative w-full aspect-square mb-3">
-                <img src="<?= htmlspecialchars($labelImg) ?>" alt="" class="w-full h-full object-cover rounded-full bg-zinc-800 shadow-xl group-hover:scale-105 transition-all duration-500 border-4 border-transparent group-hover:border-brand/20" onerror="this.onerror=null;this.src='<?= DEFAULT_AVATAR ?>'">
-              </div>
-              <div class="text-sm font-black truncate text-white group-hover:text-brand transition-colors"><?= htmlspecialchars($label['name'] ?? $label['Name'] ?? 'Unknown Label') ?></div>
-            </a>
-            <?php endforeach; ?>
-          </div>
+        <!-- NGN Onboarding Hub (Institutional B2B) -->
+        <section class="mb-24 mt-24">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl lg:text-6xl font-black tracking-tighter text-white uppercase italic mb-4">Join_The_Movement</h2>
+                <p class="text-zinc-500 font-mono text-sm">Select your role to deploy your infrastructure.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+                <!-- Fan Acquisition -->
+                <div class="bg-brand p-12 rounded-[2.5rem] flex flex-col justify-between group shadow-2xl shadow-brand/10">
+                    <div>
+                        <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center text-brand mb-8 group-hover:scale-110 transition-transform">
+                            <i class="bi bi-person-heart text-3xl"></i>
+                        </div>
+                        <h3 class="text-4xl font-black text-black uppercase tracking-tighter mb-4 leading-none">I_am_a_Fan</h3>
+                        <p class="text-black/70 font-bold text-lg mb-8 leading-tight">Support your favorite artists directly. Access exclusive content, verified charts, and private community bunkers.</p>
+                    </div>
+                    <a href="/register.php" class="inline-block w-full py-5 bg-black text-white text-center font-black uppercase tracking-widest text-xs rounded-full hover:scale-[1.02] transition-all">Sign_Up_As_Fan</a>
+                </div>
+
+                <!-- Professional Roles (Tabs/Grid) -->
+                <div class="grid grid-cols-1 gap-4">
+                    <!-- Artists -->
+                    <div class="bg-zinc-900/50 border border-white/5 p-8 rounded-3xl flex items-center justify-between group hover:border-brand/30 transition-all">
+                        <div>
+                            <h4 class="text-xl font-black text-white uppercase tracking-tight mb-1">Artists</h4>
+                            <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest">Claim profile & distribute content</p>
+                        </div>
+                        <a href="/help?role=artist" class="px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-brand hover:text-black hover:border-brand transition-all">Claim_Now</a>
+                    </div>
+                    <!-- Labels -->
+                    <div class="bg-zinc-900/50 border border-white/5 p-8 rounded-3xl flex items-center justify-between group hover:border-brand/30 transition-all">
+                        <div>
+                            <h4 class="text-xl font-black text-white uppercase tracking-tight mb-1">Labels</h4>
+                            <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest">Deploy institutional catalog</p>
+                        </div>
+                        <a href="/register.php?role=label" class="px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-brand hover:text-black hover:border-brand transition-all">Institutional_Signup</a>
+                    </div>
+                    <!-- Stations -->
+                    <div class="bg-zinc-900/50 border border-white/5 p-8 rounded-3xl flex items-center justify-between group hover:border-brand/30 transition-all">
+                        <div>
+                            <h4 class="text-xl font-black text-white uppercase tracking-tight mb-1">Stations</h4>
+                            <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest">Broadcast & track radio spins</p>
+                        </div>
+                        <a href="/register.php?role=station" class="px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-brand hover:text-black hover:border-brand transition-all">Get_Airwaves</a>
+                    </div>
+                    <!-- Venues -->
+                    <div class="bg-zinc-900/50 border border-white/5 p-8 rounded-3xl flex items-center justify-between group hover:border-brand/30 transition-all">
+                        <div>
+                            <h4 class="text-xl font-black text-white uppercase tracking-tight mb-1">Venues</h4>
+                            <p class="text-xs text-zinc-500 font-bold uppercase tracking-widest">Secure show bookings & ticketing</p>
+                        </div>
+                        <a href="/help?role=venue" class="px-6 py-3 bg-white/5 border border-white/10 text-white text-[10px] font-black uppercase tracking-widest rounded-full hover:bg-brand hover:text-black hover:border-brand transition-all">Claim_Venue</a>
+                    </div>
+                </div>
+            </div>
         </section>
-        <?php endif; ?>
 
         <!-- Latest News -->
         <?php if (!empty($data['posts'])): ?>
