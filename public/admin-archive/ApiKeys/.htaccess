@@ -1,9 +1,0 @@
-Options +FollowSymLinks -MultiViews -indexes
-RewriteEngine On
-
-RewriteRule ^add add.php [QSA,L]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^edit/(.*)$ edit.php?id=$1 [QSA]
-RewriteRule ^delete/(.*)$ delete.php?id=$1 [QSA]
