@@ -53,10 +53,22 @@ $scores = $artist['scores'] ?? ['Score' => 0];
                         <span class="px-3 py-1 bg-brand text-black text-[10px] font-black uppercase tracking-[0.2em] rounded-full">Verified Artist</span>
                         <button onclick="openDisputeModal('artist', <?= $artist['id'] ?>)" class="px-3 py-1 bg-white/5 text-zinc-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-red-500 hover:text-white transition-all">Dispute Claim</button>
                     <?php else: ?>
-                        <a href="/claim-profile.php?slug=<?= urlencode($artistSlug) ?>" class="px-3 py-1 bg-white/10 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full border border-white/10 hover:bg-brand hover:text-black transition-all">Claim Profile</a>
+                        <div class="inline-flex items-center gap-3 px-4 py-2 bg-brand/10 border border-brand/30 rounded-xl">
+                            <i class="bi-shield-lock text-brand animate-pulse"></i>
+                            <span class="text-white text-[10px] font-black uppercase tracking-widest">Ghost_Profile // Unclaimed</span>
+                        </div>
                     <?php endif; ?>
                 </div>
                 <h1 class="text-5xl lg:text-8xl font-black text-white tracking-tighter mb-6 leading-none drop-shadow-2xl"><?= htmlspecialchars($artistName) ?></h1>
+                
+                <?php if (!$isClaimed): ?>
+                <div class="mb-8">
+                    <a href="/claim-profile.php?slug=<?= urlencode($artistSlug) ?>" class="inline-block px-10 py-4 bg-brand text-black font-black uppercase tracking-widest rounded-2xl hover:scale-105 transition-all shadow-2xl shadow-brand/40">
+                        Claim Your Digital Moat
+                    </a>
+                    <p class="text-zinc-500 text-[10px] font-bold uppercase mt-3 italic">Verified artists keep 90% of all Sparks and Merch profit.</p>
+                </div>
+                <?php endif; ?>
                 
                 <div class="flex flex-wrap items-center justify-center md:justify-start gap-8 text-sm font-black text-white/80 uppercase tracking-widest">
                     <div class="flex flex-col">
