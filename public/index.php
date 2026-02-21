@@ -1222,29 +1222,31 @@ if ($view === 'post' && !empty($data['post'])) {
             const resultsBox = document.getElementById('autocomplete-results');
             let debounceTimer;
 
-            searchInput.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                const query = this.value.trim();
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(debounceTimer);
+                    const query = this.value.trim();
 
-                if (query.length < 2) {
-                    autocomplete.classList.add('hidden');
-                    return;
-                }
+                    if (query.length < 2) {
+                        autocomplete.classList.add('hidden');
+                        return;
+                    }
 
-                debounceTimer = setTimeout(() => {
-                    fetch(`/api/v1/search/suggest?q=${encodeURIComponent(query)}`)
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.success && data.data.length > 0) {
-                                renderResults(data.data);
-                                autocomplete.classList.remove('hidden');
-                            } else {
-                                autocomplete.classList.add('hidden');
-                            }
-                        })
-                        .catch(() => autocomplete.classList.add('hidden'));
-                }, 300);
-            });
+                    debounceTimer = setTimeout(() => {
+                        fetch(`/api/v1/search/suggest?q=${encodeURIComponent(query)}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success && data.data.length > 0) {
+                                    renderResults(data.data);
+                                    autocomplete.classList.remove('hidden');
+                                } else {
+                                    autocomplete.classList.add('hidden');
+                                }
+                            })
+                            .catch(() => autocomplete.classList.add('hidden'));
+                    }, 300);
+                });
+            }
 
             function renderResults(items) {
                 resultsBox.innerHTML = items.map(item => {
@@ -1268,32 +1270,13 @@ if ($view === 'post' && !empty($data['post'])) {
 
             // Close on click outside
             document.addEventListener('click', function(e) {
-                if (!document.getElementById('global-search-form').contains(e.target)) {
+                const searchForm = document.getElementById('global-search-form');
+                if (searchForm && !searchForm.contains(e.target)) {
                     autocomplete.classList.add('hidden');
                 }
             });
         });
         </script>
-        
-        <div class="flex items-center gap-6">
-          <a href="/pricing" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Premium</a>
-          <a href="/shop" class="text-sm font-bold text-zinc-400 hover:text-white hover:scale-105 transition-all">Merch</a>
-          <div class="h-8 w-[1px] bg-white/10"></div>
-          <?php if ($isLoggedIn): ?>
-            <div class="flex items-center gap-3">
-                <span class="text-sm font-bold text-white"><?= htmlspecialchars($currentUser['display_name'] ?? $currentUser['Title'] ?? '') ?></span>
-                <button class="w-10 h-10 rounded-full bg-black flex items-center justify-center border border-white/10 hover:scale-105 transition-all overflow-hidden">
-                  <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? $currentUser['username'] ?? '', $currentUser['Image'] ?? $currentUser['avatar_url'] ?? null)) ?>" class="w-full h-full object-cover">
-                </button>
-            </div>
-          <?php else: ?>
-            <div class="flex items-center gap-8">
-              <a href="/register.php" class="text-zinc-400 hover:text-white font-bold text-sm">Sign up</a>
-              <a href="/login.php" class="px-8 py-3 bg-white text-black font-black rounded-full hover:scale-105 transition-all">Log in</a>
-            </div>
-          <?php endif; ?>
-        </div>
-      </header>
 
       <!-- View Wrapper -->
       <div class="px-4 py-6">
