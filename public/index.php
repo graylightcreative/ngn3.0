@@ -1119,11 +1119,7 @@ if ($view === 'post' && !empty($data['post'])) {
         position: relative;
         display: flex;
         flex-direction: column;
-    }
-
-    /* PWA Banner Offset for Sticky Header */
-    #pwa-mobilizer:not(.hidden) + .app-frame header {
-        top: 72px; /* Height of banner */
+        transition: margin-top 0.5s ease;
     }
 
     /* Player Rig Fixes (Mobile Style, Full Width Bar) */
@@ -1246,21 +1242,23 @@ if ($view === 'post' && !empty($data['post'])) {
             <img src="/lib/images/site/2026/NGN-Logo-Full-Light.png" class="h-8 w-auto hidden lg:block" alt="Next Generation Noise">
         </a>
         
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
           <form method="get" action="/" class="relative" id="global-search-form">
-            <input type="text" name="q" id="global-search-input" autocomplete="off" placeholder="Search..." class="w-32 focus:w-48 h-9 pl-4 pr-4 rounded-full bg-zinc-800 border-none text-xs text-white transition-all">
+            <input type="text" name="q" id="global-search-input" autocomplete="off" placeholder="Search..." class="w-24 focus:w-40 md:w-32 md:focus:w-48 h-9 pl-4 pr-4 rounded-full bg-zinc-800 border-none text-[11px] text-white transition-all">
             <div id="search-autocomplete" class="absolute top-full left-0 right-0 mt-2 bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl hidden z-[200] overflow-hidden">
                 <div id="autocomplete-results" class="max-h-[300px] overflow-y-auto py-2"></div>
             </div>
           </form>
           
           <?php if ($isLoggedIn): ?>
-            <button class="w-8 h-8 rounded-full bg-black border border-white/10 overflow-hidden">
+            <button class="w-8 h-8 rounded-full bg-black border border-white/10 overflow-hidden flex-shrink-0">
               <img src="<?= htmlspecialchars(user_image($currentUser['Slug'] ?? $currentUser['username'] ?? '', $currentUser['Image'] ?? $currentUser['avatar_url'] ?? null)) ?>" class="w-full h-full object-cover">
             </button>
-          <?php else: ?>
-            <a href="/login.php" class="text-xs font-black uppercase text-zinc-400">Login</a>
           <?php endif; ?>
+
+          <button onclick="toggleSovereignMenu()" class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white transition-all flex-shrink-0">
+            <i class="bi bi-three-dots-vertical text-xl"></i>
+          </button>
         </div>
       </header>
 
