@@ -8,10 +8,11 @@ if (!function_exists('post_image')) {
     function post_image(?string $filename): string {
         $default = '/lib/images/site/2026/NGN-Emblem-Light.png';
         if (empty($filename)) return $default;
-        if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
+        if (str_starts_with($filename, 'http')) return $filename;
 
         // Strip redundant prefix if DB has 'posts/filename.jpg'
         $cleanName = str_replace('posts/', '', $filename);
+        $cleanName = ltrim($cleanName, '/');
 
         $projectRoot = dirname(__DIR__, 2);
 
@@ -35,19 +36,24 @@ if (!function_exists('user_image')) {
     function user_image(?string $slug, ?string $filename): string {
         $default = '/lib/images/site/2026/default-avatar.png';
         if (empty($filename)) return $default;
-        if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
+        if (str_starts_with($filename, 'http')) return $filename;
 
         $projectRoot = dirname(__DIR__, 2);
 
+        // NGN LOGIC: Many DB paths are hardcoded to /uploads/users/
+        // but files reside in /lib/images/users/ due to compartmentalization.
+        $cleanName = str_replace(['/uploads/users/', '/uploads/'], '', $filename);
+        $cleanName = ltrim($cleanName, '/');
+
         $candidates = [
-            "/lib/images/users/{$slug}/{$filename}",
-            "/lib/images/users/{$filename}",
-            "/uploads/artists/{$slug}/{$filename}",
-            "/uploads/users/{$slug}/{$filename}",
-            "/uploads/{$filename}",
-            "/lib/images/labels/{$filename}",
-            "/lib/images/stations/{$filename}",
-            "/lib/images/venues/{$filename}"
+            "/lib/images/users/{$slug}/" . basename($cleanName),
+            "/lib/images/users/" . $cleanName,
+            "/lib/images/users/" . basename($cleanName),
+            "/uploads/artists/{$slug}/" . basename($cleanName),
+            "/uploads/users/{$slug}/" . basename($cleanName),
+            "/lib/images/labels/" . basename($cleanName),
+            "/lib/images/stations/" . basename($cleanName),
+            "/lib/images/venues/" . basename($cleanName)
         ];
 
         foreach ($candidates as $relPath) {
@@ -64,14 +70,15 @@ if (!function_exists('release_image')) {
     function release_image(?string $filename): string {
         $default = '/lib/images/site/2026/default-avatar.png';
         if (empty($filename)) return $default;
-        if (str_starts_with($filename, 'http') || str_starts_with($filename, '/')) return $filename;
+        if (str_starts_with($filename, 'http')) return $filename;
 
+        $cleanName = ltrim($filename, '/');
         $projectRoot = dirname(__DIR__, 2);
 
         $candidates = [
-            '/uploads/releases/' . $filename,
-            '/lib/images/releases/' . $filename,
-            '/uploads/' . $filename
+            '/uploads/releases/' . basename($cleanName),
+            '/lib/images/releases/' . basename($cleanName),
+            '/uploads/' . $cleanName
         ];
 
         foreach ($candidates as $relPath) {
