@@ -6,6 +6,7 @@
  */
 
 require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../lib/definitions/site-settings.php';
 
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Config;
@@ -161,11 +162,11 @@ function get_trending_artists(PDO $pdo, int $limit = 5): array {
 
 function get_ngn_posts(PDO $pdo, string $search, int $page, int $perPage): array {
     $offset = ($page - 1) * $perPage;
-    $where = "WHERE status = 'published'";
-    if ($search !== '') $where .= " AND title LIKE :search";
+    $where = "WHERE p.status = 'published'";
+    if ($search !== '') $where .= " AND p.title LIKE :search";
     $sql = "SELECT p.*, a.name as author_name FROM `ngn_2025`.`posts` p 
             LEFT JOIN `ngn_2025`.`artists` a ON p.author_id = a.id 
-            {$where} ORDER BY published_at DESC LIMIT :limit OFFSET :offset";
+            {$where} ORDER BY p.published_at DESC LIMIT :limit OFFSET :offset";
     $stmt = $pdo->prepare($sql);
     if ($search !== '') $stmt->bindValue(':search', '%'.$search.'%');
     $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
