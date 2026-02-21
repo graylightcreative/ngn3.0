@@ -4,7 +4,6 @@
 require_once __DIR__ . '/../lib/bootstrap.php'; // Adjust path if register.php is not in root
 
 use App\Lib\Email\Mailer;
-use App\Lib\Auth\AuthService; // Assuming AuthService handles registration logic
 use NGN\Lib\Config;
 use NGN\Lib\Http\{Request, Response, Router, JsonResponse};
 use Monolog\Logger;
@@ -30,8 +29,6 @@ try {
     if (!isset($config) || !($config instanceof Config)) {
          $config = new Config();
     }
-    // Assuming AuthService is available and properly configured for registration
-    $authService = new AuthService($pdo, $logger, $config);
 
 } catch (\Throwable $e) {
     error_log("Register Page Setup Error: " . $e->getMessage());
@@ -45,8 +42,8 @@ $errorMessage = null;
 $successMessage = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'] ?? '';
-    $email = $_POST['email'] ?? '';
+    $name = trim($_POST['name'] ?? '');
+    $email = trim(strtolower($_POST['email'] ?? ''));
     $password = $_POST['password'] ?? '';
     $confirmPassword = $_POST['confirm_password'] ?? '';
     $userType = $_POST['user_type'] ?? 'fan'; // Default to fan
@@ -56,18 +53,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errorMessage = 'Please fill in all fields correctly. Ensure passwords match and select a valid user type.';
     } else {
         try {
-            // Call AuthService to register user
-            // The registration process will handle hashing password, checking email existence, 
-            // and applying role-specific logic (e.g., skipping approval for fans).
-            $registerResult = $authService->register($name, $email, $password, $userType);
-
-            if ($registerResult['success']) {
-                $successMessage = $registerResult['message']; // Message from AuthService
-                // Redirect or display success message
-                // For now, setting a message that will be displayed.
+            // Check if user exists
+            $stmt = $pdo->prepare("SELECT Id FROM users WHERE LOWER(Email) = ? LIMIT 1");
+            $stmt->execute([$email]);
+            if ($stmt->fetch()) {
+                $errorMessage = 'An account with this email already exists.';
             } else {
-                $errorMessage = $registerResult['message'] ?? 'Registration failed. Please try again.';
-                $logger->error("Registration failed for email {$email} with type {$userType}: " . ($registerResult['message'] ?? ''));
+                // Determine Role (3 = Fan, 8 = Writer/Pro)
+                $roleId = ($userType === 'fan') ? 3 : 8;
+                $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+
+                $stmt = $pdo->prepare("INSERT INTO users (Name, Email, PasswordHash, RoleId, CreatedAt) VALUES (?, ?, ?, ?, NOW())");
+                if ($stmt->execute([$name, $email, $passwordHash, $roleId])) {
+                    $successMessage = "Account created successfully. You can now <a href='/login.php' class='text-brand font-bold'>Log in</a>.";
+                } else {
+                    $errorMessage = "Failed to create account. Please try again.";
+                }
             }
         } catch (\Throwable $e) {
             $errorMessage = 'An unexpected error occurred during registration. Please contact support.';

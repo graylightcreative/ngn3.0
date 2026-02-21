@@ -29,7 +29,8 @@
     },
     "autoload": {
         "psr-4": {
-            "NGN\\Lib\\": "lib/"
+            "NGN\\Lib\\": "lib/",
+            "App\\": "src/"
         },
         "classmap": [
             "lib/classes/",

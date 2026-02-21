@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-// Assuming PostService handles actual post creation/update logic after validation
-use App\Services\PostService;
+// Use Authoritative PostService from NGN\Lib
+use NGN\Lib\Posts\PostService;
 use NGN\Lib\Config;
 use Monolog\Logger;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -59,7 +59,7 @@ class PostController
         // --- Post Creation Logic ---
         try {
             // Proceed to create the post using PostService after validation
-            $createdPost = $this->postService->createPost($data);
+            $createdPost = $this->postService->create($data);
 
             if ($createdPost) {
                 $this->logger->info('Post created successfully. ID: ' . ($createdPost['id'] ?? 'N/A'));
@@ -82,7 +82,7 @@ class PostController
     public function updatePost(Request $request, Response $response, array $args): Response
     {
         $data = $request->getParsedBody();
-        $postId = $args['id'] ?? null; // Assuming post ID is passed in URL parameters
+        $postId = (int)($args['id'] ?? 0); // Assuming post ID is passed in URL parameters
 
         if (!$postId) {
             return $response->withStatus(400)->withJson(['success' => false, 'message' => 'Post ID is required for update.']);
@@ -113,7 +113,7 @@ class PostController
         // --- Post Update Logic ---
         try {
             // Proceed to update the post using PostService after validation
-            $updated = $this->postService->updatePost($postId, $data); // Pass validated data
+            $updated = $this->postService->update($postId, $data); // Pass validated data
 
             if ($updated) {
                 $this->logger->info("Post ID {$postId} updated successfully.");
