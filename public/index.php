@@ -635,7 +635,7 @@ if ($pdo) {
             ];
         } elseif ($view === 'post' && (isset($_GET['slug']) || isset($_GET['id']))) {
             $identifier = trim($_GET['slug'] ?? $_GET['id']);
-            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, featured_image_url, published_at, created_at, updated_at, author_id, required_tier_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :slug OR id = :id) AND status = :status LIMIT 1');
+            $stmt = $pdo->prepare('SELECT id, slug, title, excerpt, COALESCE(content, excerpt) as body, featured_image_url, published_at, created_at, updated_at, author_id, entity_type, entity_id FROM `ngn_2025`.`posts` WHERE (slug = :slug OR id = :id) AND status = :status LIMIT 1');
             $stmt->execute([':slug' => $identifier, ':id' => $identifier, ':status' => 'published']);
             $post = $stmt->fetch(PDO::FETCH_ASSOC);
             
