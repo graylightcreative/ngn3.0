@@ -1,28 +1,27 @@
 <?php
-header('Content-Type: text/plain');
+/**
+ * Run migrations and show logs
+ */
+require_once __DIR__ . '/../lib/bootstrap.php';
+require_once __DIR__ . '/../scripts/apply_station_migrations.php';
+
+echo "
+--- SYSTEM LOGS ---
+";
 $root = dirname(__DIR__);
 $logDir = $root . '/storage/logs/';
 $ngnLogs = glob($logDir . '*.log');
+if ($ngnLogs) {
+    usort($ngnLogs, function($a, $b) { return filemtime($b) - filemtime($a); });
+    foreach (array_slice($ngnLogs, 0, 3) as $logPath) {
+        $size = filesize($logPath);
+        echo "--- " . basename($logPath) . " ($size bytes) ---
+";
+        $handle = fopen($logPath, "r");
+        if ($size > 5000) fseek($handle, -5000, SEEK_END);
+        echo fread($handle, 5000) . "
 
-if (!$ngnLogs) {
-    echo "No logs found in $logDir";
-    exit;
-}
-
-// Sort by date/mtime
-usort($ngnLogs, function($a, $b) { return filemtime($b) - filemtime($a); });
-
-foreach ($ngnLogs as $logPath) {
-    $name = basename($logPath);
-    $size = filesize($logPath);
-    echo "--- LOG: $name ($size bytes) ---\n";
-    
-    // Read last 10KB of the file
-    $handle = fopen($logPath, "r");
-    if ($size > 10000) {
-        fseek($handle, -10000, SEEK_END);
+";
+        fclose($handle);
     }
-    $content = fread($handle, 10000);
-    fclose($handle);
-    echo $content . "\n\n";
 }

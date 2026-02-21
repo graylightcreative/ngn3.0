@@ -47,3 +47,10 @@ ADD INDEX IF NOT EXISTS `idx_station_id` (`station_id`);
 ALTER TABLE `ngn_2025`.`playlist_items`
 ADD COLUMN IF NOT EXISTS `station_content_id` INT DEFAULT NULL AFTER `track_id`,
 ADD INDEX IF NOT EXISTS `idx_station_content_id` (`station_content_id`);
+
+-- 5. Ensure 'claimed' column exists on core entity tables
+ALTER TABLE `ngn_2025`.`artists` ADD COLUMN IF NOT EXISTS `claimed` TINYINT(1) DEFAULT 0;
+ALTER TABLE `ngn_2025`.`labels` ADD COLUMN IF NOT EXISTS `claimed` TINYINT(1) DEFAULT 0;
+ALTER TABLE `ngn_2025`.`venues` ADD COLUMN IF NOT EXISTS `claimed` TINYINT(1) DEFAULT 0;
+ALTER TABLE `ngn_2025`.`stations` ADD COLUMN IF NOT EXISTS `claimed` TINYINT(1) DEFAULT 0;
+ALTER TABLE `ngn_2025`.`users` ADD COLUMN IF NOT EXISTS `claimed` TINYINT(1) DEFAULT 0;
