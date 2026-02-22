@@ -112,8 +112,8 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
 
 <div class="main-content">
     <header class="page-header">
-        <h1 class="page-title">Shop & Merch</h1>
-        <p class="page-subtitle">Manage your merchandise and digital products</p>
+        <h1 class="page-title italic font-black uppercase">Commerce_Foundry</h1>
+        <p class="page-subtitle">Manage your label's physical merch, digital assets, and production slots via the Sovereign Industrial Engine.</p>
     </header>
     
     <div class="page-content">
@@ -210,6 +210,9 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         </div>
         
         <?php else: ?>
+
+        <!-- Sovereign Foundry Integration (NGN 3.0) -->
+        <?php include $root . 'lib/partials/foundry-merchant-ui.php'; ?>
         
         <!-- Products List -->
         <div class="card">

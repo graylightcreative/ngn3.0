@@ -1,6 +1,6 @@
 {
     "master_version": "3.0.0",
-    "last_updated": "2026-02-20T00:00:00Z",
+    "last_updated": "2026-02-21T00:00:00Z",
     "status": "INITIALIZING",
     "next_landmark": "3.1.0",
     "milestones": {
@@ -83,9 +83,24 @@
             ]
         },
         "3_1_0": {
-            "theme": "Institutional Scale & Global Fleet",
+            "theme": "Sovereign Merger Protocol",
             "status": "PLANNING",
             "categories": [
+                {
+                    "name": "Foundry Expansion (Physical IP)",
+                    "tasks": [
+                        {
+                            "id": "ngn3_foundry_integration",
+                            "description": "Foundry Vendor Integration: Commerce to Email Fulfillment",
+                            "sub_tasks": [
+                                "Automated Production Ticket email to Vendor",
+                                "Listing Gate logic: Burn Sparks or Subscription Slots",
+                                "Implement 10% Board Member Rake on Scan-to-Ship"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
+                },
                 {
                     "name": "Multi-Tenant Marketplace",
                     "tasks": [
@@ -106,21 +121,21 @@
     },
     "history": [
         {
+            "version": "3.0.0",
+            "release_date": "2026-02-21",
+            "key_achievements": [
+                "NGN 3.0 Core Clean Launch",
+                "History Sanitization & Secret Purge",
+                "New Repository: graylightcreative/ngn3.0"
+            ]
+        },
+        {
             "version": "2.3.1",
             "release_date": "2026-02-20",
             "key_achievements": [
                 "Erik Baker portal polishes deployed",
                 "Bot-Kill Cemetery active",
                 "Ghost Audit modules pressurized"
-            ]
-        },
-        {
-            "version": "2.3.0",
-            "release_date": "2026-02-20",
-            "key_achievements": [
-                "Shredder Mixer UI",
-                "PPV Livestream Infra",
-                "Automated Royalty Payouts"
             ]
         }
     ],

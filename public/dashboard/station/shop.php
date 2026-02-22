@@ -1,6 +1,6 @@
 <?php
 /**
- * Artist Dashboard - Shop & Merch Management
+ * Station Dashboard - Shop & Merch Management
  * (Bible Ch. 7 - A.15 Commerce: Link Printful account to sell merch directly)
  * (Bible Ch. 7.2 - Shops: Integrated via Printful API)
  */
@@ -10,10 +10,10 @@ use NGN\Lib\Config;
 use NGN\Lib\Commerce\ProductService;
 
 dashboard_require_auth();
-dashboard_require_entity_type('artist');
+dashboard_require_entity_type('station');
 
 $user = dashboard_get_user();
-$entity = dashboard_get_entity('artist');
+$entity = dashboard_get_entity('station');
 $pageTitle = 'Shop';
 $currentPage = 'shop';
 
@@ -28,13 +28,13 @@ $editProduct = null;
 
 // Fetch products
 if ($entity) {
-    $result = $productService->list('artist', (int)$entity['id'], null, '', false);
+    $result = $productService->list('station', (int)$entity['id'], null, '', false);
     $products = $result['items'];
     
     if ($productId && $action === 'edit') {
         $editProduct = $productService->get($productId);
         // Security check: ensure product belongs to this entity
-        if ($editProduct && ($editProduct['owner_type'] !== 'artist' || (int)$editProduct['owner_id'] !== (int)$entity['id'])) {
+        if ($editProduct && ($editProduct['owner_type'] !== 'station' || (int)$editProduct['owner_id'] !== (int)$entity['id'])) {
             $editProduct = null;
             $error = 'Unauthorized access to product.';
         }
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity) {
     } else {
         $priceFloat = (float)($_POST['price'] ?? 0);
         $data = [
-            'owner_type' => 'artist',
+            'owner_type' => 'station',
             'owner_id' => $entity['id'],
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $entity) {
             
             // Refresh list
             if (empty($error)) {
-                $result = $productService->list('artist', (int)$entity['id'], null, '', false);
+                $result = $productService->list('station', (int)$entity['id'], null, '', false);
                 $products = $result['items'];
             }
         }
@@ -130,7 +130,7 @@ include dirname(__DIR__) . '/lib/partials/sidebar.php';
         <?php if (!$entity): ?>
         <div class="alert alert-warning">
             <i class="bi bi-exclamation-triangle"></i>
-            Your artist profile needs to be set up before you can manage your shop.
+            Your station profile needs to be set up before you can manage your shop.
             <a href="profile.php">Set up profile →</a>
         </div>
         <?php elseif ($action === 'add' || ($action === 'edit' && $editProduct)): ?>
