@@ -13,4 +13,10 @@
 
 // Bootstrap to main NextGen Noise application
 // Allows subdomains to inherit core routing, services, and Fleet integration
-require dirname(__DIR__, 2) . '/public/index.php';
+// Correct Path: ../../nextgennoise/public/index.php
+$mainRoot = dirname(__DIR__, 2) . '/nextgennoise/public/index.php';
+if (!file_exists($mainRoot)) {
+    // Fallback if the folder structure is different on some nodes
+    $mainRoot = dirname(__DIR__, 2) . '/index.php';
+}
+require $mainRoot;
