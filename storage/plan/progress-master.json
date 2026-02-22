@@ -115,6 +115,22 @@
                             "status": "pending"
                         }
                     ]
+                },
+                {
+                    "name": "Subdomain Fleet Infrastructure",
+                    "tasks": [
+                        {
+                            "id": "subdomain_fleet_setup",
+                            "description": "Provision Core Identity Subdomains",
+                            "sub_tasks": [
+                                "Provision legal.nextgennoise.com (Legal & Compliance)",
+                                "Provision help.nextgennoise.com (Knowledge Base)",
+                                "Provision dashboard.nextgennoise.com (Unified Creator Terminal)",
+                                "Nexus VHost & SSL Handshake for new fleet nodes"
+                            ],
+                            "status": "pending"
+                        }
+                    ]
                 }
             ]
         }
