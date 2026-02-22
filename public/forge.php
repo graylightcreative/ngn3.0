@@ -44,28 +44,28 @@ $updates = [
     [
         'date' => 'LIVE FEED',
         'highlight' => true,
-        'title' => 'NGN 3.0 Industrial Readiness',
+        'title' => 'NGN 3.8.0 Industrial Stabilization',
         'items' => array_merge($dynamicLogItems, [
-            '[SUCCESS] NGN 3.0 Core Launch: Industrial machine fully pressurized.',
-            '[SUCCESS] Deployed Sovereign Error Terminal for real-time monitoring.',
-            '[SUCCESS] Established Subdomain Fleet: legal, help, dashboard.',
-            '[SUCCESS] Foundry Merchant Engine live: Spark-to-Garment pipeline active.',
-            '[SUCCESS] Empire Intelligence: Breakout Detection & VC Reporting active.',
-            '[SUCCESS] Liquidity Trajectory: Secondary Equity Market infrastructure live.',
-            '[SUCCESS] Fixed core library dependencies and achieved 100% test coverage.'
+            '[SUCCESS] Gap Analysis Closure: All NGN 3.0 vulnerabilities eliminated.',
+            '[SUCCESS] Automated Foundry Handshake: Production tickets now fire on payment.',
+            '[SUCCESS] Active Traffic Steering: Geo-Routing & Node Health live in boot sequence.',
+            '[SUCCESS] Sovereign Error Terminal: Wired into all core industrial services.',
+            '[SUCCESS] Net Stake Verification: DAO power now accounts for secondary market equity.',
+            '[SUCCESS] NGN 3.7.0: Secondary Equity Market and Liquidity Event protocols live.',
+            '[SUCCESS] NGN 3.6.0: Multi-Language Translation Engine active.'
         ])
     ],
     [
         'date' => 'Feb 21, 2026',
         'highlight' => false,
-        'title' => 'Sovereign Merger & Infrastructure Phase',
+        'title' => 'The NGN 3.0 Core Expansion',
         'items' => [
-            '[SUCCESS] Migrated to NGN 3.0 fresh repository with sanitized history.',
-            '[SUCCESS] Unified Dashboard Terminal routing established.',
-            '[SUCCESS] Established Rule 5 (75/25) Centralized Commission Service.',
-            '[SUCCESS] Deployed Quadratic Voting & On-Chain Proposal engine.',
-            '[SUCCESS] Multi-Language Translation Engine established.',
-            '[PATCH] Fixed core test suite dependencies (LoggerFactory, LedgerService).'
+            '[SUCCESS] Foundry Merchant Launch: Spark-to-Garment pipeline established.',
+            '[SUCCESS] Established Subdomain Fleet: legal, help, dashboard.',
+            '[SUCCESS] Empire Intelligence: Breakout Detection & VC Reporting active.',
+            '[SUCCESS] Sovereign Governance: Quadratic Voting & On-Chain Proposals live.',
+            '[SUCCESS] Native Experience: PWA Push Notifications & Offline Mode live.',
+            '[SUCCESS] Rule 5 (75/25) Centralized Commission Engine established.'
         ]
     ],
     [
