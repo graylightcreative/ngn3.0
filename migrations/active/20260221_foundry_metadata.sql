@@ -73,3 +73,13 @@ CREATE TABLE IF NOT EXISTS `ngn_2025`.`equity_market_listings` (
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+-- System Error Terminal
+CREATE TABLE IF NOT EXISTS `ngn_2025`.`system_errors` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY,
+    `severity` ENUM('INFO', 'WARNING', 'ERROR', 'CRITICAL') DEFAULT 'ERROR',
+    `message` TEXT NOT NULL,
+    `payload` LONGTEXT NULL,
+    `status` ENUM('active', 'resolved', 'ignored') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
