@@ -11,6 +11,7 @@ namespace NGN\Lib\Services\Royalties;
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Commerce\StripeConnectService;
+use NGN\Lib\Commerce\CommissionService;
 use PDO;
 
 class PayoutEngine
@@ -18,12 +19,14 @@ class PayoutEngine
     private $config;
     private $pdo;
     private $connect;
+    private $commissions;
 
     public function __construct(Config $config)
     {
         $this->config = $config;
         $this->pdo = ConnectionFactory::read($config);
         $this->connect = new StripeConnectService($config);
+        $this->commissions = new CommissionService($config);
     }
 
     /**
@@ -48,10 +51,14 @@ class PayoutEngine
             $wholesale = $item['cost_cents'] * $item['quantity'];
             
             $remainingProfit = $gross - $wholesale;
+            
+            // 2. Platform Split (Rule 5)
+            $rule5 = $this->commissions->settleRule5($orderId, $gross);
+            
             $boardRake = $remainingProfit * 0.10;
-            $creatorShare = $remainingProfit - $boardRake;
+            $creatorShare = $remainingProfit - $boardRake - ($rule5['ops_cents'] + $rule5['data_cents']);
 
-            // 2. Execute Payouts
+            // 3. Execute Payouts
             // Pay Wholesale to Kieran's Business (Future: Dedicated Stripe Account)
             // Pay Board Rake to Settlement Pool
             // Pay Creator Profit to their Stripe Connect account

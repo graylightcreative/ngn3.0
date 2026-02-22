@@ -64,3 +64,9 @@ $dColor = \NGN\Lib\Env::get('THEME_COLOR_DARK', '#0A0A0A');
 <script src="/js/toast.js?v=<?= time() ?>"></script>
 <script src="/js/commerce.js?v=<?= time() ?>"></script>
 <script src="/js/pwa-installer.js?v=<?= time() ?>"></script>
+
+<?php if (!empty($data['custom_css'])): ?>
+<style id="tenant-custom-css">
+    <?= $data['custom_css'] ?>
+</style>
+<?php endif; ?>

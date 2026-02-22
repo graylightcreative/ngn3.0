@@ -39,6 +39,23 @@ if (strpos($host, 'forge.') === 0 || strpos($host, 'beta.') === 0) {
 if ($view === 'partner') $view = 'artist';
 if ($view === 'capital-group') $view = 'label';
 
+// Multi-Tenant Resolution
+$isTenantView = false;
+$tenantSlug = $_GET['tenant'] ?? '';
+if ($view === 'label_store' && !empty($tenantSlug)) {
+    $stmtT = $pdo->prepare("SELECT id, name, slug FROM labels WHERE slug = ? LIMIT 1");
+    $stmtT->execute([$tenantSlug]);
+    $tenant = $stmtT->fetch(PDO::FETCH_ASSOC);
+    if ($tenant) {
+        $view = 'label';
+        $slug = $tenant['slug'];
+        $id = $tenant['id'];
+        $isTenantView = true;
+    } else {
+        $view = '404';
+    }
+}
+
 if (in_array($view, ['dashboard', 'profile']) && !$isLoggedIn) {
     header('Location: /login.php'); exit;
 }
@@ -177,6 +194,11 @@ try {
                     $stmt = $pdo->prepare("SELECT id, name, slug, image_url FROM artists WHERE label_id = ? AND status = 'active' ORDER BY name ASC");
                     $stmt->execute([$entity['id']]);
                     $data['entity']['roster'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    
+                    // Multi-Tenant Branding (NGN 3.0)
+                    if (!empty($entity['custom_css'])) {
+                        $data['custom_css'] = $entity['custom_css'];
+                    }
                 } elseif ($view === 'station') {
                     // Current rotation artists as 'roster'
                     if (!empty($data['entity']['recent_spins'])) {

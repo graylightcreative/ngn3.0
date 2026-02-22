@@ -11,6 +11,7 @@ use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Logging\LoggerFactory;
 use NGN\Lib\Royalty\RoyaltyLedgerService;
 use NGN\Lib\Fans\SubscriptionService;
+use NGN\Lib\Services\EmailService;
 use PDO;
 
 class FoundryService
@@ -20,6 +21,7 @@ class FoundryService
     private $logger;
     private $ledger;
     private $subs;
+    private $emailSvc;
     private $vendorEmail = "kieran@starrship1.com"; 
 
     // Business Rules
@@ -34,6 +36,7 @@ class FoundryService
         $this->logger = LoggerFactory::getLogger('foundry_integration');
         $this->ledger = new RoyaltyLedgerService($config);
         $this->subs = new SubscriptionService($config);
+        $this->emailSvc = new EmailService($this->pdo, $this->logger, $this->config);
     }
 
     /**
@@ -168,7 +171,11 @@ class FoundryService
 
     private function sendProductionTicketEmail(string $orderNumber, string $ticket): bool
     {
-        // Placeholder for Email Service integration
-        return true;
+        $subject = "Foundry Production Ticket: Order #{$orderNumber}";
+        // Using nl2br for simple formatting if sent as HTML, or just send as plain text.
+        // EmailService::send defaults to HTML = true.
+        $body = "<pre style='font-family: monospace;'>" . htmlspecialchars($ticket) . "</pre>";
+        
+        return $this->emailSvc->send($this->vendorEmail, $subject, $body);
     }
 }

@@ -3,6 +3,7 @@ namespace NGN\Lib\Commerce;
 
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
+use NGN\Lib\Services\Royalties\PayoutEngine;
 use PDO;
 
 /**
@@ -15,6 +16,7 @@ class OrderService
     private PDO $write;
     private ProductService $productService;
     private PrintfulService $printfulService;
+    private PayoutEngine $payoutEngine;
 
     // Order statuses
     public const STATUS_PENDING = 'pending';
@@ -31,6 +33,7 @@ class OrderService
         $this->write = ConnectionFactory::write($config);
         $this->productService = $productService;
         $this->printfulService = $printfulService;
+        $this->payoutEngine = new PayoutEngine($config);
     }
 
     /**
@@ -391,6 +394,9 @@ class OrderService
             $stmt->execute();
 
             $this->logEvent($orderId, 'shipped', "Shipped via $carrier (tracking: $trackingNumber)", $actorId);
+
+            // Trigger Foundry Settlement (NGN 3.0)
+            $this->payoutEngine->processFoundrySettlement($orderId);
 
             return ['success' => true];
         } catch (\Throwable $e) {

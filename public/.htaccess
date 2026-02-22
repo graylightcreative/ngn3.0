@@ -29,6 +29,10 @@ RewriteRule ^(.*)$ /help/$1 [L,QSA]
 RewriteCond %{HTTP_HOST} ^my\.nextgennoise\.com$ [NC]
 RewriteRule ^(.*)$ /dashboard/$1 [L,QSA]
 
+# Route dashboard.nextgennoise.com to /dashboard/
+RewriteCond %{HTTP_HOST} ^dashboard\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ /dashboard/$1 [L,QSA]
+
 # Route investors.nextgennoise.com to the special investors information page
 RewriteCond %{HTTP_HOST} ^investors\.nextgennoise\.com$ [NC]
 RewriteRule ^(.*)$ investors.php [L,QSA]
@@ -40,6 +44,12 @@ RewriteRule ^/?$ forge.php [L]
 # Route forge.nextgennoise.com to forge.php (Development Tracker)
 RewriteCond %{HTTP_HOST} ^forge\.nextgennoise\.com$ [NC]
 RewriteRule ^/?$ forge.php [L]
+
+# Wildcard Subdomain Routing for Label Storefronts (Multi-Tenant)
+# Captures [label-slug].nextgennoise.com and routes to label store view
+RewriteCond %{HTTP_HOST} !^(api|admin|legal|help|my|investors|beta|forge|www)\.nextgennoise\.com$ [NC]
+RewriteCond %{HTTP_HOST} ^([a-z0-9_-]+)\.nextgennoise\.com$ [NC]
+RewriteRule ^(.*)$ index.php?view=label_store&tenant=%1&path=$1 [L,QSA]
 
 # ============================================================================
 # HTTP CACHING & COMPRESSION
