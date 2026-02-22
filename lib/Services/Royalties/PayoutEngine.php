@@ -13,6 +13,7 @@ use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Commerce\StripeConnectService;
 use NGN\Lib\Commerce\CommissionService;
 use NGN\Lib\Services\Royalties\SettlementAuditService;
+use NGN\Lib\Services\Reporting\ErrorReportingService;
 use PDO;
 
 class PayoutEngine
@@ -22,6 +23,7 @@ class PayoutEngine
     private $connect;
     private $commissions;
     private $audit;
+    private $errors;
 
     public function __construct(Config $config)
     {
@@ -30,6 +32,7 @@ class PayoutEngine
         $this->connect = new StripeConnectService($config);
         $this->commissions = new CommissionService($config);
         $this->audit = new SettlementAuditService($this->pdo);
+        $this->errors = new ErrorReportingService($config);
     }
 
     /**
@@ -38,55 +41,60 @@ class PayoutEngine
      */
     public function processFoundrySettlement(int $orderId): array
     {
-        // 1. Fetch Order Items with Foundry metadata
-        $stmt = $this->pdo->prepare("
-            SELECT oi.*, p.cost_cents, p.price_cents, p.fulfillment_source
-            FROM `ngn_2025`.`order_items` oi
-            JOIN `ngn_2025`.`products` p ON oi.product_id = p.id
-            WHERE oi.order_id = ? AND p.fulfillment_source = 'foundry'
-        ");
-        $stmt->execute([$orderId]);
-        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        try {
+            // 1. Fetch Order Items with Foundry metadata
+            $stmt = $this->pdo->prepare("
+                SELECT oi.*, p.cost_cents, p.price_cents, p.fulfillment_source, oi.seller_id
+                FROM `ngn_2025`.`order_items` oi
+                JOIN `ngn_2025`.`products` p ON oi.product_id = p.id
+                WHERE oi.order_id = ? AND p.fulfillment_source = 'foundry'
+            ");
+            $stmt->execute([$orderId]);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $results = [];
-        foreach ($items as $item) {
-            $gross = $item['total'] * 100; // Work in cents
-            $wholesale = $item['cost_cents'] * $item['quantity'];
-            
-            $remainingProfit = $gross - $wholesale;
-            
-            // 2. Platform Split (Rule 5)
-            $rule5 = $this->commissions->settleRule5($orderId, $gross);
-            
-            $boardRake = $remainingProfit * 0.10;
-            $creatorShare = $remainingProfit - $boardRake - ($rule5['ops_cents'] + $rule5['data_cents']);
+            $results = [];
+            foreach ($items as $item) {
+                $gross = $item['total'] * 100; // Work in cents
+                $wholesale = $item['cost_cents'] * $item['quantity'];
+                
+                $remainingProfit = $gross - $wholesale;
+                
+                // 2. Platform Split (Rule 5)
+                $rule5 = $this->commissions->settleRule5($orderId, $gross);
+                
+                $boardRake = $remainingProfit * 0.10;
+                $creatorShare = $remainingProfit - $boardRake - ($rule5['ops_cents'] + $rule5['data_cents']);
 
-            // 3. Log Settlements (NGN 3.0 Audit)
-            $txId = "FOUNDRY-" . $orderId . "-" . $item['id'];
-            $snapshot = [
-                'wholesale_deduction' => $wholesale,
-                'rule_5_split' => $rule5,
-                'board_rake_percent' => 10
+                // 3. Log Settlements (NGN 3.0 Audit)
+                $txId = "FOUNDRY-" . $orderId . "-" . $item['id'];
+                $snapshot = [
+                    'wholesale_deduction' => $wholesale,
+                    'rule_5_split' => $rule5,
+                    'board_rake_percent' => 10
+                ];
+
+                $this->audit->log($txId, 'FOUNDRY_WHOLESALE', $wholesale, 0, $snapshot); // 0 = Vendor Pool
+                $this->audit->log($txId, 'BOARD_RAKE', (int)$boardRake, 0, $snapshot); // 0 = Board Pool
+                $this->audit->log($txId, 'CREATOR_PROFIT', (int)$creatorShare, (int)$item['seller_id'], $snapshot);
+
+                $results[] = [
+                    'item_id' => $item['id'],
+                    'gross_cents' => $gross,
+                    'wholesale_cents' => $wholesale,
+                    'board_rake_cents' => $boardRake,
+                    'creator_share_cents' => $creatorShare
+                ];
+            }
+
+            return [
+                'status' => 'success',
+                'order_id' => $orderId,
+                'settlements' => $results
             ];
-
-            $this->audit->log($txId, 'FOUNDRY_WHOLESALE', $wholesale, 0, $snapshot); // 0 = Vendor Pool
-            $this->audit->log($txId, 'BOARD_RAKE', (int)$boardRake, 0, $snapshot); // 0 = Board Pool
-            $this->audit->log($txId, 'CREATOR_PROFIT', (int)$creatorShare, (int)$item['seller_id'], $snapshot);
-
-            $results[] = [
-                'item_id' => $item['id'],
-                'gross_cents' => $gross,
-                'wholesale_cents' => $wholesale,
-                'board_rake_cents' => $boardRake,
-                'creator_share_cents' => $creatorShare
-            ];
+        } catch (\Throwable $e) {
+            $this->errors->capture($e, 'CRITICAL', ['order_id' => $orderId]);
+            throw $e;
         }
-
-        return [
-            'status' => 'success',
-            'order_id' => $orderId,
-            'settlements' => $results
-        ];
     }
 
     /**

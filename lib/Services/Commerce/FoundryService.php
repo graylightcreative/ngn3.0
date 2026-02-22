@@ -12,6 +12,7 @@ use NGN\Lib\Logging\LoggerFactory;
 use NGN\Lib\Royalty\RoyaltyLedgerService;
 use NGN\Lib\Fans\SubscriptionService;
 use NGN\Lib\Services\EmailService;
+use NGN\Lib\Services\Reporting\ErrorReportingService;
 use PDO;
 
 class FoundryService
@@ -22,6 +23,7 @@ class FoundryService
     private $ledger;
     private $subs;
     private $emailSvc;
+    private $errors;
     private $vendorEmail = "kieran@starrship1.com"; 
 
     // Business Rules
@@ -37,6 +39,7 @@ class FoundryService
         $this->ledger = new RoyaltyLedgerService($this->pdo);
         $this->subs = new SubscriptionService($config);
         $this->emailSvc = new EmailService($this->pdo, $this->logger, $this->config);
+        $this->errors = new ErrorReportingService($config);
     }
 
     /**
@@ -60,6 +63,7 @@ class FoundryService
             ];
 
         } catch (\Throwable $e) {
+            $this->errors->capture($e, 'ERROR', ['order_id' => $orderId]);
             $this->logger->error("Foundry Handshake Failed for Order #{$orderId}: " . $e->getMessage());
             return ['success' => false, 'error' => $e->getMessage()];
         }

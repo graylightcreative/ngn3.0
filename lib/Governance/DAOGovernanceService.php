@@ -53,9 +53,18 @@ class DAOGovernanceService
 
     private function getUserStake(int $userId): float
     {
-        // Stake = Total Investment Notes + NGN Score bonus
+        // 1. Get Total Active Investments
         $stmt = $this->pdo->prepare("SELECT SUM(amount_cents) FROM `ngn_2025`.`investments` WHERE user_id = ? AND status = 'active'");
         $stmt->execute([$userId]);
-        return (float)($stmt->fetchColumn() ?: 1.0); // Min stake 1.0
+        $totalInvested = (float)($stmt->fetchColumn() ?: 0);
+
+        // 2. Subtract Sold Equity (Secondary Market)
+        $stmtSold = $this->pdo->prepare("SELECT SUM(amount_cents) FROM `ngn_2025`.`equity_market_listings` WHERE user_id = ? AND status = 'sold'");
+        $stmtSold->execute([$userId]);
+        $totalSold = (float)($stmtSold->fetchColumn() ?: 0);
+
+        $netStake = $totalInvested - $totalSold;
+
+        return $netStake > 0 ? $netStake : 1.0; // Min stake 1.0
     }
 }

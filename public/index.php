@@ -10,11 +10,28 @@ require_once __DIR__ . '/../lib/definitions/site-settings.php';
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Config;
 use NGN\Lib\Artists\EntityResolver;
+use NGN\Lib\Services\Infrastructure\NodeHealthService;
+use NGN\Lib\Services\Infrastructure\GeoRoutingService;
 
 if (session_status() !== PHP_SESSION_ACTIVE) session_start();
 
 $config = new Config();
 $pdo = ConnectionFactory::read($config);
+
+// 0. ACTIVE TRAFFIC STEERING (NGN 3.0 Infrastructure)
+$health = new NodeHealthService($config);
+$router = new GeoRoutingService($config);
+$nodeStatus = $health->getHealthStatus();
+
+if ($nodeStatus['status'] !== 'HEALTHY') {
+    // If local node is degraded, check for optimal healthy peer
+    $optimal = $router->getOptimalNode($_SERVER['REMOTE_ADDR'] ?? '');
+    if ($optimal['hostname'] !== $_SERVER['HTTP_HOST'] && !empty($optimal['hostname'])) {
+        // Future: Optional 302 Redirect to healthy node
+        // header("Location: https://" . $optimal['hostname'] . $_SERVER['REQUEST_URI']);
+        // exit;
+    }
+}
 
 $isLoggedIn = !empty($_SESSION['LoggedIn']) && $_SESSION['LoggedIn'] === 1;
 $currentUser = $_SESSION['User'] ?? null;

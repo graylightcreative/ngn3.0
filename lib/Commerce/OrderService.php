@@ -4,6 +4,7 @@ namespace NGN\Lib\Commerce;
 use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Services\Royalties\PayoutEngine;
+use NGN\Lib\Services\Commerce\FoundryService;
 use PDO;
 
 /**
@@ -17,6 +18,7 @@ class OrderService
     private ProductService $productService;
     private PrintfulService $printfulService;
     private PayoutEngine $payoutEngine;
+    private FoundryService $foundryService;
 
     // Order statuses
     public const STATUS_PENDING = 'pending';
@@ -34,6 +36,7 @@ class OrderService
         $this->productService = $productService;
         $this->printfulService = $printfulService;
         $this->payoutEngine = new PayoutEngine($config);
+        $this->foundryService = new FoundryService($config);
     }
 
     /**
@@ -368,6 +371,9 @@ class OrderService
             $stmt->execute();
 
             $this->logEvent($orderId, 'payment_received', "Payment received via Stripe ($paymentIntentId)");
+
+            // Trigger Foundry Handshake (NGN 3.0)
+            $this->foundryService->submitOrder($orderId);
 
             return ['success' => true];
         } catch (\Throwable $e) {
