@@ -42,6 +42,18 @@ foreach ($recentInvestments as $inv) {
 
 $updates = [
     [
+        'date' => 'LANDMARK',
+        'highlight' => true,
+        'title' => 'NGN 3.0: THE SOVEREIGN ERA',
+        'items' => [
+            '[CRITICAL] 100% Milestone Completion Achieved.',
+            '[LANDMARK] Official transition to NGN 3.0 Industrial Protocol.',
+            '[SUCCESS] Sovereign Foundry, Empire Intelligence, and Subdomain Fleet active.',
+            '[SUCCESS] Sanitized Master Repository established (graylightcreative/ngn3.0).',
+            '[SUCCESS] Verification Suite & Error Terminal live.'
+        ]
+    ],
+    [
         'date' => 'LIVE FEED',
         'highlight' => true,
         'title' => 'NGN 3.8.0 Industrial Stabilization',
