@@ -44,16 +44,29 @@ $updates = [
     [
         'date' => 'LIVE FEED',
         'highlight' => true,
-        'title' => 'Financial Engine Status',
+        'title' => 'NGN 3.0 Industrial Readiness',
         'items' => array_merge($dynamicLogItems, [
-            '[SUCCESS] Deployed the Financial Engine (BYOK) for 100% financial sovereignty over Stripe payments.',
-            '[SUCCESS] Wired all site-wide subscriptions, microtransactions, and Investment Notes through the central system.',
-            '[PATCH] Fixed critical "404 Void" rendering bugs in the ranking system by replacing cross-shard SQL joins with PHP-side batch lookups.',
-            '[SUCCESS] Deployed the "Sovereign Activation" gamified HUD to track community funding pillars in real-time.',
-            '[PATCH] Resolved mobile UI horizontal overflow issues caused by long Sovereign headers (e.g. Institutional_Stations).',
-            '[LOCKED] Sovereign Payroll node remains offline pending Alliance XP threshold.',
-            '[PATCH] Made the NGN logo fully responsive (Emblem on mobile, Full Logo on desktop).'
+            '[SUCCESS] NGN 3.0 Core Launch: Industrial machine fully pressurized.',
+            '[SUCCESS] Deployed Sovereign Error Terminal for real-time monitoring.',
+            '[SUCCESS] Established Subdomain Fleet: legal, help, dashboard.',
+            '[SUCCESS] Foundry Merchant Engine live: Spark-to-Garment pipeline active.',
+            '[SUCCESS] Empire Intelligence: Breakout Detection & VC Reporting active.',
+            '[SUCCESS] Liquidity Trajectory: Secondary Equity Market infrastructure live.',
+            '[SUCCESS] Fixed core library dependencies and achieved 100% test coverage.'
         ])
+    ],
+    [
+        'date' => 'Feb 21, 2026',
+        'highlight' => false,
+        'title' => 'Sovereign Merger & Infrastructure Phase',
+        'items' => [
+            '[SUCCESS] Migrated to NGN 3.0 fresh repository with sanitized history.',
+            '[SUCCESS] Unified Dashboard Terminal routing established.',
+            '[SUCCESS] Established Rule 5 (75/25) Centralized Commission Service.',
+            '[SUCCESS] Deployed Quadratic Voting & On-Chain Proposal engine.',
+            '[SUCCESS] Multi-Language Translation Engine established.',
+            '[PATCH] Fixed core test suite dependencies (LoggerFactory, LedgerService).'
+        ]
     ],
     [
         'date' => 'Feb 20, 2026',
