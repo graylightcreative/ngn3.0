@@ -2,9 +2,10 @@
 namespace NGN\Lib\Services\Royalties;
 
 /**
- * NGN Payout Engine (BFL 2.4)
- * Orchestrates automated royalty distribution and Rule 5 split execution.
+ * NGN Payout Engine (NGN 3.0 Edition)
+ * Orchestrates automated royalty distribution, Foundry Fixed-Rates, and Board Rakes.
  * Bible Ref: Rule 5 (Automated 75/25 Split of 10% Platform Fee)
+ * Foundry Merger: Wholesale Deduction + 10% Board Rake.
  */
 
 use NGN\Lib\Config;
@@ -26,7 +27,53 @@ class PayoutEngine
     }
 
     /**
-     * Process a payout for a specific artist
+     * Process Foundry Merch Settlement
+     * sequence: Gross -> Manufacturing Cost -> 10% Board Rake -> Creator Profit
+     */
+    public function processFoundrySettlement(int $orderId): array
+    {
+        // 1. Fetch Order Items with Foundry metadata
+        $stmt = $this->pdo->prepare("
+            SELECT oi.*, p.cost_cents, p.price_cents, p.fulfillment_source
+            FROM `ngn_2025`.`order_items` oi
+            JOIN `ngn_2025`.`products` p ON oi.product_id = p.id
+            WHERE oi.order_id = ? AND p.fulfillment_source = 'foundry'
+        ");
+        $stmt->execute([$orderId]);
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $results = [];
+        foreach ($items as $item) {
+            $gross = $item['total'] * 100; // Work in cents
+            $wholesale = $item['cost_cents'] * $item['quantity'];
+            
+            $remainingProfit = $gross - $wholesale;
+            $boardRake = $remainingProfit * 0.10;
+            $creatorShare = $remainingProfit - $boardRake;
+
+            // 2. Execute Payouts
+            // Pay Wholesale to Kieran's Business (Future: Dedicated Stripe Account)
+            // Pay Board Rake to Settlement Pool
+            // Pay Creator Profit to their Stripe Connect account
+
+            $results[] = [
+                'item_id' => $item['id'],
+                'gross_cents' => $gross,
+                'wholesale_cents' => $wholesale,
+                'board_rake_cents' => $boardRake,
+                'creator_share_cents' => $creatorShare
+            ];
+        }
+
+        return [
+            'status' => 'success',
+            'order_id' => $orderId,
+            'settlements' => $results
+        ];
+    }
+
+    /**
+     * Legacy: Process a payout for a specific artist (Digital/Royalties)
      */
     public function processArtistPayout(int $artistId, float $amountTotal): array
     {
