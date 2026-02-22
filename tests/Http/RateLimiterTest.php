@@ -13,8 +13,9 @@ class RateLimiterTest extends TestCase
         $this->dir = sys_get_temp_dir() . '/ngn_rl_test_' . bin2hex(random_bytes(4));
         @mkdir($this->dir, 0775, true);
         // Make limits small for test speed
-        putenv('RATE_LIMIT_PER_MIN=3');
-        putenv('RATE_LIMIT_BURST=0');
+        putenv('RATE_LIMIT_PER_MIN_DORMANT=3');
+        putenv('RATE_LIMIT_BURST_DORMANT=0');
+        putenv('SOVEREIGN_LB_FORCE_OFF=true');
     }
 
     protected function tearDown(): void

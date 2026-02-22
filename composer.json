@@ -39,6 +39,11 @@
             "lib/bots/"
         ]
     },
+    "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ]
+    },
     "config": {
         "platform": {
             "php": "8.2"

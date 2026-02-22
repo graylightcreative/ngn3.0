@@ -19,8 +19,9 @@ class ErrorReportingService
 
     public function __construct(Config $config)
     {
+        $this->config = $config;
         $this->pdo = ConnectionFactory::write($config);
-        $this->logger = LoggerFactory::getLogger('error_terminal');
+        $this->logger = LoggerFactory::create($config, 'error_terminal');
     }
 
     /**

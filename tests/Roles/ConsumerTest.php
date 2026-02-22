@@ -8,6 +8,7 @@ use NGN\Lib\DB\ConnectionFactory;
 use NGN\Lib\Fans\TipService;
 use NGN\Lib\Fans\LibraryService;
 use NGN\Lib\Fans\GamificationService;
+use NGN\Lib\Fans\MockSparkService;
 
 /**
  * Consumer (Fan/Listener) Role Tests
@@ -30,8 +31,8 @@ class ConsumerTest extends TestCase
     public function testFanCanViewTipHistory(): void
     {
         // TipService requires Config, MockSparkService, and GamificationService
-        $sparkMock = new \NGN\Lib\Fans\MockSparkService();
-        $gamificationSvc = new GamificationService($this->pdo);
+        $sparkMock = new MockSparkService();
+        $gamificationSvc = new GamificationService($this->config);
         $tipService = new TipService($this->config, $sparkMock, $gamificationSvc);
         
         try {

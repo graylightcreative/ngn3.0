@@ -33,8 +33,8 @@ class FoundryService
     {
         $this->config = $config;
         $this->pdo = ConnectionFactory::read($config);
-        $this->logger = LoggerFactory::getLogger('foundry_integration');
-        $this->ledger = new RoyaltyLedgerService($config);
+        $this->logger = LoggerFactory::create($config, 'foundry_integration');
+        $this->ledger = new RoyaltyLedgerService($this->pdo);
         $this->subs = new SubscriptionService($config);
         $this->emailSvc = new EmailService($this->pdo, $this->logger, $this->config);
     }

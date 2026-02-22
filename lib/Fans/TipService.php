@@ -6,20 +6,6 @@ use NGN\Lib\Config;
 use NGN\Lib\DB\ConnectionFactory;
 use PDO;
 use DateTime;
-// Assuming SparkService and GamificationService are available for injection
-// use NGN\Lib\Commerce\SparkService; // Mocked for now
-// use NGN\Lib\Fans\GamificationService; // To be injected
-
-// Mocking SparkService for demonstration if it doesn't exist
-if (!class_exists('MockSparkService')) {
-    class MockSparkService {
-        public function charge($userId, $amount, $description) {
-            // Simulate a successful charge
-            error_log("MockSparkService: Charging user {$userId} {$amount} for {$description}");
-            return ['success' => true, 'transaction_id' => uniqid()];
-        }
-    }
-}
 
 class TipService
 {
